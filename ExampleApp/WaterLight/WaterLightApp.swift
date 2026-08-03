@@ -16,6 +16,6 @@ struct WaterLightApp: App {
         ImmersiveSpace(id: "WaterSpace") {
             ImmersiveView()
         }
-        .immersionStyle(selection: .constant(.mixed), in: .mixed)
+        .immersionStyle(selection: .constant(.full), in: .full)
     }
 }

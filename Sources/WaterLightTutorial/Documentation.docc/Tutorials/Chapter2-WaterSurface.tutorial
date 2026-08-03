@@ -1,17 +1,19 @@
 @Tutorial(time: 20) {
     @Intro(title: "물 표면 만들기") {
-        RealityView에 수면 엔티티를 만들고, 반짝이는 반사광(스페큘러)을
-        표현할 조명과 물결 애니메이션을 추가합니다.
+        사용자를 심해 돔으로 감싸고, 머리 위에 반투명 수면을 띄웁니다.
+        수면 위에서 내려오는 빛이 물결에 따라 일렁이도록
+        물결 애니메이션 시스템도 추가합니다.
     }
 
-    @Section(title: "수면 엔티티") {
+    @Section(title: "심해 돔과 수면") {
         @ContentAndMedia {
-            평면 메시에 물처럼 보이는 `PhysicallyBasedMaterial`을 입힙니다.
-            낮은 roughness와 높은 반사율이 빛을 또렷하게 반사시키는 핵심입니다.
+            Full Immersive 공간은 아무것도 없으면 검은 허공입니다.
+            먼저 사용자를 감싸는 큰 구체(심해 돔)를 만들어 물속 분위기를 내고,
+            그 안 머리 위 3m에 반투명 수면을 배치합니다.
 
-            더 사실적인 물결을 원하면 Reality Composer Pro의
-            ShaderGraphMaterial(노멀맵 스크롤)로 교체할 수 있습니다 —
-            이 튜토리얼 코드는 교체 지점을 한 곳으로 모아둡니다.
+            RealityKit 메시는 기본적으로 앞면만 렌더링하므로,
+            돔은 `faceCulling = .front`로 안쪽 면을 보이게 하고
+            수면은 180° 뒤집어 아래에서 올려다보이게 합니다.
         }
 
         @Steps {
@@ -22,23 +24,23 @@
             }
 
             @Step {
-                수면 엔티티를 생성합니다. 지름 2m 평면에 짙은 청록색,
-                metallic 1.0 / roughness 0.05로 거울 같은 수면을 만듭니다.
+                심해 돔과 머리 위 수면을 추가합니다. 수면은 낮은 roughness의
+                반투명 PBR 머티리얼로, 위에서 오는 빛을 투과·산란시킵니다.
 
                 @Code(name: "ImmersiveView.swift", file: "02-02-water.swift")
             }
 
             @Step {
-                수면 위에 SpotLight를 추가합니다. 이 조명이 수면에 맺히는
-                반사광이며, 다음 챕터에서 손으로 움직일 대상입니다.
-                물결 느낌을 위해 roughness를 사인파로 흔드는 컴포넌트도 답니다.
+                수면 위에 태양 역할의 SpotLight를 추가합니다. 이 빛이 수면을
+                뚫고 들어오는 빛 기둥이며, 다음 챕터에서 손으로 움직일 대상입니다.
+                수면에는 물결 컴포넌트도 답니다.
 
                 @Code(name: "ImmersiveView.swift", file: "02-03-light.swift")
             }
 
             @Step {
-                물결 애니메이션 시스템을 등록합니다. 매 프레임 roughness를
-                미세하게 진동시켜 반사광이 일렁이는 효과를 냅니다.
+                물결 애니메이션 시스템을 등록합니다. 매 프레임 수면의 roughness를
+                미세하게 진동시켜, 들어오는 빛이 일렁이는 효과를 냅니다.
 
                 @Code(name: "ShimmerSystem.swift", file: "02-04-shimmer.swift")
             }

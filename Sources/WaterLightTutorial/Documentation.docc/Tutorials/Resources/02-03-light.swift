@@ -2,43 +2,61 @@ import SwiftUI
 import RealityKit
 
 struct ImmersiveView: View {
+    /// 머리 위 수면의 높이
+    private let surfaceHeight: Float = 3.0
+
     var body: some View {
         RealityView { content in
+            content.add(makeUnderwaterDome())
+
             let water = makeWaterSurface()
+            water.components.set(ShimmerComponent())
             content.add(water)
-            content.add(makeLight())
+
+            content.add(makeSunLight())
         }
+    }
+
+    private func makeUnderwaterDome() -> ModelEntity {
+        var material = UnlitMaterial(color: UIColor(
+            red: 0.01, green: 0.08, blue: 0.12, alpha: 1))
+        material.faceCulling = .front
+
+        return ModelEntity(mesh: .generateSphere(radius: 30),
+                           materials: [material])
     }
 
     private func makeWaterSurface() -> ModelEntity {
         var material = PhysicallyBasedMaterial()
         material.baseColor = .init(tint: UIColor(
-            red: 0.05, green: 0.25, blue: 0.3, alpha: 1))
+            red: 0.05, green: 0.35, blue: 0.45, alpha: 1))
         material.metallic = 1.0
         material.roughness = 0.05
-        material.clearcoat = .init(floatLiteral: 1.0)
+        material.blending = .transparent(opacity: 0.65)
 
         let water = ModelEntity(
-            mesh: .generatePlane(width: 2, depth: 2, cornerRadius: 1),
+            mesh: .generatePlane(width: 30, depth: 30),
             materials: [material]
         )
-        water.position = [0, 0.75, -1.5]
-        water.components.set(ShimmerComponent())
+        water.position = [0, surfaceHeight, 0]
+        water.orientation = simd_quatf(angle: .pi, axis: [1, 0, 0])
         return water
     }
 
-    private func makeLight() -> Entity {
+    /// 수면 위의 태양. 물을 뚫고 들어오는 빛 기둥 역할.
+    private func makeSunLight() -> Entity {
         let light = Entity()
         light.name = "sunLight"
         var spot = SpotLightComponent()
-        spot.intensity = 8000
-        spot.color = .init(red: 1.0, green: 0.95, blue: 0.8, alpha: 1)
-        spot.attenuationRadius = 6
+        spot.intensity = 10000
+        spot.color = .init(red: 0.85, green: 0.95, blue: 1.0, alpha: 1)
+        spot.attenuationRadius = 15
+        spot.innerAngleInDegrees = 25
+        spot.outerAngleInDegrees = 60
         light.components.set(spot)
 
-        light.position = [0, 2.2, -1.5]
-        light.look(at: [0, 0.75, -1.5], from: light.position,
-                   relativeTo: nil)
+        light.position = [0, surfaceHeight + 2, 0]
+        light.look(at: [0, 1.2, 0], from: light.position, relativeTo: nil)
         return light
     }
 }

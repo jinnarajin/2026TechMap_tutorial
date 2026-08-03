@@ -4,35 +4,41 @@ import RealityKit
 struct ImmersiveView: View {
     @State private var handTracking = HandTrackingManager()
 
-    private let waterCenter: SIMD3<Float> = [0, 0.75, -1.5]
+    private let surfaceHeight: Float = 3.0
 
     var body: some View {
         RealityView { content in
+            content.add(makeUnderwaterDome())
+
             let water = makeWaterSurface()
             water.name = "water"
+            water.components.set(ShimmerComponent())
             content.add(water)
-            content.add(makeLight())
+
+            content.add(makeSunLight())
         } update: { content in
             guard let light = content.entities.first(where: {
                 $0.name == "sunLight"
             }) else { return }
 
             if let hand = handTracking.indexTipPosition {
-                let target = hand + SIMD3<Float>(0, 1.0, 0)
+                let target = SIMD3<Float>(hand.x * 3,
+                                          surfaceHeight + 2,
+                                          hand.z * 3)
                 light.position = mix(light.position, target, t: 0.2)
-                light.look(at: waterCenter, from: light.position,
+                light.look(at: [0, 1.2, 0], from: light.position,
                            relativeTo: nil)
             }
 
             let pinch = handTracking.pinchAmount
 
-            // 핀치를 쥘수록 빛이 강해진다 (8,000 ~ 25,000 lm)
+            // 핀치를 쥘수록 빛이 강해진다 (10,000 ~ 40,000 lm)
             if var spot = light.components[SpotLightComponent.self] {
-                spot.intensity = 8000 + 17000 * pinch
+                spot.intensity = 10000 + 30000 * pinch
                 light.components.set(spot)
             }
 
-            // 핀치를 쥘수록 물결이 잔잔해져 반사가 또렷해진다
+            // 핀치를 쥘수록 물결이 잔잔해져 빛이 또렷하게 들어온다
             if let water = content.entities.first(where: {
                 $0.name == "water"
             }), var shimmer = water.components[ShimmerComponent.self] {
@@ -45,5 +51,5 @@ struct ImmersiveView: View {
         }
     }
 
-    // makeWaterSurface(), makeLight()는 챕터 2와 동일
+    // makeUnderwaterDome(), makeWaterSurface(), makeSunLight()는 챕터 2와 동일
 }

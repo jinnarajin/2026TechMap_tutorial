@@ -10,7 +10,7 @@ struct ContentView: View {
             Text("WaterLight")
                 .font(.largeTitle)
 
-            Button(isOpen ? "수면 닫기" : "수면 열기") {
+            Button(isOpen ? "물 밖으로 나가기" : "물속으로 들어가기") {
                 Task {
                     if isOpen {
                         await dismissImmersiveSpace()

@@ -1,7 +1,8 @@
 # WaterLight — RealityKit in visionOS DocC 튜토리얼
 
-핸드 트래킹으로 물 표면에 반사되는 빛을 조정하는 visionOS 예제를
-단계별로 배우는 DocC 튜토리얼입니다.
+visionOS 완전 몰입 공간에서 물속에 들어가, 머리 위 수면을 통해
+들어오는 빛을 핸드 트래킹으로 조정하는 예제를 단계별로 배우는
+DocC 튜토리얼입니다.
 
 ## 로컬 미리보기
 
@@ -27,10 +28,10 @@ swift package --disable-sandbox preview-documentation --target WaterLightTutoria
 ## 구성
 
 - `Sources/WaterLightTutorial/Documentation.docc/Tutorials/` — 튜토리얼 챕터 4개
-  1. 프로젝트와 이머시브 공간
-  2. 물 표면 만들기 (PBR 머티리얼 + Shimmer 시스템)
+  1. 프로젝트와 Full Immersive 공간
+  2. 심해 돔 + 머리 위 수면 (PBR 머티리얼 + Shimmer 시스템)
   3. 핸드 트래킹 (`ARKitSession` + `HandTrackingProvider`)
-  4. 손으로 빛 조정 (검지 위치 → 조명, 핀치 → 세기/물결)
+  4. 손으로 빛 조정 (검지 → 수면 위 태양 위치, 핀치 → 세기/물결)
 - `Tutorials/Resources/*.swift` — 각 스텝의 코드 리스팅
 
 핸드 트래킹은 실제 Vision Pro에서만 동작합니다 (시뮬레이터 불가).

@@ -10,11 +10,11 @@ struct ContentView: View {
             Text("WaterLight")
                 .font(.largeTitle)
 
-            Text("수면을 연 뒤, 오른손 검지로 빛을 끌고 다니고\n엄지와 검지를 모아 빛을 강하게 만들어 보세요.")
+            Text("물속으로 들어간 뒤, 오른손 검지로 머리 위의 빛을 끌고 다니고\n엄지와 검지를 모아 빛을 강하게 만들어 보세요.")
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
 
-            Button(isOpen ? "수면 닫기" : "수면 열기") {
+            Button(isOpen ? "물 밖으로 나가기" : "물속으로 들어가기") {
                 Task {
                     if isOpen {
                         await dismissImmersiveSpace()
