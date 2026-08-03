@@ -21,8 +21,8 @@ swift package --disable-sandbox preview-documentation --target WaterLightTutoria
 
 ## 완성 예제 실행
 
-[ExampleApp/](ExampleApp/README.md)에 전 챕터를 합친 실행 가능한 전체 코드가 있습니다.
-Xcode visionOS App 템플릿에 파일 5개를 넣으면 바로 실행됩니다 (visionOS 2.0+).
+[ExampleApp/WaterLight.xcodeproj](ExampleApp/README.md)를 Xcode에서 열면
+바로 빌드·실행됩니다 (Xcode 16+, visionOS 2.0+).
 
 ## 구성
 
