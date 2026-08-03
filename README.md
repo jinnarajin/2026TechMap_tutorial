@@ -19,6 +19,11 @@ swift package --disable-sandbox preview-documentation --target WaterLightTutoria
 배포 후 주소:
 `https://<username>.github.io/<repo-name>/tutorials/meetwaterlight`
 
+## 완성 예제 실행
+
+[ExampleApp/](ExampleApp/README.md)에 전 챕터를 합친 실행 가능한 전체 코드가 있습니다.
+Xcode visionOS App 템플릿에 파일 5개를 넣으면 바로 실행됩니다 (visionOS 2.0+).
+
 ## 구성
 
 - `Sources/WaterLightTutorial/Documentation.docc/Tutorials/` — 튜토리얼 챕터 4개
