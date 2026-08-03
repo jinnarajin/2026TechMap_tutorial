@@ -1,0 +1,47 @@
+@Tutorial(time: 20) {
+    @Intro(title: "물 표면 만들기") {
+        RealityView에 수면 엔티티를 만들고, 반짝이는 반사광(스페큘러)을
+        표현할 조명과 물결 애니메이션을 추가합니다.
+    }
+
+    @Section(title: "수면 엔티티") {
+        @ContentAndMedia {
+            평면 메시에 물처럼 보이는 `PhysicallyBasedMaterial`을 입힙니다.
+            낮은 roughness와 높은 반사율이 빛을 또렷하게 반사시키는 핵심입니다.
+
+            더 사실적인 물결을 원하면 Reality Composer Pro의
+            ShaderGraphMaterial(노멀맵 스크롤)로 교체할 수 있습니다 —
+            이 튜토리얼 코드는 교체 지점을 한 곳으로 모아둡니다.
+        }
+
+        @Steps {
+            @Step {
+                RealityView로 빈 이머시브 뷰를 만듭니다.
+
+                @Code(name: "ImmersiveView.swift", file: "02-01-immersive.swift")
+            }
+
+            @Step {
+                수면 엔티티를 생성합니다. 지름 2m 평면에 짙은 청록색,
+                metallic 1.0 / roughness 0.05로 거울 같은 수면을 만듭니다.
+
+                @Code(name: "ImmersiveView.swift", file: "02-02-water.swift")
+            }
+
+            @Step {
+                수면 위에 SpotLight를 추가합니다. 이 조명이 수면에 맺히는
+                반사광이며, 다음 챕터에서 손으로 움직일 대상입니다.
+                물결 느낌을 위해 roughness를 사인파로 흔드는 컴포넌트도 답니다.
+
+                @Code(name: "ImmersiveView.swift", file: "02-03-light.swift")
+            }
+
+            @Step {
+                물결 애니메이션 시스템을 등록합니다. 매 프레임 roughness를
+                미세하게 진동시켜 반사광이 일렁이는 효과를 냅니다.
+
+                @Code(name: "ShimmerSystem.swift", file: "02-04-shimmer.swift")
+            }
+        }
+    }
+}

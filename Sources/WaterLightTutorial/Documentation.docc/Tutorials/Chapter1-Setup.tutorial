@@ -1,0 +1,34 @@
+@Tutorial(time: 10) {
+    @Intro(title: "프로젝트와 이머시브 공간") {
+        Xcode에서 visionOS 앱을 만들고, 물 표면을 배치할 ImmersiveSpace를 엽니다.
+    }
+
+    @Section(title: "visionOS 프로젝트 생성") {
+        @ContentAndMedia {
+            Xcode 15 이상에서 visionOS App 템플릿으로 프로젝트를 만듭니다.
+
+            - Platform: **visionOS**
+            - Initial Scene: **Window**
+            - Immersive Space Renderer: **RealityKit**
+            - Immersive Space: **Mixed**
+
+            프로젝트 이름은 `WaterLight`로 합니다. 핸드 트래킹을 쓰려면
+            `Info.plist`에 `NSHandsTrackingUsageDescription` 키를 추가해야 합니다.
+        }
+
+        @Steps {
+            @Step {
+                앱 엔트리 포인트를 작성합니다. 윈도우 하나와 이머시브 공간 하나를 선언합니다.
+
+                @Code(name: "WaterLightApp.swift", file: "01-01-app.swift")
+            }
+
+            @Step {
+                시작 화면에서 이머시브 공간을 여는 버튼을 만듭니다.
+                `openImmersiveSpace` 환경 값을 사용합니다.
+
+                @Code(name: "ContentView.swift", file: "01-02-contentview.swift")
+            }
+        }
+    }
+}

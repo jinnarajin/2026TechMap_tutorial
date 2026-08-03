@@ -1,0 +1,61 @@
+@Tutorial(time: 15) {
+    @Intro(title: "손으로 빛 조정하기") {
+        핸드 트래킹 데이터를 조명과 물결에 연결합니다.
+        검지 끝이 빛의 위치를 끌고 다니고, 핀치가 반사광의 세기와
+        물결 강도를 조정합니다.
+    }
+
+    @Section(title: "손과 빛 연결") {
+        @ContentAndMedia {
+            RealityView의 `update` 클로저는 관찰 중인 상태가 바뀔 때마다
+            호출됩니다. 여기서 매니저의 최신 손 위치를 읽어 조명 엔티티에
+            반영합니다. 갑작스러운 움직임을 막기 위해 선형 보간(lerp)으로
+            부드럽게 따라가게 합니다.
+        }
+
+        @Steps {
+            @Step {
+                update 클로저에서 조명을 손 위치로 이동시키고,
+                항상 수면 중심을 바라보게 합니다.
+
+                @Code(name: "ImmersiveView.swift", file: "04-01-follow.swift")
+            }
+
+            @Step {
+                핀치 정도를 조명 세기와 물결 강도에 매핑합니다.
+                핀치를 꽉 쥘수록 빛이 강해지고 물결이 잔잔해져,
+                수면에 또렷한 빛 기둥이 맺힙니다.
+
+                @Code(name: "ImmersiveView.swift", file: "04-02-pinch.swift")
+            }
+        }
+    }
+
+    @Assessments {
+        @MultipleChoice {
+            손 위치를 조명에 반영하기 가장 적절한 위치는?
+
+            @Choice(isCorrect: false) {
+                RealityView의 make 클로저
+
+                @Justification(reaction: "아쉬워요") {
+                    make는 최초 1회만 호출됩니다.
+                }
+            }
+            @Choice(isCorrect: true) {
+                RealityView의 update 클로저
+
+                @Justification(reaction: "정답!") {
+                    관찰 중인 상태가 바뀔 때마다 호출되어 실시간 반영에 적합합니다.
+                }
+            }
+            @Choice(isCorrect: false) {
+                ContentView의 body
+
+                @Justification(reaction: "아쉬워요") {
+                    ContentView는 이머시브 공간의 엔티티에 접근할 수 없습니다.
+                }
+            }
+        }
+    }
+}

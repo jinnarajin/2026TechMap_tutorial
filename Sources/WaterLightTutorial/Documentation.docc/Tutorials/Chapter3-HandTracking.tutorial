@@ -1,0 +1,40 @@
+@Tutorial(time: 20) {
+    @Intro(title: "핸드 트래킹") {
+        ARKitSession과 HandTrackingProvider로 손 관절 위치를 실시간으로
+        읽어오는 매니저를 만듭니다. 핸드 트래킹은 실제 Vision Pro 기기에서만
+        동작합니다(시뮬레이터 불가).
+    }
+
+    @Section(title: "HandTrackingManager") {
+        @ContentAndMedia {
+            `HandTrackingProvider`는 `anchorUpdates` 비동기 시퀀스로
+            양손의 `HandAnchor`를 스트리밍합니다. 각 앵커에서 관절
+            (`joint(named:)`) 트랜스폼을 꺼내 월드 좌표로 변환합니다.
+
+            `Info.plist`에 `NSHandsTrackingUsageDescription`이 있어야
+            권한 요청이 표시됩니다.
+        }
+
+        @Steps {
+            @Step {
+                손 상태를 담는 관찰 가능한 매니저를 만듭니다.
+                검지 끝 위치와 핀치 정도(엄지-검지 거리)를 노출합니다.
+
+                @Code(name: "HandTrackingManager.swift", file: "03-01-manager.swift")
+            }
+
+            @Step {
+                세션을 시작하고 anchorUpdates를 순회하며 관절을 읽습니다.
+                핀치 정도는 엄지 끝과 검지 끝 거리를 0...1로 정규화합니다.
+
+                @Code(name: "HandTrackingManager.swift", file: "03-02-updates.swift")
+            }
+
+            @Step {
+                ImmersiveView에서 매니저를 시작합니다.
+
+                @Code(name: "ImmersiveView.swift", file: "03-03-immersive.swift")
+            }
+        }
+    }
+}

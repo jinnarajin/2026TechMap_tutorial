@@ -1,0 +1,42 @@
+@Tutorials(name: "WaterLight") {
+    @Intro(title: "손으로 조정하는 물빛 반사") {
+        visionOS 이머시브 공간에 물 표면을 띄우고, 핸드 트래킹으로
+        수면에 반사되는 빛의 방향과 세기를 실시간으로 조정하는 앱을 만듭니다.
+
+        RealityKit, ARKit `HandTrackingProvider`, ShaderGraph 머티리얼을 다룹니다.
+
+        @Image(source: "intro-hero.png", alt: "물 표면에 반사되는 빛")
+    }
+
+    @Chapter(name: "프로젝트와 이머시브 공간") {
+        visionOS 앱을 만들고 ImmersiveSpace를 띄웁니다.
+
+        @TutorialReference(tutorial: "doc:Chapter1-Setup")
+
+        @Image(source: "chapter1.png", alt: "프로젝트 설정")
+    }
+
+    @Chapter(name: "물 표면 만들기") {
+        수면 엔티티를 만들고 노멀맵 애니메이션으로 물결과 빛 반사를 표현합니다.
+
+        @TutorialReference(tutorial: "doc:Chapter2-WaterSurface")
+
+        @Image(source: "chapter2.png", alt: "물 표면")
+    }
+
+    @Chapter(name: "핸드 트래킹") {
+        ARKitSession과 HandTrackingProvider로 손 관절 위치를 읽습니다.
+
+        @TutorialReference(tutorial: "doc:Chapter3-HandTracking")
+
+        @Image(source: "chapter3.png", alt: "핸드 트래킹")
+    }
+
+    @Chapter(name: "손으로 빛 조정하기") {
+        손 위치를 빛의 방향에, 핀치 정도를 반사 세기에 매핑합니다.
+
+        @TutorialReference(tutorial: "doc:Chapter4-LightControl")
+
+        @Image(source: "chapter4.png", alt: "빛 조정")
+    }
+}
