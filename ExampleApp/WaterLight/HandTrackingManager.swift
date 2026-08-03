@@ -34,6 +34,7 @@ final class HandTrackingManager {
             else {
                 if update.anchor.chirality == .right {
                     indexTipPosition = nil
+                    pinchAmount = 0
                 }
                 continue
             }
