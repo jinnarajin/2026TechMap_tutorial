@@ -1,0 +1,15 @@
+# POSTECH swift-style-guide 기준 최소 설정
+# https://github.com/DeveloperAcademy-POSTECH/swift-style-guide
+included:
+  - Sources
+  - ExampleApp/WaterLight
+
+line_length:
+  warning: 120
+  error: 200
+
+identifier_name:
+  min_length: 2
+
+disabled_rules:
+  - trailing_whitespace # 튜토리얼 코드 리스팅에 여유
