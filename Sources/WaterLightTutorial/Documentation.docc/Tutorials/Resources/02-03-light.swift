@@ -32,10 +32,16 @@ struct ImmersiveView: View {
             red: 0.05, green: 0.35, blue: 0.45, alpha: 1))
         material.metallic = 1.0
         material.roughness = 0.05
-        material.blending = .transparent(opacity: 0.65)
+
+        if let fade = try? makeRadialFadeTexture() {
+            material.blending = .transparent(
+                opacity: .init(scale: 0.65, texture: .init(fade)))
+        } else {
+            material.blending = .transparent(opacity: 0.65)
+        }
 
         let water = ModelEntity(
-            mesh: .generatePlane(width: 30, depth: 30),
+            mesh: .generatePlane(width: 60, depth: 60),
             materials: [material]
         )
         water.position = [0, surfaceHeight, 0]
@@ -58,5 +64,29 @@ struct ImmersiveView: View {
         light.position = [0, surfaceHeight + 2, 0]
         light.look(at: [0, 1.2, 0], from: light.position, relativeTo: nil)
         return light
+    }
+
+    /// 중심은 불투명하고 가장자리로 갈수록 투명해지는 방사형 그라데이션.
+    /// 수면이 멀리서 심해 돔 색으로 자연스럽게 사라지게 한다.
+    private func makeRadialFadeTexture() throws -> TextureResource {
+        let size = 256
+        let renderer = UIGraphicsImageRenderer(
+            size: CGSize(width: size, height: size))
+        let image = renderer.image { ctx in
+            let colors = [UIColor.white.cgColor,
+                          UIColor.white.cgColor,
+                          UIColor.black.cgColor]
+            let gradient = CGGradient(colorsSpace: nil,
+                                      colors: colors as CFArray,
+                                      locations: [0, 0.35, 1])!
+            let center = CGPoint(x: size / 2, y: size / 2)
+            ctx.cgContext.drawRadialGradient(
+                gradient, startCenter: center, startRadius: 0,
+                endCenter: center, endRadius: CGFloat(size) / 2,
+                options: [])
+        }
+        return try TextureResource(
+            image: image.cgImage!,
+            options: .init(semantic: .scalar))
     }
 }
