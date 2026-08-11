@@ -2,7 +2,7 @@
 
 ## 브랜치 전략
 
-- 기본 브랜치: `docc-waterlight-tutorial`
+- 기본 브랜치: `main`
 - 작업 브랜치: `<타입>/<간단한-설명>` (예: `docs/contributing`, `feat/hand-tracking-step`)
 - 기본 브랜치에 직접 push 하지 않고 PR로 머지합니다.
 
@@ -12,7 +12,7 @@
 
 | 타입 | 용도 |
 |------|------|
-| `feat` | 기능/튜토리얼 내용 추가 |
+| `feat` | 기능/내용 추가 |
 | `fix` | 버그·오타 수정 |
 | `docs` | 문서 (README, 회고, 컨벤션 등) |
 | `style` | 코드 스타일, 포맷팅 |
@@ -34,7 +34,3 @@
 ## 코드 스타일
 
 - [DeveloperAcademy-POSTECH/swift-style-guide](https://github.com/DeveloperAcademy-POSTECH/swift-style-guide)를 따릅니다.
-
-## AI 협업
-
-- AI(Claude 등)와 작업할 때는 [CLAUDE.md](CLAUDE.md)를 먼저 읽게 합니다.
