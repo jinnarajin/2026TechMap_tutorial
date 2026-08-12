@@ -298,12 +298,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
             // -------------------------------------------------
-            // IMPORTANT:
-            //
-            // This is the original working mixed-sphere
-            // creation logic.
-            //
-            // Do not change.
+            // Create mixed sphere.
             // -------------------------------------------------
 
             let mixedSphere =
@@ -402,8 +397,6 @@ final class SphereInteractionManager: ObservableObject {
 
 
             // -------------------------------------------------
-            // IMPORTANT:
-            //
             // Clone is a REAL movable sphere.
             // -------------------------------------------------
 
@@ -488,8 +481,6 @@ final class SphereInteractionManager: ObservableObject {
         // CASE 1
         //
         // Permanent original
-        //
-        // NEVER allow it to move.
         // =====================================================
 
         if isDraggingOriginal {
@@ -549,12 +540,7 @@ final class SphereInteractionManager: ObservableObject {
             }
 
 
-            // IMPORTANT:
-            //
-            // Do NOT manually set sphere.position.
-            //
             // RealityKit controls the movement.
-            //
 
             return
         }
@@ -645,7 +631,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
             // -------------------------------------------------
-            // Always restore permanent original.
+            // Restore permanent original.
             // -------------------------------------------------
 
             if let fixedPosition =
@@ -740,10 +726,6 @@ final class SphereInteractionManager: ObservableObject {
                 false
 
 
-            // -------------------------------------------------
-            // Recalculate overlap areas.
-            // -------------------------------------------------
-
             updateOverlapTargets()
 
             return
@@ -818,9 +800,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
             // -------------------------------------------------
-            // Remove ONLY the invisible target.
-            //
-            // Mixed sphere remains.
+            // Remove ONLY invisible target.
             // -------------------------------------------------
 
             target.removeFromParent()
@@ -864,15 +844,6 @@ final class SphereInteractionManager: ObservableObject {
 
         // -----------------------------------------------------
         // Remove all REAL movable spheres.
-        //
-        // Includes:
-        //
-        // - RGB clones
-        // - mixed spheres
-        //
-        // Does NOT include:
-        //
-        // - permanent RGB originals
         // -----------------------------------------------------
 
         for sphere in movableSpheres {
@@ -1127,8 +1098,6 @@ final class SphereInteractionManager: ObservableObject {
 
             // -------------------------------------------------
             // Collision
-            //
-            // Small enough that it doesn't swallow clones.
             // -------------------------------------------------
 
             target.components.set(
@@ -1183,11 +1152,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
             // -------------------------------------------------
-            // IMPORTANT:
-            //
-            // Target goes ONLY into overlapTargets.
-            //
-            // It never goes into movableSpheres.
+            // Target only goes into overlapTargets.
             // -------------------------------------------------
 
             overlapTargets.append(
@@ -1227,6 +1192,10 @@ final class SphereInteractionManager: ObservableObject {
             RGBColor.red
 
 
+        // =====================================================
+        // Create clone core
+        // =====================================================
+
         let clone =
             ModelEntity(
                 mesh:
@@ -1234,6 +1203,7 @@ final class SphereInteractionManager: ObservableObject {
                         radius:
                             sphereRadius
                     ),
+
                 materials: [
                     makeRGBMaterial(
                         color:
@@ -1247,6 +1217,10 @@ final class SphereInteractionManager: ObservableObject {
             "Clone"
 
 
+        // =====================================================
+        // Preserve RGB information.
+        // =====================================================
+
         clone.components.set(
             RGBColorComponent(
                 color:
@@ -1254,6 +1228,26 @@ final class SphereInteractionManager: ObservableObject {
             )
         )
 
+
+        // =====================================================
+        // IMPORTANT:
+        //
+        // Give the clone the same radiating light as the
+        // permanent sphere.
+        // =====================================================
+
+        addRadiatingGlow(
+            to:
+                clone,
+
+            color:
+                color.uiColor
+        )
+
+
+        // =====================================================
+        // Configure interaction.
+        // =====================================================
 
         configureSphereForInteraction(
             clone
@@ -1266,8 +1260,6 @@ final class SphereInteractionManager: ObservableObject {
 
     // =========================================================
     // MARK: - Create Mixed Sphere
-    //
-    // Existing working logic kept unchanged.
     // =========================================================
 
     private func createMixedSphere(
@@ -1281,6 +1273,7 @@ final class SphereInteractionManager: ObservableObject {
                         radius:
                             sphereRadius
                     ),
+
                 materials: [
                     makeRGBMaterial(
                         color:
@@ -1294,6 +1287,10 @@ final class SphereInteractionManager: ObservableObject {
             "MixedSphere"
 
 
+        // =====================================================
+        // Store MIXED RGB color.
+        // =====================================================
+
         mixedSphere.components.set(
             RGBColorComponent(
                 color:
@@ -1302,14 +1299,39 @@ final class SphereInteractionManager: ObservableObject {
         )
 
 
+        // =====================================================
+        // IMPORTANT:
+        //
+        // The mixed sphere gets a glow using the mixed color.
+        //
+        // Example:
+        //
+        // red + green → yellow glow
+        // red + blue  → magenta glow
+        // green + blue → cyan glow
+        // =====================================================
+
+        addRadiatingGlow(
+            to:
+                mixedSphere,
+
+            color:
+                overlap.color.uiColor
+        )
+
+
+        // =====================================================
+        // Configure interaction.
+        // =====================================================
+
         configureSphereForInteraction(
             mixedSphere
         )
 
 
-        // -----------------------------------------------------
+        // =====================================================
         // Place at overlap midpoint.
-        // -----------------------------------------------------
+        // =====================================================
 
         if let parent =
             overlap.firstSphere.parent {
@@ -1328,9 +1350,9 @@ final class SphereInteractionManager: ObservableObject {
         }
 
 
-        // -----------------------------------------------------
+        // =====================================================
         // Mixed sphere is a REAL movable sphere.
-        // -----------------------------------------------------
+        // =====================================================
 
         movableSpheres.append(
             mixedSphere
