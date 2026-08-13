@@ -124,6 +124,17 @@ final class SphereInteractionManager: ObservableObject {
 
 
     // =========================================================
+    // MARK: - Selection
+    // =========================================================
+
+    private weak var selectedSphere:
+        ModelEntity?
+
+    private var selectionRim:
+        ModelEntity?
+
+
+    // =========================================================
     // MARK: - Overlap system
     // =========================================================
 
@@ -214,6 +225,90 @@ final class SphereInteractionManager: ObservableObject {
                     event
                 )
             }
+    }
+
+
+    // =========================================================
+    // MARK: - Selection
+    // =========================================================
+
+    private func selectSphere(
+        _ sphere: ModelEntity
+    ) {
+
+        // -----------------------------------------------------
+        // Already selected
+        // -----------------------------------------------------
+
+        if selectedSphere === sphere {
+            return
+        }
+
+
+        // -----------------------------------------------------
+        // Remove previous rim
+        // -----------------------------------------------------
+
+        removeSelectionRim()
+
+
+        // -----------------------------------------------------
+        // Store selected sphere
+        // -----------------------------------------------------
+
+        selectedSphere =
+            sphere
+
+
+        // -----------------------------------------------------
+        // Create selection rim
+        //
+        // All visual details are handled by
+        // SphericalSelectionRim.swift.
+        // -----------------------------------------------------
+
+        let rim =
+            createSphericalSelectionRim()
+
+
+        // -----------------------------------------------------
+        // Attach rim to sphere
+        // -----------------------------------------------------
+
+        sphere.addChild(
+            rim
+        )
+
+
+        // -----------------------------------------------------
+        // Store reference
+        // -----------------------------------------------------
+
+        selectionRim =
+            rim
+
+
+        print(
+            "⭕ SELECTED:",
+            sphere.name
+        )
+    }
+
+
+    // =========================================================
+    // MARK: - Remove Selection Rim
+    // =========================================================
+
+    private func removeSelectionRim() {
+
+        selectionRim?
+            .removeFromParent()
+
+        selectionRim =
+            nil
+
+        selectedSphere =
+            nil
     }
 
 
@@ -321,6 +416,15 @@ final class SphereInteractionManager: ObservableObject {
                 true
 
 
+            // -------------------------------------------------
+            // Select newly created mixed sphere.
+            // -------------------------------------------------
+
+            selectSphere(
+                mixedSphere
+            )
+
+
             print(
                 "✨ MIXED SPHERE CREATED"
             )
@@ -397,7 +501,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
             // -------------------------------------------------
-            // Clone is a REAL movable sphere.
+            // Clone becomes a real movable sphere.
             // -------------------------------------------------
 
             movableSpheres.append(
@@ -407,6 +511,15 @@ final class SphereInteractionManager: ObservableObject {
 
             activeClone =
                 clone
+
+
+            // -------------------------------------------------
+            // Select clone.
+            // -------------------------------------------------
+
+            selectSphere(
+                clone
+            )
 
 
             print(
@@ -421,11 +534,6 @@ final class SphereInteractionManager: ObservableObject {
         // CASE 3
         //
         // Existing movable sphere
-        //
-        // Includes:
-        //
-        // - clones
-        // - mixed spheres
         // =====================================================
 
         guard
@@ -453,6 +561,15 @@ final class SphereInteractionManager: ObservableObject {
 
         isDraggingMovableSphere =
             true
+
+
+        // -----------------------------------------------------
+        // Select existing movable sphere.
+        // -----------------------------------------------------
+
+        selectSphere(
+            entity
+        )
 
 
         print(
@@ -504,8 +621,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
             // -------------------------------------------------
-            // Clone follows the original while it is being
-            // manipulated.
+            // Clone follows original during manipulation.
             // -------------------------------------------------
 
             if let clone =
@@ -523,8 +639,6 @@ final class SphereInteractionManager: ObservableObject {
         // CASE 2
         //
         // Normal movable sphere
-        //
-        // RealityKit controls its transform.
         // =====================================================
 
         if isDraggingMovableSphere {
@@ -654,11 +768,6 @@ final class SphereInteractionManager: ObservableObject {
 
                 print(
                     "✨ CLONE RELEASED"
-                )
-
-                print(
-                    "Clone position:",
-                    clone.position
                 )
             }
 
@@ -843,10 +952,18 @@ final class SphereInteractionManager: ObservableObject {
 
 
         // -----------------------------------------------------
+        // Remove selection.
+        // -----------------------------------------------------
+
+        removeSelectionRim()
+
+
+        // -----------------------------------------------------
         // Remove all REAL movable spheres.
         // -----------------------------------------------------
 
-        for sphere in movableSpheres {
+        for sphere in
+            movableSpheres {
 
             sphere.removeFromParent()
         }
@@ -858,7 +975,8 @@ final class SphereInteractionManager: ObservableObject {
         // Remove invisible overlap targets.
         // -----------------------------------------------------
 
-        for target in overlapTargets {
+        for target in
+            overlapTargets {
 
             target.removeFromParent()
         }
@@ -933,28 +1051,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
         // =====================================================
-        // Debug
-        // =====================================================
-
-        for overlap in overlaps {
-
-            print(
-                "🟣 OVERLAP DETECTED:"
-            )
-
-            print(
-                "   \(overlap.key)"
-            )
-
-            print(
-                "   Mixed color:",
-                overlap.color
-            )
-        }
-
-
-        // =====================================================
-        // Current overlap keys
+        // Current overlap keys.
         // =====================================================
 
         let currentKeys =
@@ -966,7 +1063,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
         // =====================================================
-        // Remove obsolete targets
+        // Remove obsolete targets.
         // =====================================================
 
         overlapTargets.removeAll {
@@ -1003,15 +1100,15 @@ final class SphereInteractionManager: ObservableObject {
 
 
         // =====================================================
-        // Create / update targets
+        // Create / update targets.
         // =====================================================
 
-        for overlap in overlaps {
+        for overlap in
+            overlaps {
 
-
-            // =================================================
-            // Existing target
-            // =================================================
+            // -------------------------------------------------
+            // Existing target.
+            // -------------------------------------------------
 
             if let existingTarget =
                 overlapTargets.first(
@@ -1024,7 +1121,6 @@ final class SphereInteractionManager: ObservableObject {
                             overlap.key
                     }
                 ) {
-
 
                 if let parent =
                     existingTarget.parent {
@@ -1059,9 +1155,9 @@ final class SphereInteractionManager: ObservableObject {
             }
 
 
-            // =================================================
-            // New invisible target
-            // =================================================
+            // -------------------------------------------------
+            // New invisible target.
+            // -------------------------------------------------
 
             let target =
                 ModelEntity()
@@ -1097,7 +1193,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
             // -------------------------------------------------
-            // Collision
+            // Collision.
             // -------------------------------------------------
 
             target.components.set(
@@ -1113,7 +1209,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
             // -------------------------------------------------
-            // Input
+            // Input.
             // -------------------------------------------------
 
             target.components.set(
@@ -1137,7 +1233,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
             // -------------------------------------------------
-            // Manipulation
+            // Manipulation.
             // -------------------------------------------------
 
             var manipulation =
@@ -1152,7 +1248,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
             // -------------------------------------------------
-            // Target only goes into overlapTargets.
+            // Store target.
             // -------------------------------------------------
 
             overlapTargets.append(
@@ -1162,16 +1258,6 @@ final class SphereInteractionManager: ObservableObject {
 
             print(
                 "🟣 INVISIBLE OVERLAP TARGET CREATED"
-            )
-
-            print(
-                "Target:",
-                target.name
-            )
-
-            print(
-                "Mixed RGB:",
-                overlap.color
             )
         }
     }
@@ -1193,7 +1279,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
         // =====================================================
-        // Create clone core
+        // Create clone core.
         // =====================================================
 
         let clone =
@@ -1230,10 +1316,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
         // =====================================================
-        // IMPORTANT:
-        //
-        // Give the clone the same radiating light as the
-        // permanent sphere.
+        // Add radiating glow.
         // =====================================================
 
         addRadiatingGlow(
@@ -1266,6 +1349,10 @@ final class SphereInteractionManager: ObservableObject {
         overlap: SphereOverlap
     ) -> ModelEntity {
 
+        // =====================================================
+        // Create mixed sphere.
+        // =====================================================
+
         let mixedSphere =
             ModelEntity(
                 mesh:
@@ -1288,7 +1375,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
         // =====================================================
-        // Store MIXED RGB color.
+        // Store mixed RGB color.
         // =====================================================
 
         mixedSphere.components.set(
@@ -1300,15 +1387,7 @@ final class SphereInteractionManager: ObservableObject {
 
 
         // =====================================================
-        // IMPORTANT:
-        //
-        // The mixed sphere gets a glow using the mixed color.
-        //
-        // Example:
-        //
-        // red + green → yellow glow
-        // red + blue  → magenta glow
-        // green + blue → cyan glow
+        // Add radiating glow.
         // =====================================================
 
         addRadiatingGlow(
