@@ -15,20 +15,19 @@ import UIKit
 //
 // This file is responsible ONLY for the visual selection rim.
 //
-// SphereInteractionManager only needs to call:
+// SphereInteractionManager does not need to know:
+//
+// - how the mesh is generated
+// - how thick the rim is
+// - how large the rim is
+// - what material it uses
+//
+// It simply calls:
 //
 //     createSphericalSelectionRim()
 //
-// All visual configuration stays here:
-// - size
-// - thickness
-// - segments
-// - gradient
-// - material
-// - billboard
-// - mesh
-//
 // =============================================================
+
 
 func createSphericalSelectionRim() -> ModelEntity {
 
@@ -67,9 +66,12 @@ func createSphericalSelectionRim() -> ModelEntity {
     // MARK: Material
     // =========================================================
     //
-    // Unlit keeps the rim visually clean.
+    // Unlit keeps the rim:
     //
-    // The actual gradient is stored in the mesh's vertex colors.
+    // - pure white
+    // - unaffected by scene lighting
+    // - without shadows
+    // - without metallic reflections
     //
     // =========================================================
 
@@ -104,10 +106,10 @@ func createSphericalSelectionRim() -> ModelEntity {
     // MARK: Billboard
     // =========================================================
     //
-    // The ring always faces the user.
+    // Keeps the flat circular rim facing the user.
     //
-    // This makes the flat ring behave visually more like
-    // a spherical outline rather than a 3D donut.
+    // This is important because the sphere itself is
+    // transparent.
     //
     // =========================================================
 
@@ -141,33 +143,14 @@ func createSphericalSelectionRim() -> ModelEntity {
 // MARK: - Spherical Rim Mesh
 // =============================================================
 //
-// Creates a thin flat annulus.
+// Creates a very thin flat circular annulus.
 //
-// This is intentionally NOT a torus.
+// This is NOT a torus.
 //
-// The rim gets a subtle directional gradient:
+// A torus is a 3D donut and can show its back side through
+// transparent spheres.
 //
-//     brighter
-//          ↓
-//
-//     white ────────
-//       ╲
-//        ╲
-//         ╲
-//          ─────────
-//              ↓
-//           softer
-//
-// Similar visually to:
-//
-// LinearGradient(
-//     colors: [
-//         .white.opacity(0.6),
-//         .white.opacity(0.1)
-//     ],
-//     startPoint: .topLeading,
-//     endPoint: .bottomTrailing
-// )
+// This mesh is a flat ring that is always facing the user.
 //
 // =============================================================
 
@@ -194,59 +177,18 @@ private func makeSphericalRimMesh(
     var normals:
         [SIMD3<Float>] = []
 
-    var colors:
-        [SIMD4<Float>] = []
-
 
     // =========================================================
-    // MARK: Gradient colors
-    // =========================================================
-    //
-    // Stronger white:
-    //
-    //     0.85
-    //
-    // Softer white:
-    //
-    //     0.18
-    //
-    // The alpha values are deliberately not too low because
-    // this is a selection indicator.
-    //
-    // =========================================================
-
-    let brightColor =
-        SIMD4<Float>(
-            1.0,
-            1.0,
-            1.0,
-            0.85
-        )
-
-    let softColor =
-        SIMD4<Float>(
-            1.0,
-            1.0,
-            1.0,
-            0.18
-        )
-
-
-    // =========================================================
-    // MARK: Generate vertices
+    // Generate vertices
     // =========================================================
 
     for i in
         0..<segments {
 
-        let normalized =
+        let angle =
             Float(i)
             /
             Float(segments)
-
-
-        let angle =
-            normalized
             *
             Float.pi
             *
@@ -260,73 +202,9 @@ private func makeSphericalRimMesh(
             sin(angle)
 
 
-        // =====================================================
-        // Gradient position
-        // =====================================================
-        //
-        // Convert the circular position into a directional
-        // gradient.
-        //
-        // The diagonal direction is approximately equivalent
-        // to SwiftUI:
-        //
-        // startPoint: .topLeading
-        // endPoint: .bottomTrailing
-        //
-        // =====================================================
-
-        let gradientX =
-            (cosAngle + 1.0)
-            * 0.5
-
-        let gradientY =
-            (sinAngle + 1.0)
-            * 0.5
-
-
-        let gradientPosition =
-            (gradientX + gradientY)
-            * 0.5
-
-
         // -----------------------------------------------------
-        // Invert so one side is brighter.
-        // -----------------------------------------------------
-
-        let brightness =
-            1.0
-            -
-            gradientPosition
-
-
-        // -----------------------------------------------------
-        // Interpolate alpha.
-        // -----------------------------------------------------
-
-        let alpha =
-            0.18
-            +
-            (
-                0.85
-                -
-                0.18
-            )
-            *
-            brightness
-
-
-        let vertexColor =
-            SIMD4<Float>(
-                1.0,
-                1.0,
-                1.0,
-                alpha
-            )
-
-
-        // =====================================================
         // Outer vertex
-        // =====================================================
+        // -----------------------------------------------------
 
         positions.append(
             SIMD3<Float>(
@@ -344,14 +222,10 @@ private func makeSphericalRimMesh(
             )
         )
 
-        colors.append(
-            vertexColor
-        )
 
-
-        // =====================================================
+        // -----------------------------------------------------
         // Inner vertex
-        // =====================================================
+        // -----------------------------------------------------
 
         positions.append(
             SIMD3<Float>(
@@ -368,15 +242,11 @@ private func makeSphericalRimMesh(
                 1
             )
         )
-
-        colors.append(
-            vertexColor
-        )
     }
 
 
     // =========================================================
-    // MARK: Generate triangles
+    // Generate triangles
     // =========================================================
 
     var indices:
@@ -449,7 +319,7 @@ private func makeSphericalRimMesh(
 
 
     // =========================================================
-    // MARK: Mesh descriptor
+    // Mesh descriptor
     // =========================================================
 
     var descriptor =
@@ -465,12 +335,6 @@ private func makeSphericalRimMesh(
     descriptor.normals =
         MeshBuffers.Normals(
             normals
-        )
-
-
-    descriptor.colors =
-        MeshBuffers.Colors(
-            colors
         )
 
 
