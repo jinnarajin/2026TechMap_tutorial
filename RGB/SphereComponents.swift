@@ -11,6 +11,3 @@ struct OriginalSphereComponent: Component {
     let color: RGBColor
     let fixedPosition: SIMD3<Float>
 }
-
-struct DraggableCloneComponent: Component {
-}
