@@ -10,269 +10,76 @@ import RealityKit
 
 struct ImmersiveView: View {
 
-    // =========================================================
-    // MARK: - Interaction manager
-    // =========================================================
+    @StateObject private var interactionManager = SphereInteractionManager()
 
-    @StateObject private var interactionManager =
-        SphereInteractionManager()
-
-
-    // =========================================================
-    // MARK: - Configuration
-    // =========================================================
-
-    private let sphereRadius:
-        Float = 0.15
-
-
-    // =========================================================
-    // MARK: - Body
-    // =========================================================
+    private let sphereRadius: Float = 0.15
 
     var body: some View {
-
         RealityView { content, attachments in
-
-            // =====================================================
-            // Register components
-            // =====================================================
-
+            // Register custom RealityKit components before using them.
             RGBColorComponent.registerComponent()
-
             OriginalSphereComponent.registerComponent()
-
             OverlapVisualComponent.registerComponent()
 
+            let headAnchor = AnchorEntity(.head)
 
-            // =====================================================
-            // Head anchor
-            // =====================================================
+            // The three original spheres stay fixed in the scene.
+            let red = makeRGBSphere(color: .red, rgbColor: .red)
+            let green = makeRGBSphere(color: .green, rgbColor: .green)
+            let blue = makeRGBSphere(color: .blue, rgbColor: .blue)
 
-            let headAnchor =
-                AnchorEntity(.head)
+            red.position = SIMD3<Float>(0.0, 0.25, -1.5)
+            green.position = SIMD3<Float>(-0.3, -0.15, -1.5)
+            blue.position = SIMD3<Float>(0.3, -0.15, -1.5)
 
-
-            // =====================================================
-            // Permanent RGB spheres
-            // =====================================================
-
-            let red =
-                makeRGBSphere(
-                    color:
-                        .red,
-                    rgbColor:
-                        RGBColor.red
-                )
-
-
-            let green =
-                makeRGBSphere(
-                    color:
-                        .green,
-                    rgbColor:
-                        RGBColor.green
-                )
-
-
-            let blue =
-                makeRGBSphere(
-                    color:
-                        .blue,
-                    rgbColor:
-                        RGBColor.blue
-                )
-
-
-            // =====================================================
-            // Positions
-            //
-            // Keep these exactly as before.
-            // =====================================================
-
-            red.position =
-                SIMD3<Float>(
-                    0.0,
-                    0.25,
-                    -1.5
-                )
-
-
-            green.position =
-                SIMD3<Float>(
-                    -0.3,
-                    -0.15,
-                    -1.5
-                )
-
-
-            blue.position =
-                SIMD3<Float>(
-                    0.3,
-                    -0.15,
-                    -1.5
-                )
-
-
-            // =====================================================
-            // Mark permanent originals
-            // =====================================================
-
+            // Store the original position so the sphere can return
+            // to its fixed position after manipulation.
             red.components.set(
-                OriginalSphereComponent(
-                    color:
-                        RGBColor.red,
-
-                    fixedPosition:
-                        red.position
-                )
+                OriginalSphereComponent(color: .red, fixedPosition: red.position)
             )
-
 
             green.components.set(
-                OriginalSphereComponent(
-                    color:
-                        RGBColor.green,
-
-                    fixedPosition:
-                        green.position
-                )
+                OriginalSphereComponent(color: .green, fixedPosition: green.position)
             )
-
 
             blue.components.set(
-                OriginalSphereComponent(
-                    color:
-                        RGBColor.blue,
-
-                    fixedPosition:
-                        blue.position
-                )
+                OriginalSphereComponent(color: .blue, fixedPosition: blue.position)
             )
 
+            configureSphereForInteraction(red)
+            configureSphereForInteraction(green)
+            configureSphereForInteraction(blue)
 
-            // =====================================================
-            // Configure originals
-            // =====================================================
+            headAnchor.addChild(red)
+            headAnchor.addChild(green)
+            headAnchor.addChild(blue)
 
-            configureSphereForInteraction(
-                red
-            )
-
-            configureSphereForInteraction(
-                green
-            )
-
-            configureSphereForInteraction(
-                blue
-            )
-
-
-            // =====================================================
-            // Add permanent spheres
-            // =====================================================
-
-            headAnchor.addChild(
-                red
-            )
-
-            headAnchor.addChild(
-                green
-            )
-
-            headAnchor.addChild(
-                blue
-            )
-
-
-            // =====================================================
-            // Clear All button
-            //
-            // Same head anchor as the permanent spheres.
-            // =====================================================
-
-            if let clearButton =
-                attachments.entity(
-                    for:
-                        "clearAllButton"
-                ) {
-
-                clearButton.position =
-                    SIMD3<Float>(
-                        0.0,
-                        -0.40,
-                        -1.2
-                    )
-
-
-                headAnchor.addChild(
-                    clearButton
-                )
+            // Attach the SwiftUI Clear All button to the same head anchor.
+            if let clearButton = attachments.entity(for: "clearAllButton") {
+                clearButton.position = SIMD3<Float>(0.0, -0.40, -1.2)
+                headAnchor.addChild(clearButton)
             }
 
+            content.add(headAnchor)
 
-            // =====================================================
-            // Add head anchor
-            // =====================================================
+            // The manager handles RealityKit manipulation events.
+            interactionManager.subscribe(to: content)
 
-            content.add(
-                headAnchor
-            )
-
-
-            // =====================================================
-            // Give RealityView event handling to manager
-            // =====================================================
-
-            interactionManager.subscribe(
-                to:
-                    content
-            )
         } attachments: {
-
-            // =====================================================
-            // Clear All button
-            // =====================================================
-
-            Attachment(
-                id:
-                    "clearAllButton"
-            ) {
-
+            Attachment(id: "clearAllButton") {
                 Button {
-
-                    interactionManager
-                        .deleteAllMovableSpheres()
-
+                    interactionManager.deleteAllMovableSpheres()
                 } label: {
-
-                    Text(
-                        "Clear All"
-                    )
-                    .font(
-                        .headline
-                    )
-                    .padding(
-                        .horizontal,
-                        24
-                    )
-                    .padding(
-                        .vertical,
-                        12
-                    )
+                    Text("Clear All")
+                        .font(.headline)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 12)
                 }
-                .buttonStyle(
-                    .borderedProminent
-                )
+                .buttonStyle(.borderedProminent)
             }
         }
     }
 }
-
-
-// =============================================================
-// MARK: - Preview
-// =============================================================
 
 #Preview {
     ImmersiveView()

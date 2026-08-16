@@ -8,586 +8,199 @@
 import RealityKit
 import UIKit
 
-
-// =============================================================
 // MARK: - RGB Color Component
-// =============================================================
 
+/// Stores the RGB value associated with an entity.
 struct RGBColorComponent: Component {
-
     var color: RGBColor
 }
 
-
-// =============================================================
 // MARK: - Material
-// =============================================================
 
-func makeRGBMaterial(
-    color: UIColor
-) -> PhysicallyBasedMaterial {
+func makeRGBMaterial(color: UIColor) -> PhysicallyBasedMaterial {
+    var material = PhysicallyBasedMaterial()
 
-    var material =
-        PhysicallyBasedMaterial()
+    material.baseColor = .init(tint: color)
 
+    // A high roughness keeps the sphere matte instead of
+    // making it look like a reflective plastic balloon.
+    material.metallic = 0.0
+    material.roughness = 0.85
 
-    // ---------------------------------------------------------
-    // Core color
-    // ---------------------------------------------------------
+    // Slight transparency makes overlapping colors visible.
+    material.blending = .transparent(
+        opacity: PhysicallyBasedMaterial.Opacity(floatLiteral: 0.75)
+    )
 
-    material.baseColor =
-        .init(
-            tint:
-                color
-        )
-
-
-    // ---------------------------------------------------------
-    // Matte surface
-    //
-    // Keeps the sphere from looking like a plastic balloon.
-    // ---------------------------------------------------------
-
-    material.metallic =
-        0.0
-
-    material.roughness =
-        0.85
-
-
-    // ---------------------------------------------------------
-    // CORE SPHERE OPACITY
-    //
-    // The sphere itself is slightly transparent so that
-    // overlapping colored spheres are easier to see.
-    //
-    // The radiating glow is NOT affected by this value.
-    // ---------------------------------------------------------
-
-    material.blending =
-        .transparent(
-            opacity:
-                PhysicallyBasedMaterial.Opacity(
-                    floatLiteral:
-                        0.75
-                )
-        )
-
-
-    // ---------------------------------------------------------
-    // Core emission
-    // ---------------------------------------------------------
-
-    material.emissiveColor =
-        .init(
-            color:
-                color
-        )
-
-    material.emissiveIntensity =
-        3.0
-
+    // Emission makes the sphere appear luminous even in the
+    // dark immersive environment.
+    material.emissiveColor = .init(color: color)
+    material.emissiveIntensity = 3.0
 
     return material
 }
 
-
-// =============================================================
 // MARK: - RGB Sphere
-// =============================================================
 
 func makeRGBSphere(
     color: UIColor,
     rgbColor: RGBColor
 ) -> ModelEntity {
 
-    // ---------------------------------------------------------
-    // REAL interactive sphere
-    // ---------------------------------------------------------
+    let sphere = ModelEntity(
+        mesh: .generateSphere(radius: 0.15),
+        materials: [makeRGBMaterial(color: color)]
+    )
 
-    let sphere =
-        ModelEntity(
-            mesh:
-                .generateSphere(
-                    radius:
-                        0.15
-                ),
-
-            materials: [
-                makeRGBMaterial(
-                    color:
-                        color
-                )
-            ]
-        )
-
-
-    sphere.name =
-        "RGBSphere"
-
-
-    // ---------------------------------------------------------
-    // Store RGB information.
-    //
-    // SphereOverlapSystem depends on this.
-    // ---------------------------------------------------------
+    sphere.name = "RGBSphere"
 
     sphere.components.set(
-        RGBColorComponent(
-            color:
-                rgbColor
-        )
+        RGBColorComponent(color: rgbColor)
     )
 
-
-    // ---------------------------------------------------------
-    // Add radiating glow.
-    // ---------------------------------------------------------
-
-    addRadiatingGlow(
-        to:
-            sphere,
-
-        color:
-            color
-    )
-
+    addRadiatingGlow(to: sphere, color: color)
 
     return sphere
 }
 
-
-// =============================================================
 // MARK: - Radiating Glow
-// =============================================================
-//
-// This function is intentionally NOT private.
-//
-// SphereInteractionManager uses the same glow for:
-//
-// - permanent RGB spheres
-// - RGB clones
-// - mixed spheres
-//
-// =============================================================
 
+/// Adds the billboarded radial glow used by both original and
+/// dynamically created spheres.
 func addRadiatingGlow(
     to sphere: ModelEntity,
     color: UIColor
 ) {
-
-    guard
-        let texture =
-            makeRadialGlowTexture(
-                color:
-                    color
-            )
-    else {
+    guard let texture = makeRadialGlowTexture(color: color) else {
         return
     }
 
+    let glow = makeGlowPlane(texture: texture, size: 0.50)
 
-    // =========================================================
-    // ONE glow plane
-    //
-    // We intentionally use one plane.
-    //
-    // The previous two-plane approach created the visible
-    // intersection line in the green sphere.
-    // =========================================================
+    glow.name = "RGBGlow"
+    glow.position = SIMD3<Float>(0, 0, 0.015)
+    glow.components.set(BillboardComponent())
 
-    let glow =
-        makeGlowPlane(
-            texture:
-                texture,
-
-            size:
-                0.50
-        )
-
-
-    glow.name =
-        "RGBGlow"
-
-
-    // ---------------------------------------------------------
-    // Slightly offset from the sphere core.
-    // ---------------------------------------------------------
-
-    glow.position =
-        SIMD3<Float>(
-            0,
-            0,
-            0.015
-        )
-
-
-    // ---------------------------------------------------------
-    // Billboard
-    //
-    // Keeps the radial glow facing the viewer.
-    // ---------------------------------------------------------
-
-    glow.components.set(
-        BillboardComponent()
-    )
-
-
-    // ---------------------------------------------------------
-    // Add visual glow to the sphere.
-    // ---------------------------------------------------------
-
-    sphere.addChild(
-        glow
-    )
+    sphere.addChild(glow)
 }
 
-
-// =============================================================
 // MARK: - Glow Plane
-// =============================================================
 
 private func makeGlowPlane(
     texture: TextureResource,
     size: Float
 ) -> ModelEntity {
 
-    var material =
-        UnlitMaterial(
-            texture:
-                texture
-        )
+    var material = UnlitMaterial(texture: texture)
 
+    // The texture contains the radial alpha gradient.
+    material.blending = .transparent(
+        opacity: PhysicallyBasedMaterial.Opacity(floatLiteral: 1.0)
+    )
 
-    // ---------------------------------------------------------
-    // Transparent blending.
-    //
-    // The texture itself contains the radial alpha gradient.
-    // ---------------------------------------------------------
+    let plane = ModelEntity(
+        mesh: .generatePlane(width: size, height: size),
+        materials: [material]
+    )
 
-    material.blending =
-        .transparent(
-            opacity:
-                PhysicallyBasedMaterial.Opacity(
-                    floatLiteral:
-                        1.0
-                )
-        )
-
-
-    // ---------------------------------------------------------
-    // Create glow plane.
-    // ---------------------------------------------------------
-
-    let plane =
-        ModelEntity(
-            mesh:
-                .generatePlane(
-                    width:
-                        size,
-
-                    height:
-                        size
-                ),
-
-            materials: [
-                material
-            ]
-        )
-
-
-    // ---------------------------------------------------------
-    // VISUAL ONLY
-    //
-    // No collision.
-    // No input target.
-    // No manipulation.
-    // No RGBColorComponent.
-    // ---------------------------------------------------------
-
-    plane.name =
-        "RGBGlow"
-
+    plane.name = "RGBGlow"
 
     return plane
 }
 
-
-// =============================================================
 // MARK: - Radial Glow Texture
-// =============================================================
 
 private func makeRadialGlowTexture(
     color: UIColor
 ) -> TextureResource? {
-    
-    let imageSize =
-    512
-    
-    
-    let renderer =
-    UIGraphicsImageRenderer(
-        size:
-            CGSize(
-                width:
-                    imageSize,
-                
-                height:
-                    imageSize
-            )
-    )
-    
-    
-    let image =
-    renderer.image { context in
-        
-        let cgContext =
-        context.cgContext
-        
-        
-        // -------------------------------------------------
-        // Center of glow
-        // -------------------------------------------------
-        
-        let center =
-        CGPoint(
-            x:
-                CGFloat(imageSize) / 2.0,
-            
-            y:
-                CGFloat(imageSize) / 2.0
+
+    let imageSize = 512
+
+    let renderer = UIGraphicsImageRenderer(
+        size: CGSize(
+            width: imageSize,
+            height: imageSize
         )
-        
-        
-        // -------------------------------------------------
-        // UIColor → RGB
-        // -------------------------------------------------
-        
-        var red:
-        CGFloat = 0
-        
-        var green:
-        CGFloat = 0
-        
-        var blue:
-        CGFloat = 0
-        
-        var alpha:
-        CGFloat = 1
-        
-        
+    )
+
+    let image = renderer.image { context in
+        let cgContext = context.cgContext
+
+        let center = CGPoint(
+            x: CGFloat(imageSize) / 2,
+            y: CGFloat(imageSize) / 2
+        )
+
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 1
+
         color.getRed(
             &red,
-            green:
-                &green,
-            blue:
-                &blue,
-            alpha:
-                &alpha
+            green: &green,
+            blue: &blue,
+            alpha: &alpha
         )
-        
-        
-        // =================================================
-        // RADIAL LIGHT
-        //
-        // Bright center
-        // Soft middle
-        // Fading outer glow
-        // Transparent edge
-        // =================================================
-        
+
+        // The gradient creates a bright center that gradually
+        // fades into a transparent edge.
         let colors = [
-            
-            CGColor(
-                red:
-                    red,
-                
-                green:
-                    green,
-                
-                blue:
-                    blue,
-                
-                alpha:
-                    0.75
-            ),
-            
-            CGColor(
-                red:
-                    red,
-                
-                green:
-                    green,
-                
-                blue:
-                    blue,
-                
-                alpha:
-                    0.35
-            ),
-            
-            CGColor(
-                red:
-                    red,
-                
-                green:
-                    green,
-                
-                blue:
-                    blue,
-                
-                alpha:
-                    0.10
-            ),
-            
-            CGColor(
-                red:
-                    red,
-                
-                green:
-                    green,
-                
-                blue:
-                    blue,
-                
-                alpha:
-                    0.0
-            )
+            CGColor(red: red, green: green, blue: blue, alpha: 0.75),
+            CGColor(red: red, green: green, blue: blue, alpha: 0.35),
+            CGColor(red: red, green: green, blue: blue, alpha: 0.10),
+            CGColor(red: red, green: green, blue: blue, alpha: 0.0)
         ]
-        
-        
-        let locations:
-        [CGFloat] = [
-            
-            0.0,
-            0.25,
-            0.55,
-            1.0
-        ]
-        
-        
-        guard
-            let gradient =
-                CGGradient(
-                    colorsSpace:
-                        CGColorSpaceCreateDeviceRGB(),
-                    
-                    colors:
-                        colors as CFArray,
-                    
-                    locations:
-                        locations
-                )
-        else {
+
+        let locations: [CGFloat] = [0.0, 0.25, 0.55, 1.0]
+
+        guard let gradient = CGGradient(
+            colorsSpace: CGColorSpaceCreateDeviceRGB(),
+            colors: colors as CFArray,
+            locations: locations
+        ) else {
             return
         }
-        
-        
-        let radius =
-        CGFloat(imageSize) / 2.0
-        
-        
+
+        let radius = CGFloat(imageSize) / 2
+
         cgContext.drawRadialGradient(
             gradient,
-            
-            startCenter:
-                center,
-            
-            startRadius:
-                0,
-            
-            endCenter:
-                center,
-            
-            endRadius:
-                radius,
-            
-            options:
-                [
-                    .drawsAfterEndLocation
-                ]
+            startCenter: center,
+            startRadius: 0,
+            endCenter: center,
+            endRadius: radius,
+            options: [.drawsAfterEndLocation]
         )
     }
-    
-    
-    // =========================================================
-    // UIImage → CGImage
-    // =========================================================
-    
-    guard
-        let cgImage =
-            image.cgImage
-    else {
+
+    guard let cgImage = image.cgImage else {
         return nil
     }
-    
-    
-    // =========================================================
-    // UNIQUE TEXTURE NAME
-    //
-    // This prevents the red texture from being reused for
-    // green and blue.
-    // =========================================================
-    
-    var red:
-    CGFloat = 0
-    
-    var green:
-    CGFloat = 0
-    
-    var blue:
-    CGFloat = 0
-    
-    var alpha:
-    CGFloat = 1
-    
-    
+
+    // RealityKit may reuse textures with the same resource name,
+    // so the RGB values are included in the name.
+    var red: CGFloat = 0
+    var green: CGFloat = 0
+    var blue: CGFloat = 0
+    var alpha: CGFloat = 1
+
     color.getRed(
         &red,
-        green:
-            &green,
-        blue:
-            &blue,
-        alpha:
-            &alpha
+        green: &green,
+        blue: &blue,
+        alpha: &alpha
     )
-    
-    
-    let redValue =
-    Int(
-        red * 255
-    )
-    
-    let greenValue =
-    Int(
-        green * 255
-    )
-    
-    let blueValue =
-    Int(
-        blue * 255
-    )
-    
-    
-    let textureName =
-    "RGBRadialGlow_\(redValue)_\(greenValue)_\(blueValue)"
-    
-    
-    // =========================================================
-    // CGImage → RealityKit TextureResource
-    // =========================================================
-    
+
+    let redValue = Int(red * 255)
+    let greenValue = Int(green * 255)
+    let blueValue = Int(blue * 255)
+
+    let textureName = "RGBRadialGlow_\(redValue)_\(greenValue)_\(blueValue)"
+
     return try? TextureResource(
-        image:
-            cgImage,
-        
-        withName:
-            textureName,
-        
-        options:
-                .init(
-                    semantic:
-                            .color
-                )
+        image: cgImage,
+        withName: textureName,
+        options: .init(semantic: .color)
     )
 }

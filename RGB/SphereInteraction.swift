@@ -7,48 +7,17 @@
 
 import RealityKit
 
-func configureSphereForInteraction(
-    _ sphere: ModelEntity
-) {
-
-    // =========================================================
-    // Input
-    // =========================================================
-
-    sphere.components.set(
-        InputTargetComponent()
-    )
-
-    // =========================================================
-    // Collision
-    //
-    // This is only for the REAL visible sphere.
-    //
-    // There is no invisible overlap target anymore.
-    // =========================================================
+func configureSphereForInteraction(_ sphere: ModelEntity) {
+    sphere.components.set(InputTargetComponent())
 
     sphere.components.set(
         CollisionComponent(
-            shapes: [
-                .generateSphere(
-                    radius:
-                        0.15
-                )
-            ]
+            shapes: [.generateSphere(radius: 0.15)]
         )
     )
 
-    // =========================================================
-    // Manipulation
-    // =========================================================
+    var manipulation = ManipulationComponent()
+    manipulation.releaseBehavior = .stay
 
-    var manipulation =
-        ManipulationComponent()
-
-    manipulation.releaseBehavior =
-        .stay
-
-    sphere.components.set(
-        manipulation
-    )
+    sphere.components.set(manipulation)
 }
