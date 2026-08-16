@@ -12,8 +12,6 @@ struct ImmersiveView: View {
 
     @StateObject private var interactionManager = SphereInteractionManager()
 
-    private let sphereRadius: Float = 0.15
-
     var body: some View {
         RealityView { content, attachments in
             // Register custom RealityKit components before using them.

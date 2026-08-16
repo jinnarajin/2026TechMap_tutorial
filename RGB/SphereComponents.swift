@@ -7,8 +7,10 @@
 
 import RealityKit
 
-/// Identifies one of the three permanent RGB spheres.
 struct OriginalSphereComponent: Component {
     let color: RGBColor
     let fixedPosition: SIMD3<Float>
+}
+
+struct DraggableCloneComponent: Component {
 }
