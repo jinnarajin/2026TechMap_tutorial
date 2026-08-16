@@ -94,7 +94,7 @@ struct ImmersiveView: View {
                 SIMD3<Float>(
                     0.0,
                     0.25,
-                    -1.2
+                    -1.5
                 )
 
 
@@ -102,7 +102,7 @@ struct ImmersiveView: View {
                 SIMD3<Float>(
                     -0.3,
                     -0.15,
-                    -1.2
+                    -1.5
                 )
 
 
@@ -110,7 +110,7 @@ struct ImmersiveView: View {
                 SIMD3<Float>(
                     0.3,
                     -0.15,
-                    -1.2
+                    -1.5
                 )
 
 
