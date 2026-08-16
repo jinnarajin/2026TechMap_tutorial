@@ -13,45 +13,43 @@ import UIKit
 @MainActor
 final class SphereInteractionManager: ObservableObject {
 
+    // MARK: - Interaction State
+
+    private enum InteractionState {
+        case idle
+        case original(
+            sphere: ModelEntity,
+            position: SIMD3<Float>,
+            clone: ModelEntity
+        )
+        case movable(sphere: ModelEntity)
+        case overlap(
+            target: ModelEntity,
+            mixedSphere: ModelEntity
+        )
+    }
+
+    private var state: InteractionState = .idle
+
     // MARK: - Event Subscriptions
 
     private var manipulationSubscription: EventSubscription?
     private var transformSubscription: EventSubscription?
     private var releaseSubscription: EventSubscription?
 
-    // MARK: - Active Interaction
-
-    private var activeOriginal: ModelEntity?
-    private var activeOriginalPosition: SIMD3<Float>?
-
-    private var activeClone: ModelEntity?
-    private var activeMovableSphere: ModelEntity?
-    private var activeMixedSphere: ModelEntity?
-    private var activeOverlapTarget: ModelEntity?
-    private var activeOverlap: SphereOverlap?
-
-    private var isDraggingOriginal = false
-    private var isDraggingMovableSphere = false
-    private var isDraggingOverlap = false
-
     // MARK: - Scene Objects
 
-    /// Contains only real movable spheres:
-    /// RGB clones and mixed-color spheres.
     private var movableSpheres: [ModelEntity] = []
-
-    /// Invisible interaction points used to select color overlaps.
     private var overlapTargets: [ModelEntity] = []
 
     private weak var selectedSphere: ModelEntity?
     private var selectionRim: ModelEntity?
 
     private let overlapSystem = SphereOverlapSystem()
-
     private let sphereRadius: Float = 0.15
     private let overlapHitRadius: Float = 0.155
 
-    // MARK: - Event Subscription
+    // MARK: - Setup
 
     func subscribe(to content: RealityViewContent) {
         manipulationSubscription = content.subscribe(
@@ -95,93 +93,61 @@ final class SphereInteractionManager: ObservableObject {
         selectedSphere = nil
     }
 
-    // MARK: - Manipulation Began
+    // MARK: - Manipulation
 
     private func handleManipulationBegan(
         _ event: ManipulationEvents.WillBegin
     ) {
-        guard let entity = event.entity as? ModelEntity else {
+        guard let entity = event.entity as? ModelEntity,
+              case .idle = state else {
             return
         }
 
-        if overlapTargets.contains(where: { $0 === entity }) {
-            handleOverlapBegan(entity)
+        // An overlap target creates a new mixed sphere.
+        if let component = entity.components[OverlapVisualComponent.self] {
+            guard let overlap = overlapSystem
+                .checkOverlap(spheres: movableSpheres)
+                .first(where: { $0.key == component.overlapKey }) else {
+                return
+            }
+
+            let mixedSphere = createMixedSphere(overlap: overlap)
+
+            state = .overlap(
+                target: entity,
+                mixedSphere: mixedSphere
+            )
+
+            selectSphere(mixedSphere)
             return
         }
 
+        // An original RGB sphere creates a movable clone.
         if let original = entity.components[OriginalSphereComponent.self] {
-            handleOriginalBegan(entity, original: original)
+            let clone = createClone(from: entity)
+
+            clone.position = entity.position
+            entity.parent?.addChild(clone)
+            movableSpheres.append(clone)
+
+            state = .original(
+                sphere: entity,
+                position: original.fixedPosition,
+                clone: clone
+            )
+
+            selectSphere(clone)
             return
         }
 
+        // Existing clones and mixed spheres can be moved directly.
         guard movableSpheres.contains(where: { $0 === entity }) else {
             return
         }
 
-        guard canBeginManipulation else {
-            return
-        }
-
-        activeMovableSphere = entity
-        isDraggingMovableSphere = true
-
+        state = .movable(sphere: entity)
         selectSphere(entity)
     }
-
-    // MARK: - Original Sphere
-
-    private func handleOriginalBegan(
-        _ entity: ModelEntity,
-        original: OriginalSphereComponent
-    ) {
-        guard canBeginManipulation else {
-            return
-        }
-
-        activeOriginal = entity
-        activeOriginalPosition = original.fixedPosition
-        activeClone = nil
-        isDraggingOriginal = true
-
-        let clone = createClone(from: entity)
-        clone.position = entity.position
-
-        entity.parent?.addChild(clone)
-        movableSpheres.append(clone)
-
-        activeClone = clone
-        selectSphere(clone)
-    }
-
-    // MARK: - Overlap
-
-    private func handleOverlapBegan(_ entity: ModelEntity) {
-        guard canBeginManipulation else {
-            return
-        }
-
-        guard let component = entity.components[OverlapVisualComponent.self] else {
-            return
-        }
-
-        guard let overlap = overlapSystem
-            .checkOverlap(spheres: movableSpheres)
-            .first(where: { $0.key == component.overlapKey })
-        else {
-            return
-        }
-
-        let mixedSphere = createMixedSphere(overlap: overlap)
-
-        activeOverlapTarget = entity
-        activeMixedSphere = mixedSphere
-        activeOverlap = overlap
-        isDraggingOverlap = true
-
-        selectSphere(mixedSphere)
-    }
-
-    // MARK: - Manipulation Updated
 
     private func handleManipulationUpdated(
         _ event: ManipulationEvents.DidUpdateTransform
@@ -190,60 +156,31 @@ final class SphereInteractionManager: ObservableObject {
             return
         }
 
-        if isDraggingOriginal {
-            updateOriginal(event: event, entity: entity)
-            return
-        }
+        switch state {
+        case let .original(sphere, position, clone):
+            guard entity === sphere else {
+                return
+            }
 
-        if isDraggingMovableSphere {
-            return
-        }
+            // Keep the original RGB sphere fixed while the clone follows the gesture.
+            sphere.position = position
+            clone.position = sphere.position
 
-        if isDraggingOverlap {
-            updateOverlap(event: event, entity: entity)
+        case .movable:
+            // RealityKit handles movement automatically.
+            return
+
+        case let .overlap(target, mixedSphere):
+            guard entity === target else {
+                return
+            }
+
+            moveMixedSphere(mixedSphere, to: target)
+
+        case .idle:
+            return
         }
     }
-
-    private func updateOriginal(
-        event: ManipulationEvents.DidUpdateTransform,
-        entity: ModelEntity
-    ) {
-        guard
-            let original = activeOriginal,
-            let fixedPosition = activeOriginalPosition,
-            event.entity === original
-        else {
-            return
-        }
-
-        original.position = fixedPosition
-        activeClone?.position = original.position
-    }
-
-    private func updateOverlap(
-        event: ManipulationEvents.DidUpdateTransform,
-        entity: ModelEntity
-    ) {
-        guard
-            let target = activeOverlapTarget,
-            let mixedSphere = activeMixedSphere,
-            event.entity === target
-        else {
-            return
-        }
-
-        guard let parent = target.parent else {
-            mixedSphere.position = target.position
-            return
-        }
-
-        mixedSphere.position = parent.convert(
-            position: target.position,
-            from: target.parent
-        )
-    }
-
-    // MARK: - Manipulation Released
 
     private func handleManipulationReleased(
         _ event: ManipulationEvents.WillRelease
@@ -252,100 +189,49 @@ final class SphereInteractionManager: ObservableObject {
             return
         }
 
-        if isDraggingOriginal {
-            releaseOriginal(event: event, entity: entity)
-            return
-        }
-
-        if isDraggingMovableSphere {
-            releaseMovableSphere(event: event, entity: entity)
-            return
-        }
-
-        if isDraggingOverlap {
-            releaseOverlap(event: event, entity: entity)
-        }
-    }
-
-    private func releaseOriginal(
-        event: ManipulationEvents.WillRelease,
-        entity: ModelEntity
-    ) {
-        guard
-            let original = activeOriginal,
-            event.entity === original
-        else {
-            return
-        }
-
-        if let fixedPosition = activeOriginalPosition {
-            original.position = fixedPosition
-        }
-
-        activeClone?.isEnabled = true
-
-        activeOriginal = nil
-        activeOriginalPosition = nil
-        activeClone = nil
-        isDraggingOriginal = false
-
-        updateOverlapTargets()
-    }
-
-    private func releaseMovableSphere(
-        event: ManipulationEvents.WillRelease,
-        entity: ModelEntity
-    ) {
-        guard
-            let sphere = activeMovableSphere,
-            event.entity === sphere
-        else {
-            return
-        }
-
-        activeMovableSphere = nil
-        isDraggingMovableSphere = false
-
-        updateOverlapTargets()
-    }
-
-    private func releaseOverlap(
-        event: ManipulationEvents.WillRelease,
-        entity: ModelEntity
-    ) {
-        guard
-            let target = activeOverlapTarget,
-            event.entity === target
-        else {
-            return
-        }
-
-        if let mixedSphere = activeMixedSphere {
-            if let parent = target.parent {
-                mixedSphere.position = parent.convert(
-                    position: target.position,
-                    from: target.parent
-                )
-            } else {
-                mixedSphere.position = target.position
+        switch state {
+        case let .original(sphere, position, clone):
+            guard entity === sphere else {
+                return
             }
 
+            sphere.position = position
+            clone.isEnabled = true
+
+            state = .idle
+            updateOverlapTargets()
+
+        case let .movable(sphere):
+            guard entity === sphere else {
+                return
+            }
+
+            state = .idle
+            updateOverlapTargets()
+
+        case let .overlap(target, mixedSphere):
+            guard entity === target else {
+                return
+            }
+
+            moveMixedSphere(mixedSphere, to: target)
+
             mixedSphere.isEnabled = true
+            target.removeFromParent()
+
+            overlapTargets.removeAll {
+                $0 === target
+            }
+
+            state = .idle
+            updateOverlapTargets()
+
+        case .idle:
+            return
         }
-
-        target.removeFromParent()
-
-        overlapTargets.removeAll { $0 === target }
-
-        activeOverlapTarget = nil
-        activeMixedSphere = nil
-        activeOverlap = nil
-        isDraggingOverlap = false
-
-        updateOverlapTargets()
     }
 
-    // MARK: - Clear
+    // MARK: - Cleanup
 
     func deleteAllMovableSpheres() {
         removeSelectionRim()
@@ -361,20 +247,13 @@ final class SphereInteractionManager: ObservableObject {
         movableSpheres.removeAll()
         overlapTargets.removeAll()
 
-        activeClone = nil
-        activeMovableSphere = nil
-        activeMixedSphere = nil
-        activeOverlapTarget = nil
-        activeOverlap = nil
-
-        isDraggingMovableSphere = false
-        isDraggingOverlap = false
+        state = .idle
     }
 
     // MARK: - Overlap Targets
 
     private func updateOverlapTargets() {
-        guard !isDraggingOriginal, !isDraggingOverlap else {
+        guard case .idle = state else {
             return
         }
 
@@ -382,28 +261,12 @@ final class SphereInteractionManager: ObservableObject {
             spheres: movableSpheres
         )
 
-        let currentKeys = Set(
-            overlaps.map(\.key)
-        )
+        let currentKeys = Set(overlaps.map(\.key))
 
-        removeObsoleteOverlapTargets(
-            currentKeys: currentKeys
-        )
-
-        for overlap in overlaps {
-            updateOrCreateOverlapTarget(
-                for: overlap
-            )
-        }
-    }
-
-    private func removeObsoleteOverlapTargets(
-        currentKeys: Set<String>
-    ) {
+        // Remove targets whose spheres no longer overlap.
         overlapTargets.removeAll { target in
-            guard let component = target.components[
-                OverlapVisualComponent.self
-            ] else {
+            guard let component =
+                target.components[OverlapVisualComponent.self] else {
                 target.removeFromParent()
                 return true
             }
@@ -415,79 +278,69 @@ final class SphereInteractionManager: ObservableObject {
 
             return false
         }
-    }
 
-    private func updateOrCreateOverlapTarget(
-        for overlap: SphereOverlap
-    ) {
-        if let target = overlapTargets.first(where: {
-            $0.components[OverlapVisualComponent.self]?.overlapKey == overlap.key
-        }) {
-            updateOverlapTarget(target, with: overlap)
-            return
-        }
+        for overlap in overlaps {
 
-        createOverlapTarget(for: overlap)
-    }
+            // Update an existing target.
+            if let target = overlapTargets.first(where: {
+                $0.components[OverlapVisualComponent.self]?.overlapKey
+                    == overlap.key
+            }) {
+                if let parent = target.parent {
+                    target.position = parent.convert(
+                        position: overlap.position,
+                        from: nil
+                    )
+                }
 
-    private func updateOverlapTarget(
-        _ target: ModelEntity,
-        with overlap: SphereOverlap
-    ) {
-        if let parent = target.parent {
+                target.components.set(
+                    OverlapVisualComponent(
+                        overlapKey: overlap.key,
+                        mixedColor: overlap.color
+                    )
+                )
+
+                continue
+            }
+
+            // Create a new invisible interaction target.
+            guard let parent = overlap.firstSphere.parent else {
+                continue
+            }
+
+            let target = ModelEntity()
+
+            target.name = "OverlapTarget_\(overlap.key)"
             target.position = parent.convert(
                 position: overlap.position,
                 from: nil
             )
-        } else {
-            target.position = overlap.position
+
+            parent.addChild(target)
+
+            target.components.set(
+                CollisionComponent(
+                    shapes: [
+                        .generateSphere(radius: overlapHitRadius)
+                    ]
+                )
+            )
+
+            target.components.set(InputTargetComponent())
+
+            target.components.set(
+                OverlapVisualComponent(
+                    overlapKey: overlap.key,
+                    mixedColor: overlap.color
+                )
+            )
+
+            var manipulation = ManipulationComponent()
+            manipulation.releaseBehavior = .stay
+            target.components.set(manipulation)
+
+            overlapTargets.append(target)
         }
-
-        target.components.set(
-            OverlapVisualComponent(
-                overlapKey: overlap.key,
-                mixedColor: overlap.color
-            )
-        )
-    }
-
-    private func createOverlapTarget(
-        for overlap: SphereOverlap
-    ) {
-        guard let parent = overlap.firstSphere.parent else {
-            return
-        }
-
-        let target = ModelEntity()
-        target.name = "OverlapTarget_\(overlap.key)"
-
-        target.position = parent.convert(
-            position: overlap.position,
-            from: nil
-        )
-
-        parent.addChild(target)
-
-        target.components.set(
-            CollisionComponent(
-                shapes: [.generateSphere(radius: overlapHitRadius)]
-            )
-        )
-
-        target.components.set(InputTargetComponent())
-
-        target.components.set(
-            OverlapVisualComponent(
-                overlapKey: overlap.key,
-                mixedColor: overlap.color
-            )
-        )
-
-        var manipulation = ManipulationComponent()
-        manipulation.releaseBehavior = .stay
-        target.components.set(manipulation)
-
-        overlapTargets.append(target)
     }
 
     // MARK: - Sphere Creation
@@ -495,10 +348,7 @@ final class SphereInteractionManager: ObservableObject {
     private func createClone(
         from original: ModelEntity
     ) -> ModelEntity {
-
-        let color = original.components[
-            RGBColorComponent.self
-        ]?.color ?? .red
+        let color = original.components[RGBColorComponent.self]?.color ?? .red
 
         let clone = ModelEntity(
             mesh: .generateSphere(radius: sphereRadius),
@@ -526,7 +376,6 @@ final class SphereInteractionManager: ObservableObject {
     private func createMixedSphere(
         overlap: SphereOverlap
     ) -> ModelEntity {
-
         let mixedSphere = ModelEntity(
             mesh: .generateSphere(radius: sphereRadius),
             materials: [
@@ -539,7 +388,9 @@ final class SphereInteractionManager: ObservableObject {
         mixedSphere.name = "MixedSphere"
 
         mixedSphere.components.set(
-            RGBColorComponent(color: overlap.color)
+            RGBColorComponent(
+                color: overlap.color
+            )
         )
 
         addRadiatingGlow(
@@ -565,9 +416,19 @@ final class SphereInteractionManager: ObservableObject {
 
     // MARK: - Helpers
 
-    private var canBeginManipulation: Bool {
-        !isDraggingOriginal &&
-        !isDraggingMovableSphere &&
-        !isDraggingOverlap
+    /// Keeps a mixed sphere aligned with the invisible overlap target.
+    private func moveMixedSphere(
+        _ sphere: ModelEntity,
+        to target: ModelEntity
+    ) {
+        guard let parent = target.parent else {
+            sphere.position = target.position
+            return
+        }
+
+        sphere.position = parent.convert(
+            position: target.position,
+            from: target.parent
+        )
     }
 }

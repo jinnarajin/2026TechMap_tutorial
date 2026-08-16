@@ -12,7 +12,3 @@ struct OriginalSphereComponent: Component {
     let color: RGBColor
     let fixedPosition: SIMD3<Float>
 }
-
-/// Marks a dynamically created sphere as movable.
-struct DraggableCloneComponent: Component {
-}
