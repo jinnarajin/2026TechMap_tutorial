@@ -271,6 +271,15 @@
       <code class="inline">BillboardComponent</code>. The glow is visual only.</p>
       <div class="mobilecode"></div>
     </div>
+    <div class="step" data-code="c-place">
+      <div class="steplabel">Step 5</div>
+      <h3>Place the RGB Spheres</h3>
+      <p>Create the three spheres in <code class="inline">ImmersiveView</code>'s
+      <code class="inline">RealityView</code>, position them in front of the user, and add
+      them to a head anchor. At this point the spheres are visible in the immersive space,
+      but they cannot be manipulated yet.</p>
+      <div class="mobilecode"></div>
+    </div>
   </div>
   <div class="panel"><div class="panel-sticky">
     <div class="codewindow">
@@ -732,6 +741,39 @@ func addRadiatingGlow(
 }
 </template>
 
+<template id="c-place" data-name="ImmersiveView.swift">
+import SwiftUI
+import RealityKit
+
+struct ImmersiveView: View {
+
+    var body: some View {
+        RealityView { content in
+            // Register custom components before using them.
+            RGBColorComponent.registerComponent()
+            OriginalSphereComponent.registerComponent()
+
+            let headAnchor = AnchorEntity(.head)
+
+            // The three original spheres stay fixed.
+            let red = makeRGBSphere(color: .red)
+            let green = makeRGBSphere(color: .green)
+            let blue = makeRGBSphere(color: .blue)
+
+            red.position = SIMD3&lt;Float&gt;(0.0, 0.25, -1.5)
+            green.position = SIMD3&lt;Float&gt;(-0.3, -0.15, -1.5)
+            blue.position = SIMD3&lt;Float&gt;(0.3, -0.15, -1.5)
+
+            headAnchor.addChild(red)
+            headAnchor.addChild(green)
+            headAnchor.addChild(blue)
+
+            content.add(headAnchor)
+        }
+    }
+}
+</template>
+
 <template id="c-colorcomp" data-name="SphereComponents.swift">
 import RealityKit
 
@@ -974,7 +1016,7 @@ func createMixedSphere(
 (function () {
   // ── tiny Swift syntax highlighter ──
   var KEYWORDS = /\b(import|struct|class|enum|case|let|var|func|extension|return|guard|else|for|in|while|switch|default|break|continue|if|await|async|try|throws|private|static|final|some|self|nil|true|false|fallthrough|@main|@MainActor|@Observable|@State|@Environment|@unknown)\b/g;
-  var TYPES = /\b(AppModel|ImmersiveSpaceState|App|Scene|WindowGroup|ImmersiveSpace|ImmersiveView|ContentView|View|VStack|Button|Task|Text|ToggleImmersiveSpaceButton|ModelEntity|Entity|MeshResource|RGBColor|RGBColorComponent|OriginalSphereComponent|DraggableCloneComponent|OverlapVisualComponent|Component|PhysicallyBasedMaterial|UnlitMaterial|InputTargetComponent|CollisionComponent|ManipulationComponent|BillboardComponent|SphereOverlap|SphereOverlapSystem|SphereInteractionManager|SIMD3|Float|String|Codable|CGSize|UIGraphicsImageRenderer|TextureResource|UIColor)\b/g;
+  var TYPES = /\b(AppModel|ImmersiveSpaceState|App|Scene|WindowGroup|ImmersiveSpace|ImmersiveView|ContentView|View|VStack|Button|Task|Text|ToggleImmersiveSpaceButton|ModelEntity|Entity|MeshResource|RGBColor|RGBColorComponent|OriginalSphereComponent|DraggableCloneComponent|OverlapVisualComponent|Component|PhysicallyBasedMaterial|UnlitMaterial|InputTargetComponent|CollisionComponent|ManipulationComponent|BillboardComponent|SphereOverlap|SphereOverlapSystem|SphereInteractionManager|SIMD3|Float|String|Codable|AnchorEntity|RealityView|CGSize|UIGraphicsImageRenderer|TextureResource|UIColor)\b/g;
 
   function esc(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -1078,6 +1120,7 @@ func createMixedSphere(
     "c-rgbcolor": { h3: "RGB 색상 만들기", p: C("RGBColor") + " 구조체는 빨강·초록·파랑 값을 따로 저장합니다 — Red " + C("(1, 0, 0)") + ", Green " + C("(0, 1, 0)") + ", Blue " + C("(0, 0, 1)") + ". RGB 값을 시각적 색상과 분리해 두면 나중에 색을 혼합할 수 있습니다." },
     "c-material": { h3: "구 머티리얼 만들기", p: "구는 베이스 색상에 투명도와 발광 색상을 결합해 빛나는 느낌을 내는 " + C("PhysicallyBasedMaterial") + "을 사용합니다." },
     "c-glow": { h3: "퍼지는 글로우 추가하기", p: "두 번째 시각 레이어가 구 주위의 부드러운 글로우를 만듭니다. 평면에 방사형 그라데이션 텍스처를 적용하고 " + C("BillboardComponent") + "로 항상 시청자를 향하게 합니다. 글로우는 시각 요소일 뿐입니다." },
+    "c-place": { h3: "RGB 구 배치하기", p: C("ImmersiveView") + "의 " + C("RealityView") + "에서 세 개의 구를 만들어 사용자 앞에 배치하고 헤드 앵커에 추가합니다. 이 시점에서 구는 이머시브 공간에 보이지만 아직 조작할 수는 없습니다." },
     "c-colorcomp": { h3: "RGB 색상 저장하기", p: C("RGBColorComponent") + "는 구에 연결된 RGB 색상을 저장해, 색상 데이터를 엔티티 자체에 붙여 둡니다." },
     "c-origcomp": { h3: "원본 구 식별하기", p: C("OriginalSphereComponent") + "는 원본 구를 식별하고 고정 위치를 저장합니다 — 그래서 세 개의 원본 구는 제자리에 남고, 이동 가능한 복제본이 인터랙션용으로 생성됩니다." },
     "c-interaction": { h3: "인터랙션을 위한 구 준비하기", p: C("configureSphereForInteraction") + "은 입력을 받을 수 있게 하는 " + C("InputTargetComponent") + ", 타깃 영역을 정의하는 " + C("CollisionComponent") + ", 사용자가 구를 움직일 수 있게 하는 " + C("ManipulationComponent") + "를 추가합니다." },
