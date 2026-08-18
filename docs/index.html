@@ -126,6 +126,7 @@
   <a href="#s5">Mix Colors</a>
   <a href="#s6">Overlap Targets</a>
   <a href="#s7">Visual Feedback</a>
+  <a href="#" id="langtoggle" style="margin-left:auto;color:#fff;font-weight:600">한국어</a>
 </div></nav>
 
 <header class="hero"><div class="inner">
@@ -1149,5 +1150,105 @@ func select(_ sphere: ModelEntity) {
 })();
 </script>
 
+
+<script>
+(function () {
+  var KO_HERO = {
+    h1: "인터랙티브 RGB 빛 경험 만들기",
+    lede: "visionOS에서 RealityKit을 사용해 몰입형 RGB 빛 경험을 만드는 방법을 배웁니다. 빛나는 RGB 구를 만들고, 인터랙션을 더하고, 색을 혼합하고, 겹침을 감지하고, 시각적 피드백을 제공합니다.",
+    time: "예상 시간", minutes: "20분"
+  };
+  var KO_SECTIONS = {
+    s1: { h2: "이머시브 공간 만들기", ov: "RGB 구가 나타날 이머시브 공간을 만드는 것부터 시작합니다. 앱은 일반 SwiftUI 윈도우에서 시작하며, 사용자가 이머시브 공간을 열면 RealityKit이 RGB 구를 배치하고 조작할 별도의 3D 환경을 만듭니다." },
+    s2: { h2: "RGB 구 만들기", ov: "RealityKit 엔티티, 머티리얼, 퍼지는 글로우를 사용해 각 RGB 빛의 시각적 표현을 만듭니다. 각 구는 구형 메시, 색상 머티리얼, RGB 색상 값을 가진 <code class=\"inline\">ModelEntity</code>입니다." },
+    s3: { h2: "컴포넌트 추가하기", ov: "커스텀 RealityKit 컴포넌트로 각 RGB 구에 대한 정보를 저장합니다. 컴포넌트는 엔티티가 자신의 역할이나 상태를 설명하는 데이터를 지니게 해 줍니다." },
+    s4: { h2: "구를 인터랙티브하게 만들기", ov: "RGB 구를 이머시브 공간에서 선택하고 움직일 수 있도록 필요한 컴포넌트와 이벤트 처리를 추가합니다." },
+    s5: { h2: "색 혼합하기", ov: "RGB 값을 저장하고 두 광원이 겹칠 때 결합합니다. 빨강+초록은 노랑, 빨강+파랑은 마젠타가 되며, 삼원색이 모두 겹치면 흰색이 됩니다." },
+    s6: { h2: "겹침 타깃 추가하기", ov: "두 RGB 구가 겹치는 위치에 보이지 않는 인터랙션 지점을 만들어, 원본 구를 직접 조작하지 않고도 혼합 색과 상호작용할 수 있게 합니다." },
+    s7: { h2: "시각적 피드백 추가하기", ov: "선택된 구를 보여주고 RGB 빛이 발광하는 것처럼 보이게 하는 시각적 피드백을 추가합니다: 각 구 주위의 부드러운 글로우와, 현재 선택된 구를 감싸는 흰색 선택 링." }
+  };
+  var C = function (t) { return '<code class="inline">' + t + "</code>"; };
+  var KO_STEPS = {
+    "c-appmodel": { h3: "앱 모델 만들기", p: C("AppModel") + "은 이머시브 공간의 현재 상태를 추적합니다. " + C("immersiveSpaceID") + "는 공간을 식별하고, " + C("immersiveSpaceState") + "는 공간이 닫혀 있는지, 전환 중인지, 열려 있는지를 추적합니다." },
+    "c-app": { h3: "앱의 씬 정의하기", p: C("App") + " 구조체는 일반 윈도우와 이머시브 공간을 모두 정의합니다. " + C("WindowGroup") + "은 초기 SwiftUI 인터페이스를 표시하고, " + C("ImmersiveSpace") + " 씬은 " + C("ImmersiveView") + "를 담습니다. 공간이 나타나면 상태가 " + C("open") + "이 되고, 사라지면 " + C("closed") + "로 돌아갑니다." },
+    "c-toggle": { h3: "이머시브 공간 열고 닫기", p: C("openImmersiveSpace") + "는 식별자로 공간을 열고 " + C("dismissImmersiveSpace") + "는 닫습니다. " + C("inTransition") + " 상태는 공간이 여닫히는 동안 버튼을 비활성화합니다." },
+    "c-content": { h3: "초기 뷰 만들기", p: "일반 윈도우에는 이머시브 경험으로 들어가는 버튼 하나만 있으면 됩니다. 이 시점에서 앱은 빈 이머시브 공간을 열고 닫을 수 있고, RGB 구는 다음 섹션에서 추가합니다." },
+    "c-makesphere": { h3: "구 만들기", p: C("ModelEntity") + "는 메시와 머티리얼을 결합해 보이는 오브젝트를 만듭니다. " + C("makeRGBSphere") + " 함수는 반지름 " + C("0.15") + "미터의 구를 만들고 " + C("RGBColorComponent") + "로 색을 저장합니다." },
+    "c-rgbcolor": { h3: "RGB 색상 만들기", p: C("RGBColor") + " 구조체는 빨강·초록·파랑 값을 따로 저장합니다 — Red " + C("(1, 0, 0)") + ", Green " + C("(0, 1, 0)") + ", Blue " + C("(0, 0, 1)") + ". RGB 값을 시각적 색상과 분리해 두면 나중에 색을 혼합할 수 있습니다." },
+    "c-material": { h3: "구 머티리얼 만들기", p: "구는 베이스 색상에 투명도와 발광 색상을 결합해 빛나는 느낌을 내는 " + C("PhysicallyBasedMaterial") + "을 사용합니다." },
+    "c-glow": { h3: "퍼지는 글로우 추가하기", p: "두 번째 시각 레이어가 구 주위의 부드러운 글로우를 만듭니다. 평면에 방사형 그라데이션 텍스처를 적용하고 " + C("BillboardComponent") + "로 항상 시청자를 향하게 합니다. 글로우는 시각 요소일 뿐입니다." },
+    "c-colorcomp": { h3: "RGB 색상 저장하기", p: C("RGBColorComponent") + "는 구에 연결된 RGB 색상을 저장해, 색상 데이터를 엔티티 자체에 붙여 둡니다." },
+    "c-origcomp": { h3: "원본 구 식별하기", p: C("OriginalSphereComponent") + "는 원본 구를 식별하고 고정 위치를 저장합니다 — 그래서 세 개의 원본 구는 제자리에 남고, 이동 가능한 복제본이 인터랙션용으로 생성됩니다." },
+    "c-interaction": { h3: "인터랙션을 위한 구 준비하기", p: C("configureSphereForInteraction") + "은 입력을 받을 수 있게 하는 " + C("InputTargetComponent") + ", 타깃 영역을 정의하는 " + C("CollisionComponent") + ", 사용자가 구를 움직일 수 있게 하는 " + C("ManipulationComponent") + "를 추가합니다." },
+    "c-manip": { h3: "조작 이벤트 처리하기", p: C("SphereInteractionManager") + "는 조작 시작, 위치 업데이트, 놓기 세 단계의 이벤트에 응답합니다. 원본 구는 고정된 채, 이동 가능한 복제본이 사용자의 인터랙션을 따라갑니다." },
+    "c-mix": { h3: "RGB 색 결합하기", p: C("mixed(with:)") + " 함수는 두 색의 RGB 성분을 더한 뒤 " + C("0...1") + " 범위로 정규화합니다." },
+    "c-overlapsys": { h3: "겹치는 구 감지하기", p: C("SphereOverlapSystem") + "은 이동 가능한 구의 모든 쌍의 월드 좌표를 비교합니다. 두 중심 사이 거리가 겹침 거리보다 작으면 겹친 것으로 판정하고, 중간점이 색 혼합 인터랙션의 위치가 됩니다." },
+    "c-overlapval": { h3: "겹침 기술하기", p: "각 겹침은 " + C("SphereOverlap") + " 값으로 기술됩니다 — 두 구, 중간점 위치, 혼합 색상, 그리고 같은 쌍에 중복 타깃이 생기지 않게 하는 고유 키." },
+    "c-overlaptarget": { h3: "겹침 타깃 만들기", p: "겹친 구의 중간점에 보이지 않는 " + C("ModelEntity") + "를 만듭니다. 보이는 메시는 필요 없고 — " + C("CollisionComponent") + ", " + C("InputTargetComponent") + ", " + C("ManipulationComponent") + "가 사용자 제스처에 반응하게 합니다." },
+    "c-overlapcomp": { h3: "겹침 정보 저장하기", p: C("OverlapVisualComponent") + "는 겹침 키와 혼합 RGB 색상을 타깃에 보관합니다. 키는 어떤 구 쌍이 타깃을 만들었는지 식별합니다." },
+    "c-mixedsphere": { h3: "혼합 구 만들기", p: "사용자가 겹침 타깃을 조작하기 시작하면 계산된 혼합 색으로 새 구를 겹침 지점에 만듭니다. 이 구는 이동 가능한 구 컬렉션에 합류해 이후의 겹침에도 참여할 수 있습니다. 더 이상 겹침이 아닌 타깃은 구가 움직일 때 제거됩니다." },
+    "c-glow2": { h3: "퍼지는 글로우 만들기", p: "빌보드 평면 위 방사형 그라데이션 텍스처 — 중앙이 가장 강하고 가장자리로 갈수록 옅어지며 구의 RGB 색으로 물듭니다. 투명 구 대신 평면을 쓰면 '풍선' 같은 느낌 없이 부드러운 발광 효과를 냅니다." },
+    "c-rim": { h3: "선택 링 만들기", p: "토러스가 아닌 커스텀 고리 메시로 만든 얇은 흰색 링이라 투명한 구 너머로 불필요한 지오메트리가 보이지 않습니다. " + C("BillboardComponent") + "가 링을 항상 사용자 쪽으로 향하게 하고, 링은 한 번에 하나의 구에만 붙습니다." },
+    "c-noninteractive": { h3: "시각 요소는 비인터랙티브로 유지하기", p: "글로우와 링의 " + C("CollisionComponent") + ", " + C("InputTargetComponent") + ", " + C("ManipulationComponent") + "를 제거해 사용자가 구 자체와 상호작용하게 합니다 — 시각 레이어와 인터랙션 레이어를 분리합니다." }
+  };
+  var KO_RESULT = "<strong>결과</strong> — RGB 구는 이제 부드러운 색 글로우와 명확한 선택 표시를 갖습니다. 글로우는 구가 광원임을 전달하고, 선택 링은 지금 어떤 구를 조작 중인지 이해하도록 돕습니다.";
+  var KO_STEP_LABEL = "단계 ";
+
+  var en = {};   // saved English HTML, filled on first switch
+  function save(key, el) { if (!(key in en)) en[key] = el.innerHTML; }
+
+  function apply(lang) {
+    var ko = lang === "ko";
+    var h1 = document.querySelector(".hero h1");
+    var lede = document.querySelector(".hero .lede");
+    var time = document.querySelector(".hero .time span");
+    save("h1", h1); save("lede", lede); save("time", time);
+    h1.innerHTML = ko ? KO_HERO.h1 : en.h1;
+    lede.innerHTML = ko ? KO_HERO.lede : en.lede;
+    time.innerHTML = ko ? "<small>" + KO_HERO.time + "</small>" + KO_HERO.minutes : en.time;
+
+    Object.keys(KO_SECTIONS).forEach(function (id) {
+      var head = document.getElementById(id);
+      if (!head) return;
+      var h2 = head.querySelector("h2"), ov = head.querySelector(".overview");
+      save(id + "h2", h2); save(id + "ov", ov);
+      h2.innerHTML = ko ? KO_SECTIONS[id].h2 : en[id + "h2"];
+      ov.innerHTML = ko ? KO_SECTIONS[id].ov : en[id + "ov"];
+    });
+
+    document.querySelectorAll(".step").forEach(function (step) {
+      var t = KO_STEPS[step.dataset.code];
+      if (!t) return;
+      var h3 = step.querySelector("h3"), p = step.querySelector("p");
+      var label = step.querySelector(".steplabel");
+      save(step.dataset.code + "h3", h3);
+      save(step.dataset.code + "p", p);
+      save(step.dataset.code + "l", label);
+      h3.innerHTML = ko ? t.h3 : en[step.dataset.code + "h3"];
+      p.innerHTML = ko ? t.p : en[step.dataset.code + "p"];
+      label.innerHTML = ko
+        ? KO_STEP_LABEL + en[step.dataset.code + "l"].replace(/[^0-9]/g, "")
+        : en[step.dataset.code + "l"];
+    });
+
+    var box = document.querySelector(".result-callout .box");
+    if (box) { save("result", box); box.innerHTML = ko ? KO_RESULT : en.result; }
+
+    var btn = document.getElementById("langtoggle");
+    btn.textContent = ko ? "English" : "한국어";
+    document.documentElement.lang = ko ? "ko" : "en";
+    try { localStorage.setItem("rgb-lang", lang); } catch (e) {}
+  }
+
+  document.getElementById("langtoggle").addEventListener("click", function (e) {
+    e.preventDefault();
+    apply(document.documentElement.lang === "ko" ? "en" : "ko");
+  });
+
+  var saved = null;
+  try { saved = localStorage.getItem("rgb-lang"); } catch (e) {}
+  if (saved === "ko") apply("ko");
+})();
+</script>
 </body>
 </html>
