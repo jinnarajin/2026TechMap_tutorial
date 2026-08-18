@@ -121,7 +121,6 @@
   <span class="brand">RGB&nbsp;Tutorials</span>
   <a href="#s1">Immersive Space</a>
   <a href="#s2">RGB Spheres</a>
-  <a href="#s3">Components</a>
   <a href="#s4">Interaction</a>
   <a href="#s5">Mix Colors</a>
   <a href="#s6">Overlap Targets</a>
@@ -143,7 +142,7 @@
 <!-- ═══════════ Section 1 ═══════════ -->
 <div class="chapter-head" id="s1">
   <div>
-    <div class="kicker">Section 1 of 6</div>
+    <div class="kicker">Section 1 of 5</div>
     <h2>Create the Immersive Space</h2>
     <p class="overview">Start by creating the immersive space where the RGB spheres will
     appear. The app starts in a regular SwiftUI window; when the user opens the immersive
@@ -224,7 +223,7 @@
 <!-- ═══════════ Section 2 ═══════════ -->
 <div class="chapter-head" id="s2">
   <div>
-    <div class="kicker">Section 2 of 6</div>
+    <div class="kicker">Section 2 of 5</div>
     <h2>Create the RGB Spheres</h2>
     <p class="overview">Create the visual representation of each RGB light using RealityKit
     entities, materials, and a radiating glow. Each sphere is a
@@ -289,16 +288,16 @@
   </div></div>
 </div>
 
-<!-- ═══════════ Section 3 ═══════════ -->
-<div class="chapter-head" id="s3">
+<!-- ═══════════ Section 4 ═══════════ -->
+<div class="chapter-head" id="s4">
   <div>
-    <div class="kicker">Section 3 of 6</div>
-    <h2>Add Components</h2>
+    <div class="kicker">Section 3 of 5</div>
+    <h2>Make the Spheres Interactive</h2>
     <p class="overview">Use custom RealityKit components to store information about each
-    RGB sphere. Components allow an entity to carry data that describes its role or
-    state.</p>
+    RGB sphere, then add the components and event handling needed to make the spheres
+    selectable and movable in the immersive space.</p>
   </div>
-  <div class="chapter-art"><div class="mini sphere g"></div></div>
+  <div class="chapter-art"><div class="mini sphere b"></div></div>
 </div>
 
 <div class="steps-layout">
@@ -318,30 +317,8 @@
       while movable copies are created for interaction.</p>
       <div class="mobilecode"></div>
     </div>
-  </div>
-  <div class="panel"><div class="panel-sticky">
-    <div class="codewindow">
-      <div class="bar"><span class="dot"></span><span class="filename">SphereComponents.swift</span></div>
-      <pre class="codebody"></pre>
-    </div>
-  </div></div>
-</div>
-
-<!-- ═══════════ Section 4 ═══════════ -->
-<div class="chapter-head" id="s4">
-  <div>
-    <div class="kicker">Section 4 of 6</div>
-    <h2>Make the Spheres Interactive</h2>
-    <p class="overview">Add the components and event handling needed to make the RGB
-    spheres selectable and movable in the immersive space.</p>
-  </div>
-  <div class="chapter-art"><div class="mini sphere b"></div></div>
-</div>
-
-<div class="steps-layout">
-  <div class="steps">
     <div class="step" data-code="c-interaction">
-      <div class="steplabel">Step 1</div>
+      <div class="steplabel">Step 3</div>
       <h3>Prepare a Sphere for Interaction</h3>
       <p><code class="inline">configureSphereForInteraction</code> adds an
       <code class="inline">InputTargetComponent</code> so the entity can receive input, a
@@ -351,7 +328,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-manip">
-      <div class="steplabel">Step 2</div>
+      <div class="steplabel">Step 4</div>
       <h3>Handle Manipulation Events</h3>
       <p>The <code class="inline">SphereInteractionManager</code> responds to manipulation
       events in three stages: beginning a manipulation, updating the sphere's position, and
@@ -362,7 +339,7 @@
   </div>
   <div class="panel"><div class="panel-sticky">
     <div class="codewindow">
-      <div class="bar"><span class="dot"></span><span class="filename">SphereInteraction.swift</span></div>
+      <div class="bar"><span class="dot"></span><span class="filename">SphereComponents.swift</span></div>
       <pre class="codebody"></pre>
     </div>
   </div></div>
@@ -371,7 +348,7 @@
 <!-- ═══════════ Section 5 ═══════════ -->
 <div class="chapter-head" id="s5">
   <div>
-    <div class="kicker">Section 5 of 6</div>
+    <div class="kicker">Section 4 of 5</div>
     <h2>Mix Colors</h2>
     <p class="overview">Store RGB values and combine them when two light sources overlap.
     Combining red and green produces yellow; red and blue produce magenta; when all three
@@ -426,7 +403,7 @@
 <!-- ═══════════ Section 6 ═══════════ -->
 <div class="chapter-head" id="s6">
   <div>
-    <div class="kicker">Section 6 of 6</div>
+    <div class="kicker">Section 5 of 5</div>
     <h2>Add Overlap Targets</h2>
     <p class="overview">Create an invisible interaction point at the location where two RGB
     spheres overlap, so the user can interact with the mixed color without directly
@@ -1103,7 +1080,7 @@ func createMixedSphere(
     s1: { h2: "이머시브 공간 만들기", ov: "RGB 구가 나타날 이머시브 공간을 만드는 것부터 시작합니다. 앱은 일반 SwiftUI 윈도우에서 시작하며, 사용자가 이머시브 공간을 열면 RealityKit이 RGB 구를 배치하고 조작할 별도의 3D 환경을 만듭니다." },
     s2: { h2: "RGB 구 만들기", ov: "RealityKit 엔티티, 머티리얼, 퍼지는 글로우를 사용해 각 RGB 빛의 시각적 표현을 만듭니다. 각 구는 구형 메시, 색상 머티리얼, RGB 색상 값을 가진 <code class=\"inline\">ModelEntity</code>입니다." },
     s3: { h2: "컴포넌트 추가하기", ov: "커스텀 RealityKit 컴포넌트로 각 RGB 구에 대한 정보를 저장합니다. 컴포넌트는 엔티티가 자신의 역할이나 상태를 설명하는 데이터를 지니게 해 줍니다." },
-    s4: { h2: "구를 인터랙티브하게 만들기", ov: "RGB 구를 이머시브 공간에서 선택하고 움직일 수 있도록 필요한 컴포넌트와 이벤트 처리를 추가합니다." },
+    s4: { h2: "구를 인터랙티브하게 만들기", ov: "커스텀 RealityKit 컴포넌트로 각 구의 정보를 저장한 뒤, 구를 이머시브 공간에서 선택하고 움직일 수 있도록 필요한 컴포넌트와 이벤트 처리를 추가합니다." },
     s5: { h2: "색 혼합하기", ov: "RGB 값을 저장하고 두 광원이 겹칠 때 결합합니다. 빨강+초록은 노랑, 빨강+파랑은 마젠타가 되며, 삼원색이 모두 겹치면 흰색이 됩니다." },
     s6: { h2: "겹침 타깃 추가하기", ov: "두 RGB 구가 겹치는 위치에 보이지 않는 인터랙션 지점을 만들어, 원본 구를 직접 조작하지 않고도 혼합 색과 상호작용할 수 있게 합니다." },
     s7: { h2: "시각적 피드백 추가하기", ov: "선택된 구를 보여주고 RGB 빛이 발광하는 것처럼 보이게 하는 시각적 피드백을 추가합니다: 각 구 주위의 부드러운 글로우와, 현재 선택된 구를 감싸는 흰색 선택 링." }
