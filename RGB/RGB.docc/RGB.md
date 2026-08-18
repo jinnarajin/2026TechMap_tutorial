@@ -1,13 +1,14 @@
 # ``RGB``
 
-<!--@START_MENU_TOKEN@-->Summary<!--@END_MENU_TOKEN@-->
-
 ## Overview
 
-<!--@START_MENU_TOKEN@-->Text<!--@END_MENU_TOKEN@-->
+Learn how to build an immersive RGB light experience in visionOS using
+RealityKit. In this tutorial, you will create luminous RGB spheres,
+make them interactive, combine their colors, detect when they overlap,
+and provide visual feedback.
 
 ## Topics
 
-### <!--@START_MENU_TOKEN@-->Group<!--@END_MENU_TOKEN@-->
+### Tutorials
 
-- <!--@START_MENU_TOKEN@-->``Symbol``<!--@END_MENU_TOKEN@-->
+- <doc:BuildRGBLightExperience>

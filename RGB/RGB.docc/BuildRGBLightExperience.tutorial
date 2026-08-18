@@ -1,0 +1,286 @@
+@Tutorial(time: 20) {
+@Intro(title: "Build an Interactive RGB Light Experience") {
+Learn how to use RealityKit in visionOS to create an immersive
+RGB light experience.
+
+```
+    You will create glowing RGB spheres, make them interactive,
+    combine their colors, detect when they overlap, and provide
+    visual feedback.
+
+    @Image(
+        source: "RGBExperience",
+        alt: "Three glowing red, green, and blue spheres floating in an immersive space"
+    )
+}
+
+@Section(title: "Create the Immersive Space") {
+    @ContentAndMedia {
+        Start by creating the immersive space where the RGB spheres
+        will appear.
+
+        @Image(
+            source: "ImmersiveSpace",
+            alt: "An immersive visionOS scene containing three RGB spheres"
+        )
+    }
+
+    @Steps {
+        @Step {
+            Create a `RealityView` and add a head anchor to the
+            immersive scene.
+
+            @Code(
+                name: "ImmersiveView.swift",
+                file: "01-ImmersiveSpace.swift"
+            )
+        }
+
+        @Step {
+            Create the initial RGB spheres and position them in
+            front of the user.
+
+            @Code(
+                name: "Create the RGB spheres",
+                file: "01-ImmersiveSpace.swift"
+            )
+        }
+    }
+}
+
+@Section(title: "Create the RGB Spheres") {
+    @ContentAndMedia {
+        Create the visual representation of each RGB light using
+        RealityKit entities, materials, and a radiating glow.
+
+        @Image(
+            source: "RGBSpheres",
+            alt: "Three luminous red, green, and blue spheres"
+        )
+    }
+
+    @Steps {
+        @Step {
+            Create a spherical `ModelEntity` with an RGB material.
+
+            @Code(
+                name: "RGBSphere.swift",
+                file: "02-RGBSphere.swift"
+            )
+        }
+
+        @Step {
+            Add a soft radiating glow around the sphere using a
+            radial gradient texture.
+
+            @Code(
+                name: "Add the radiating glow",
+                file: "02-RGBSphere.swift"
+            )
+        }
+    }
+}
+
+@Section(title: "Add Components") {
+    @ContentAndMedia {
+        Use custom RealityKit components to store information about
+        each RGB sphere.
+
+        @Image(
+            source: "Components",
+            alt: "An RGB sphere with custom RealityKit components"
+        )
+    }
+
+    @Steps {
+        @Step {
+            Create an `RGBColorComponent` to store the sphere's RGB
+            color.
+
+            @Code(
+                name: "RGBColorComponent",
+                file: "03-Components.swift"
+            )
+        }
+
+        @Step {
+            Create an `OriginalSphereComponent` to identify an
+            original sphere and store its fixed position.
+
+            @Code(
+                name: "OriginalSphereComponent",
+                file: "03-Components.swift"
+            )
+        }
+    }
+}
+
+@Section(title: "Make the Spheres Interactive") {
+    @ContentAndMedia {
+        Add the components and event handling needed to make the
+        RGB spheres movable.
+
+        @Image(
+            source: "SphereInteraction",
+            alt: "A hand interacting with an RGB sphere"
+        )
+    }
+
+    @Steps {
+        @Step {
+            Add an `InputTargetComponent`, `CollisionComponent`,
+            and `ManipulationComponent` to an RGB sphere.
+
+            @Code(
+                name: "Configure sphere interaction",
+                file: "04-Interaction.swift"
+            )
+        }
+
+        @Step {
+            Use RealityKit manipulation events to respond when a
+            sphere begins moving, updates its position, and is
+            released.
+
+            @Code(
+                name: "Handle manipulation events",
+                file: "04-Interaction.swift"
+            )
+        }
+    }
+}
+
+@Section(title: "Mix Colors") {
+    @ContentAndMedia {
+        Store RGB values and combine them when two light sources
+        overlap.
+
+        @Image(
+            source: "ColorMixing",
+            alt: "Red and green light spheres overlapping to produce yellow"
+        )
+    }
+
+    @Steps {
+        @Step {
+            Store red, green, and blue values separately so the
+            colors can be combined mathematically.
+
+            @Code(
+                name: "RGBColor.swift",
+                file: "05-ColorMixing.swift"
+            )
+        }
+
+        @Step {
+            Combine the RGB values of two colors and normalize the
+            result.
+
+            @Code(
+                name: "Mix RGB colors",
+                file: "05-ColorMixing.swift"
+            )
+        }
+
+        @Step {
+            Detect when two movable spheres are close enough to
+            overlap.
+
+            @Code(
+                name: "SphereOverlapSystem.swift",
+                file: "05-ColorMixing.swift"
+            )
+        }
+    }
+}
+
+@Section(title: "Add Overlap Targets") {
+    @ContentAndMedia {
+        Create an invisible interaction point at the location where
+        two RGB spheres overlap.
+
+        @Image(
+            source: "OverlapTarget",
+            alt: "Two overlapping RGB spheres with an invisible interaction point at their midpoint"
+        )
+    }
+
+    @Steps {
+        @Step {
+            Create an invisible `ModelEntity` at the midpoint of
+            two overlapping spheres.
+
+            @Code(
+                name: "Create the overlap target",
+                file: "06-OverlapTarget.swift"
+            )
+        }
+
+        @Step {
+            Store the overlap key and mixed color using an
+            `OverlapVisualComponent`.
+
+            @Code(
+                name: "OverlapVisualComponent.swift",
+                file: "06-OverlapTarget.swift"
+            )
+        }
+
+        @Step {
+            Create a new mixed sphere when the overlap target is
+            manipulated.
+
+            @Code(
+                name: "Create the mixed sphere",
+                file: "06-OverlapTarget.swift"
+            )
+        }
+    }
+}
+
+@Section(title: "Add Visual Feedback") {
+    @ContentAndMedia {
+        Add visual feedback to show the selected sphere and make
+        the RGB lights appear luminous.
+
+        @Image(
+            source: "VisualFeedback",
+            alt: "A selected RGB sphere surrounded by a white rim and soft glow"
+        )
+    }
+
+    @Steps {
+        @Step {
+            Create a soft radial glow using a gradient texture and
+            a billboarded plane.
+
+            @Code(
+                name: "Create the radiating glow",
+                file: "07-VisualFeedback.swift"
+            )
+        }
+
+        @Step {
+            Add a white selection rim around the currently selected
+            sphere.
+
+            @Code(
+                name: "Create the selection rim",
+                file: "07-VisualFeedback.swift"
+            )
+        }
+
+        @Step {
+            Keep the glow and selection rim visual only so they do
+            not interfere with sphere interaction.
+
+            @Code(
+                name: "Keep visual elements non-interactive",
+                file: "07-VisualFeedback.swift"
+            )
+        }
+    }
+}
+```
+
+}
