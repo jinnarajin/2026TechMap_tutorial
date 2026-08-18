@@ -368,8 +368,17 @@
 
 <div class="steps-layout">
   <div class="steps">
-    <div class="step" data-code="c-mix">
+    <div class="step" data-code="c-clone">
       <div class="steplabel">Step 1</div>
+      <h3>Create a Movable Clone</h3>
+      <p>Original spheres never leave their fixed positions. When the user starts
+      manipulating an original sphere, create a movable <em>clone</em> with the same color,
+      glow, and interaction components. The clone joins the movable sphere collection —
+      these clones are what overlap and mix colors.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-mix">
+      <div class="steplabel">Step 2</div>
       <h3>Combine RGB Colors</h3>
       <p>The <code class="inline">mixed(with:)</code> function adds the RGB components of
       two colors together and normalizes the result to the
@@ -382,7 +391,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-overlapsys">
-      <div class="steplabel">Step 2</div>
+      <div class="steplabel">Step 3</div>
       <h3>Detect Overlapping Spheres</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereOverlapSystem.swift</code></div>
       <p>The <code class="inline">SphereOverlapSystem</code> compares the world-space
@@ -392,7 +401,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-overlapval">
-      <div class="steplabel">Step 3</div>
+      <div class="steplabel">Step 4</div>
       <h3>Describe the Overlap</h3>
       <p>Each overlap is described by a <code class="inline">SphereOverlap</code> value —
       the two spheres, the midpoint position, the mixed color, and a unique key that
@@ -867,6 +876,54 @@ extension RGBColor {
 }
 </template>
 
+<template id="c-clone" data-name="SphereInteractionManager.swift">
+// An original RGB sphere creates a movable clone.
+if let original = entity.components[OriginalSphereComponent.self] {
+    let clone = createClone(from: entity)
+
+    clone.position = entity.position
+    entity.parent?.addChild(clone)
+    movableSpheres.append(clone)
+
+    state = .original(
+        sphere: entity,
+        position: original.fixedPosition,
+        clone: clone
+    )
+
+    selectSphere(clone)
+    return
+}
+
+private func createClone(
+    from original: ModelEntity
+) -> ModelEntity {
+    let color = original.components[RGBColorComponent.self]?.color ?? .red
+
+    let clone = ModelEntity(
+        mesh: .generateSphere(radius: sphereRadius),
+        materials: [
+            makeRGBMaterial(color: color.uiColor)
+        ]
+    )
+
+    clone.name = "Clone"
+
+    clone.components.set(
+        RGBColorComponent(color: color)
+    )
+
+    addRadiatingGlow(
+        to: clone,
+        color: color.uiColor
+    )
+
+    configureSphereForInteraction(clone)
+
+    return clone
+}
+</template>
+
 <template id="c-overlapsys" data-name="SphereOverlapSystem.swift">
 import RealityKit
 import simd
@@ -1111,6 +1168,7 @@ func createMixedSphere(
     "c-origcomp": { h3: "원본 구 식별하기", p: C("OriginalSphereComponent") + "는 원본 구를 식별하고 고정 위치를 저장합니다 — 그래서 세 개의 원본 구는 제자리에 남고, 이동 가능한 복제본이 인터랙션용으로 생성됩니다." },
     "c-interaction": { h3: "인터랙션을 위한 구 준비하기", p: C("configureSphereForInteraction") + "은 입력을 받을 수 있게 하는 " + C("InputTargetComponent") + ", 타깃 영역을 정의하는 " + C("CollisionComponent") + ", 사용자가 구를 움직일 수 있게 하는 " + C("ManipulationComponent") + "를 추가합니다." },
     "c-manip": { h3: "조작 이벤트 처리하기", p: C("SphereInteractionManager") + "는 조작 시작, 위치 업데이트, 놓기 세 단계의 이벤트에 응답합니다. 원본 구는 고정된 채, 이동 가능한 복제본이 사용자의 인터랙션을 따라갑니다." },
+    "c-clone": { h3: "이동 가능한 복제본 만들기", p: "원본 구는 고정 위치를 떠나지 않습니다. 사용자가 원본 구를 조작하기 시작하면 같은 색·글로우·인터랙션 컴포넌트를 가진 이동 가능한 <em>복제본</em>을 만듭니다. 복제본은 이동 가능한 구 컬렉션에 합류하며 — 실제로 겹치고 색을 혼합하는 것은 이 복제본들입니다." },
     "c-mix": { h3: "RGB 색 결합하기", p: C("mixed(with:)") + " 함수는 두 색의 RGB 성분을 더한 뒤 " + C("0...1") + " 범위로 정규화합니다." },
     "c-overlapsys": { h3: "겹치는 구 감지하기", p: C("SphereOverlapSystem") + "은 이동 가능한 구의 모든 쌍의 월드 좌표를 비교합니다. 두 중심 사이 거리가 겹침 거리보다 작으면 겹친 것으로 판정하고, 중간점이 색 혼합 인터랙션의 위치가 됩니다." },
     "c-overlapval": { h3: "겹침 기술하기", p: "각 겹침은 " + C("SphereOverlap") + " 값으로 기술됩니다 — 두 구, 중간점 위치, 혼합 색상, 그리고 같은 쌍에 중복 타깃이 생기지 않게 하는 고유 키." },
