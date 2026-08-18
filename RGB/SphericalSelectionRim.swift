@@ -11,9 +11,6 @@ import UIKit
 // MARK: - Selection Rim
 
 /// Creates the white selection ring shown around the active sphere.
-///
-/// A flat annulus is used instead of a torus so the ring does not
-/// reveal its back side through the transparent sphere.
 func createSphericalSelectionRim() -> ModelEntity {
     let mesh = makeSphericalRimMesh(
         outerRadius: 0.153,
@@ -21,20 +18,13 @@ func createSphericalSelectionRim() -> ModelEntity {
         segments: 96
     )
 
-    let material = UnlitMaterial(color: .white)
-
     let rim = ModelEntity(
         mesh: mesh,
-        materials: [material]
+        materials: [UnlitMaterial(color: .white)]
     )
 
     rim.name = "SelectionRim"
     rim.components.set(BillboardComponent())
-
-    // The rim is visual only.
-    rim.components.remove(CollisionComponent.self)
-    rim.components.remove(InputTargetComponent.self)
-    rim.components.remove(ManipulationComponent.self)
 
     return rim
 }
@@ -46,7 +36,6 @@ private func makeSphericalRimMesh(
     thickness: Float,
     segments: Int
 ) -> MeshResource {
-
     let innerRadius = outerRadius - thickness
 
     var positions: [SIMD3<Float>] = []
@@ -54,25 +43,11 @@ private func makeSphericalRimMesh(
 
     for i in 0..<segments {
         let angle = Float(i) / Float(segments) * .pi * 2
-
         let cosAngle = cos(angle)
         let sinAngle = sin(angle)
 
-        positions.append(
-            SIMD3(
-                outerRadius * cosAngle,
-                outerRadius * sinAngle,
-                0
-            )
-        )
-
-        positions.append(
-            SIMD3(
-                innerRadius * cosAngle,
-                innerRadius * sinAngle,
-                0
-            )
-        )
+        positions.append(SIMD3(outerRadius * cosAngle, outerRadius * sinAngle, 0))
+        positions.append(SIMD3(innerRadius * cosAngle, innerRadius * sinAngle, 0))
 
         normals.append(SIMD3(0, 0, 1))
         normals.append(SIMD3(0, 0, 1))

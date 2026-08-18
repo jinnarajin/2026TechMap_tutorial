@@ -17,13 +17,10 @@ struct SphereOverlap {
 }
 
 final class SphereOverlapSystem {
-
     private let overlapDistance: Float = 0.30
 
     func checkOverlap(spheres: [ModelEntity]) -> [SphereOverlap] {
-        guard spheres.count >= 2 else {
-            return []
-        }
+        guard spheres.count >= 2 else { return [] }
 
         var overlaps: [SphereOverlap] = []
 
@@ -32,21 +29,13 @@ final class SphereOverlapSystem {
                 let first = spheres[firstIndex]
                 let second = spheres[secondIndex]
 
-                guard first !== second else {
-                    continue
-                }
+                guard first !== second else { continue }
 
                 let firstPosition = first.position(relativeTo: nil)
                 let secondPosition = second.position(relativeTo: nil)
+                let distance = simd_distance(firstPosition, secondPosition)
 
-                let distance = simd_distance(
-                    firstPosition,
-                    secondPosition
-                )
-
-                guard distance < overlapDistance else {
-                    continue
-                }
+                guard distance < overlapDistance else { continue }
 
                 guard
                     let firstColor = first.components[RGBColorComponent.self],
@@ -55,11 +44,8 @@ final class SphereOverlapSystem {
                     continue
                 }
 
-                let mixedColor = firstColor.color.mixed(
-                    with: secondColor.color
-                )
-
-                let midpoint = (firstPosition + secondPosition) / 2.0
+                let mixedColor = firstColor.color.mixed(with: secondColor.color)
+                let midpoint = (firstPosition + secondPosition) / 2
                 let key = makePairKey(first, second)
 
                 overlaps.append(
@@ -77,11 +63,7 @@ final class SphereOverlapSystem {
         return overlaps
     }
 
-    private func makePairKey(
-        _ first: ModelEntity,
-        _ second: ModelEntity
-    ) -> String {
-
+    private func makePairKey(_ first: ModelEntity, _ second: ModelEntity) -> String {
         let firstID = ObjectIdentifier(first).hashValue
         let secondID = ObjectIdentifier(second).hashValue
 
