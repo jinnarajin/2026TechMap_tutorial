@@ -533,7 +533,7 @@
 </footer>
 
 <!-- ═══════════ code templates ═══════════ -->
-<template id="c-newproject" data-name="Choose a template">
+<template id="c-newproject" data-name="Choose a template" data-img="images/01-template.png">
 Xcode ▸ File ▸ New ▸ Project…
 
 Choose a template for your new project:
@@ -545,7 +545,7 @@ Choose a template for your new project:
 Then click Next.
 </template>
 
-<template id="c-options" data-name="Choose options">
+<template id="c-options" data-name="Choose options" data-img="images/02-options.png">
 Choose options for your new project:
 
   Product Name:               RGB
@@ -1155,9 +1155,14 @@ func select(_ sphere: ModelEntity) {
     if (!cache[id]) {
       var tpl = document.getElementById(id);
       if (!tpl) return { name: "", html: "" };
-      var raw = tpl.innerHTML.replace(/^\n+|\s+$/g, "")
-        .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
-      cache[id] = { name: tpl.dataset.name || "", html: highlight(raw) };
+      if (tpl.dataset.img) {
+        cache[id] = { name: tpl.dataset.name || "",
+          html: '<img src="' + tpl.dataset.img + '" alt="" style="max-width:100%;border-radius:8px;display:block">' };
+      } else {
+        var raw = tpl.innerHTML.replace(/^\n+|\s+$/g, "")
+          .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+        cache[id] = { name: tpl.dataset.name || "", html: highlight(raw) };
+      }
     }
     return cache[id];
   }
