@@ -125,7 +125,6 @@
   <a href="#s4">Interaction</a>
   <a href="#s5">Mix Colors</a>
   <a href="#s6">Overlap Targets</a>
-  <a href="#s7">Visual Feedback</a>
   <a href="#" id="langtoggle" style="margin-left:auto;color:#fff;font-weight:600">한국어</a>
 </div></nav>
 
@@ -144,7 +143,7 @@
 <!-- ═══════════ Section 1 ═══════════ -->
 <div class="chapter-head" id="s1">
   <div>
-    <div class="kicker">Section 1 of 7</div>
+    <div class="kicker">Section 1 of 6</div>
     <h2>Create the Immersive Space</h2>
     <p class="overview">Start by creating the immersive space where the RGB spheres will
     appear. The app starts in a regular SwiftUI window; when the user opens the immersive
@@ -225,7 +224,7 @@
 <!-- ═══════════ Section 2 ═══════════ -->
 <div class="chapter-head" id="s2">
   <div>
-    <div class="kicker">Section 2 of 7</div>
+    <div class="kicker">Section 2 of 6</div>
     <h2>Create the RGB Spheres</h2>
     <p class="overview">Create the visual representation of each RGB light using RealityKit
     entities, materials, and a radiating glow. Each sphere is a
@@ -284,7 +283,7 @@
 <!-- ═══════════ Section 3 ═══════════ -->
 <div class="chapter-head" id="s3">
   <div>
-    <div class="kicker">Section 3 of 7</div>
+    <div class="kicker">Section 3 of 6</div>
     <h2>Add Components</h2>
     <p class="overview">Use custom RealityKit components to store information about each
     RGB sphere. Components allow an entity to carry data that describes its role or
@@ -322,7 +321,7 @@
 <!-- ═══════════ Section 4 ═══════════ -->
 <div class="chapter-head" id="s4">
   <div>
-    <div class="kicker">Section 4 of 7</div>
+    <div class="kicker">Section 4 of 6</div>
     <h2>Make the Spheres Interactive</h2>
     <p class="overview">Add the components and event handling needed to make the RGB
     spheres selectable and movable in the immersive space.</p>
@@ -363,7 +362,7 @@
 <!-- ═══════════ Section 5 ═══════════ -->
 <div class="chapter-head" id="s5">
   <div>
-    <div class="kicker">Section 5 of 7</div>
+    <div class="kicker">Section 5 of 6</div>
     <h2>Mix Colors</h2>
     <p class="overview">Store RGB values and combine them when two light sources overlap.
     Combining red and green produces yellow; red and blue produce magenta; when all three
@@ -418,7 +417,7 @@
 <!-- ═══════════ Section 6 ═══════════ -->
 <div class="chapter-head" id="s6">
   <div>
-    <div class="kicker">Section 6 of 7</div>
+    <div class="kicker">Section 6 of 6</div>
     <h2>Add Overlap Targets</h2>
     <p class="overview">Create an invisible interaction point at the location where two RGB
     spheres overlap, so the user can interact with the mixed color without directly
@@ -466,65 +465,6 @@
       <pre class="codebody"></pre>
     </div>
   </div></div>
-</div>
-
-<!-- ═══════════ Section 7 ═══════════ -->
-<div class="chapter-head" id="s7">
-  <div>
-    <div class="kicker">Section 7 of 7</div>
-    <h2>Add Visual Feedback</h2>
-    <p class="overview">Add visual feedback to show the selected sphere and make the RGB
-    lights appear luminous: a soft radiating glow around each sphere, and a white selection
-    rim around the currently selected one.</p>
-  </div>
-  <div class="chapter-art">
-    <div class="mini sphere r"></div><div class="mini sphere g" style="margin-left:-28px"></div>
-    <div class="mini sphere b" style="margin-left:-28px"></div>
-  </div>
-</div>
-
-<div class="steps-layout">
-  <div class="steps">
-    <div class="step" data-code="c-glow2">
-      <div class="steplabel">Step 1</div>
-      <h3>Create the Radiating Glow</h3>
-      <p>A radial gradient texture on a billboarded plane — strongest at the center, fading
-      toward the edges, tinted with the sphere's RGB color. Using a flat plane instead of a
-      transparent sphere avoids a "balloon" look while keeping a soft luminous effect.</p>
-      <div class="mobilecode"></div>
-    </div>
-    <div class="step" data-code="c-rim">
-      <div class="steplabel">Step 2</div>
-      <h3>Create the Selection Rim</h3>
-      <p>A thin white ring built as a custom annular mesh rather than a torus, so no
-      unwanted geometry shows through the transparent sphere. A
-      <code class="inline">BillboardComponent</code> keeps the rim facing the user, and
-      only one sphere carries the rim at a time.</p>
-      <div class="mobilecode"></div>
-    </div>
-    <div class="step" data-code="c-noninteractive">
-      <div class="steplabel">Step 3</div>
-      <h3>Keep Visual Elements Non-Interactive</h3>
-      <p>Remove the glow and rim's <code class="inline">CollisionComponent</code>,
-      <code class="inline">InputTargetComponent</code>, and
-      <code class="inline">ManipulationComponent</code> so users interact with the RGB
-      sphere itself — the visual layer stays separate from the interaction layer.</p>
-      <div class="mobilecode"></div>
-    </div>
-  </div>
-  <div class="panel"><div class="panel-sticky">
-    <div class="codewindow">
-      <div class="bar"><span class="dot"></span><span class="filename">SphericalSelectionRim.swift</span></div>
-      <pre class="codebody"></pre>
-    </div>
-  </div></div>
-</div>
-
-<div class="result-callout">
-  <div class="box"><strong>Result</strong> — The RGB spheres now have a soft colored glow
-  and a clear selection indicator. The glow communicates that the spheres represent
-  sources of light, while the selection rim helps the user understand which sphere is
-  currently being manipulated.</div>
 </div>
 
 <footer>
@@ -1027,94 +967,6 @@ func createMixedSphere(
     // participate in future overlaps.
     movableSpheres.append(mixed)
     rootEntity.addChild(mixed)
-}
-</template>
-
-<template id="c-glow2" data-name="RGBSphere.swift">
-import RealityKit
-import UIKit
-
-func makeGlowTexture(
-    color: RGBColor
-) -> TextureResource? {
-
-    // Radial gradient: strongest at the center,
-    // fading toward the edges.
-    let size = CGSize(width: 256, height: 256)
-
-    let renderer = UIGraphicsImageRenderer(
-        size: size
-    )
-
-    let image = renderer.image { context in
-        let colors = [
-            color.uiColor.withAlphaComponent(0.8).cgColor,
-            color.uiColor.withAlphaComponent(0.0).cgColor
-        ]
-        // ... draw the radial gradient
-    }
-
-    return try? TextureResource.generate(
-        from: image.cgImage!,
-        options: .init(semantic: .color)
-    )
-}
-</template>
-
-<template id="c-rim" data-name="SphericalSelectionRim.swift">
-import RealityKit
-
-func makeSelectionRim() -> ModelEntity {
-
-    // A custom annular mesh — not a torus — so no
-    // unwanted geometry shows through the sphere.
-    let mesh = makeAnnularMesh(
-        innerRadius: 0.16,
-        outerRadius: 0.175
-    )
-
-    var material = UnlitMaterial()
-    material.color = .init(tint: .white)
-
-    let rim = ModelEntity(
-        mesh: mesh,
-        materials: [material]
-    )
-
-    // Always face the user.
-    rim.components.set(
-        BillboardComponent()
-    )
-
-    return rim
-}
-</template>
-
-<template id="c-noninteractive" data-name="SphereInteractionManager.swift">
-import RealityKit
-
-func makeVisualOnly(_ entity: Entity) {
-
-    // Visual elements must not intercept input —
-    // the user interacts with the sphere itself.
-    entity.components.remove(
-        CollisionComponent.self
-    )
-    entity.components.remove(
-        InputTargetComponent.self
-    )
-    entity.components.remove(
-        ManipulationComponent.self
-    )
-}
-
-// Show the rim on the selected sphere only.
-func select(_ sphere: ModelEntity) {
-    currentRim?.removeFromParent()
-    let rim = makeSelectionRim()
-    makeVisualOnly(rim)
-    sphere.addChild(rim)
-    currentRim = rim
 }
 </template>
 
