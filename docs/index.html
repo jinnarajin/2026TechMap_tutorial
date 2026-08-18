@@ -74,6 +74,8 @@
   .step .steplabel { color: var(--muted); font-size: .8rem; font-weight: 600;
     text-transform: uppercase; letter-spacing: .06em; }
   .step h3 { margin: .3rem 0 .5rem; font-size: 1.02rem; }
+  .newfile { color: var(--blue); font-size: .85rem; font-weight: 600; margin: 0 0 .5rem; }
+  .newfile code { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
   .step p { margin: 0 0 .5rem; color: #d1d1d6; font-size: .95rem; }
   .step ul { color: #d1d1d6; font-size: .95rem; margin: .4rem 0; padding-left: 1.2rem; }
 
@@ -238,6 +240,7 @@
     <div class="step" data-code="c-makesphere">
       <div class="steplabel">Step 1</div>
       <h3>Create a Sphere</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RGBSphere.swift</code></div>
       <p>A <code class="inline">ModelEntity</code> combines a mesh and materials to create
       a visible object. The <code class="inline">makeRGBSphere</code> function creates a
       sphere with a radius of <code class="inline">0.15</code> meters and stores its color
@@ -247,6 +250,7 @@
     <div class="step" data-code="c-rgbcolor">
       <div class="steplabel">Step 2</div>
       <h3>Create the RGB Colors</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RGBColor.swift</code></div>
       <p>The <code class="inline">RGBColor</code> structure stores red, green, and blue
       values separately — Red <code class="inline">(1, 0, 0)</code>, Green
       <code class="inline">(0, 1, 0)</code>, Blue <code class="inline">(0, 0, 1)</code>.
@@ -305,6 +309,7 @@
     <div class="step" data-code="c-colorcomp">
       <div class="steplabel">Step 1</div>
       <h3>Store RGB Color</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereComponents.swift</code></div>
       <p>The <code class="inline">RGBColorComponent</code> stores the RGB color associated
       with a sphere, keeping the color data attached to the entity itself.</p>
       <div class="mobilecode"></div>
@@ -320,6 +325,7 @@
     <div class="step" data-code="c-interaction">
       <div class="steplabel">Step 3</div>
       <h3>Prepare a Sphere for Interaction</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereInteraction.swift</code></div>
       <p><code class="inline">configureSphereForInteraction</code> adds an
       <code class="inline">InputTargetComponent</code> so the entity can receive input, a
       <code class="inline">CollisionComponent</code> that defines the targetable area, and
@@ -330,6 +336,7 @@
     <div class="step" data-code="c-manip">
       <div class="steplabel">Step 4</div>
       <h3>Handle Manipulation Events</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereInteractionManager.swift</code></div>
       <p>The <code class="inline">SphereInteractionManager</code> responds to manipulation
       events in three stages: beginning a manipulation, updating the sphere's position, and
       releasing it. Original spheres remain fixed while movable clones follow the user's
@@ -377,6 +384,7 @@
     <div class="step" data-code="c-overlapsys">
       <div class="steplabel">Step 2</div>
       <h3>Detect Overlapping Spheres</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereOverlapSystem.swift</code></div>
       <p>The <code class="inline">SphereOverlapSystem</code> compares the world-space
       positions of every pair of movable spheres. If the distance between two centers is
       smaller than the overlap distance, the spheres overlap and the midpoint becomes the
@@ -430,6 +438,7 @@
     <div class="step" data-code="c-overlapcomp">
       <div class="steplabel">Step 2</div>
       <h3>Store Overlap Information</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>OverlapVisualComponent.swift</code></div>
       <p><code class="inline">OverlapVisualComponent</code> keeps the overlap key and the
       mixed RGB color associated with the target. The key identifies which pair of spheres
       produced the target.</p>
@@ -1146,6 +1155,8 @@ func createMixedSphere(
       save(step.dataset.code + "p", p);
       save(step.dataset.code + "l", label);
       h3.innerHTML = ko ? t.h3 : en[step.dataset.code + "h3"];
+      var nf = step.querySelector(".newfile-label");
+      if (nf) nf.textContent = ko ? "새 파일 만들기:" : "New file:";
       p.innerHTML = ko ? t.p : en[step.dataset.code + "p"];
       label.innerHTML = ko
         ? KO_STEP_LABEL + en[step.dataset.code + "l"].replace(/[^0-9]/g, "")
