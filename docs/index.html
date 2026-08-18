@@ -158,8 +158,26 @@
 
 <div class="steps-layout">
   <div class="steps">
-    <div class="step" data-code="c-appmodel">
+    <div class="step" data-code="c-newproject">
       <div class="steplabel">Step 1</div>
+      <h3>Create the Project</h3>
+      <p>In Xcode, choose <code class="inline">File → New → Project…</code>, select the
+      <strong>visionOS</strong> tab, and choose the <strong>App</strong> template under
+      Application.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-options">
+      <div class="steplabel">Step 2</div>
+      <h3>Choose the Project Options</h3>
+      <p>Enter a product name, then set <code class="inline">Initial Scene</code> to
+      <strong>Window</strong>, <code class="inline">Immersive Space Renderer</code> to
+      <strong>RealityKit</strong>, and <code class="inline">Immersive Space</code> to
+      <strong>Full</strong>. The app starts in a window and opens a full immersive
+      space.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-appmodel">
+      <div class="steplabel">Step 3</div>
       <h3>Create the App Model</h3>
       <p>The <code class="inline">AppModel</code> keeps track of the immersive space's
       current state. <code class="inline">immersiveSpaceID</code> identifies the immersive
@@ -168,7 +186,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-app">
-      <div class="steplabel">Step 2</div>
+      <div class="steplabel">Step 4</div>
       <h3>Define the App's Scenes</h3>
       <p>The <code class="inline">App</code> structure defines both the regular window and
       the immersive space. The <code class="inline">WindowGroup</code> displays the initial
@@ -179,7 +197,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-toggle">
-      <div class="steplabel">Step 3</div>
+      <div class="steplabel">Step 5</div>
       <h3>Open and Close the Immersive Space</h3>
       <p><code class="inline">openImmersiveSpace</code> opens the space by identifier and
       <code class="inline">dismissImmersiveSpace</code> closes it. The
@@ -188,7 +206,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-content">
-      <div class="steplabel">Step 4</div>
+      <div class="steplabel">Step 6</div>
       <h3>Create the Initial View</h3>
       <p>The regular window only needs a button to enter the immersive experience. At this
       point the app can open and close an empty immersive space — the RGB spheres come
@@ -515,6 +533,34 @@
 </footer>
 
 <!-- ═══════════ code templates ═══════════ -->
+<template id="c-newproject" data-name="Choose a template">
+Xcode ▸ File ▸ New ▸ Project…
+
+Choose a template for your new project:
+
+  Platform:      visionOS
+  Application:   ▸ App          ← select this
+                   Immersive Environment App
+
+Then click Next.
+</template>
+
+<template id="c-options" data-name="Choose options">
+Choose options for your new project:
+
+  Product Name:               RGB
+  Team:                       Your Team
+  Organization Identifier:    com.example
+
+  Initial Scene:              Window
+  Immersive Space Renderer:   RealityKit
+  Immersive Space:            Full
+
+  Testing System:             Swift Testing
+
+Then click Next and create the project.
+</template>
+
 <template id="c-appmodel" data-name="AppModel.swift">
 import SwiftUI
 
@@ -1169,6 +1215,8 @@ func select(_ sphere: ModelEntity) {
   };
   var C = function (t) { return '<code class="inline">' + t + "</code>"; };
   var KO_STEPS = {
+    "c-newproject": { h3: "프로젝트 만들기", p: "Xcode에서 " + C("File → New → Project…") + "를 선택하고 <strong>visionOS</strong> 탭에서 Application의 <strong>App</strong> 템플릿을 고릅니다." },
+    "c-options": { h3: "프로젝트 옵션 선택하기", p: "프로덕트 이름을 입력한 뒤 " + C("Initial Scene") + "은 <strong>Window</strong>, " + C("Immersive Space Renderer") + "는 <strong>RealityKit</strong>, " + C("Immersive Space") + "는 <strong>Full</strong>로 설정합니다. 앱은 윈도우에서 시작해 풀 이머시브 공간을 엽니다." },
     "c-appmodel": { h3: "앱 모델 만들기", p: C("AppModel") + "은 이머시브 공간의 현재 상태를 추적합니다. " + C("immersiveSpaceID") + "는 공간을 식별하고, " + C("immersiveSpaceState") + "는 공간이 닫혀 있는지, 전환 중인지, 열려 있는지를 추적합니다." },
     "c-app": { h3: "앱의 씬 정의하기", p: C("App") + " 구조체는 일반 윈도우와 이머시브 공간을 모두 정의합니다. " + C("WindowGroup") + "은 초기 SwiftUI 인터페이스를 표시하고, " + C("ImmersiveSpace") + " 씬은 " + C("ImmersiveView") + "를 담습니다. 공간이 나타나면 상태가 " + C("open") + "이 되고, 사라지면 " + C("closed") + "로 돌아갑니다." },
     "c-toggle": { h3: "이머시브 공간 열고 닫기", p: C("openImmersiveSpace") + "는 식별자로 공간을 열고 " + C("dismissImmersiveSpace") + "는 닫습니다. " + C("inTransition") + " 상태는 공간이 여닫히는 동안 버튼을 비활성화합니다." },
