@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct RGBColor: Codable {
+struct RGBColor: Codable, Equatable {
 
     let red: Float
     let green: Float

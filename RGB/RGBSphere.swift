@@ -33,6 +33,38 @@ func makeRGBMaterial(color: UIColor) -> PhysicallyBasedMaterial {
     return material
 }
 
+func applySphereLightIntensity(
+    _ intensity: Float,
+    to sphere: ModelEntity
+) {
+    let clampedIntensity = min(
+        max(intensity, SphereLightComponent.minimumIntensity),
+        SphereLightComponent.maximumIntensity
+    )
+
+    sphere.components.set(
+        SphereLightComponent(intensity: clampedIntensity)
+    )
+
+    let color = sphere.components[RGBColorComponent.self]?.color.uiColor
+        ?? .white
+    let emissiveIntensity = 1.0 + (clampedIntensity * 5.0)
+
+    if var material = sphere.model?.materials.first
+        as? PhysicallyBasedMaterial {
+        material.emissiveColor = .init(color: color)
+        material.emissiveIntensity = emissiveIntensity
+        sphere.model?.materials = [material]
+    }
+
+    guard let glow = sphere.children.first(where: { $0.name == "RGBGlow" })
+        as? ModelEntity else {
+        return
+    }
+
+    glow.scale = SIMD3<Float>(repeating: 0.9 + (clampedIntensity * 0.12))
+}
+
 // MARK: - RGB Sphere
 
 func makeRGBSphere(color: UIColor, rgbColor: RGBColor) -> ModelEntity {
@@ -45,6 +77,10 @@ func makeRGBSphere(color: UIColor, rgbColor: RGBColor) -> ModelEntity {
     sphere.components.set(RGBColorComponent(color: rgbColor))
 
     addRadiatingGlow(to: sphere, color: color)
+    applySphereLightIntensity(
+        SphereLightComponent.defaultIntensity,
+        to: sphere
+    )
 
     return sphere
 }
@@ -60,7 +96,7 @@ func addRadiatingGlow(to sphere: ModelEntity, color: UIColor) {
         return
     }
 
-    let glow = makeGlowPlane(texture: texture, size: 0.50)
+    let glow = makeGlowPlane(texture: texture, size: 0.42)
 
     glow.name = "RGBGlow"
     glow.position = SIMD3(0, 0, 0.015)

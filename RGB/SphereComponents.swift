@@ -11,3 +11,11 @@ struct OriginalSphereComponent: Component {
     let color: RGBColor
     let fixedPosition: SIMD3<Float>
 }
+
+struct SphereLightComponent: Component {
+    var intensity: Float
+
+    static let minimumIntensity: Float = 0.0
+    static let maximumIntensity: Float = 1.0
+    static let defaultIntensity: Float = 0.5
+}
