@@ -74,6 +74,8 @@
   .step .steplabel { color: var(--muted); font-size: .8rem; font-weight: 600;
     text-transform: uppercase; letter-spacing: .06em; }
   .step h3 { margin: .3rem 0 .5rem; font-size: 1.02rem; }
+  .newfile { color: var(--blue); font-size: .85rem; font-weight: 600; margin: 0 0 .5rem; }
+  .newfile code { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
   .step p { margin: 0 0 .5rem; color: #d1d1d6; font-size: .95rem; }
   .step ul { color: #d1d1d6; font-size: .95rem; margin: .4rem 0; padding-left: 1.2rem; }
 
@@ -121,11 +123,9 @@
   <span class="brand">RGB&nbsp;Tutorials</span>
   <a href="#s1">Immersive Space</a>
   <a href="#s2">RGB Spheres</a>
-  <a href="#s3">Components</a>
   <a href="#s4">Interaction</a>
   <a href="#s5">Mix Colors</a>
   <a href="#s6">Overlap Targets</a>
-  <a href="#s7">Visual Feedback</a>
   <a href="#" id="langtoggle" style="margin-left:auto;color:#fff;font-weight:600">한국어</a>
 </div></nav>
 
@@ -144,7 +144,7 @@
 <!-- ═══════════ Section 1 ═══════════ -->
 <div class="chapter-head" id="s1">
   <div>
-    <div class="kicker">Section 1 of 7</div>
+    <div class="kicker">Section 1 of 5</div>
     <h2>Create the Immersive Space</h2>
     <p class="overview">Start by creating the immersive space where the RGB spheres will
     appear. The app starts in a regular SwiftUI window; when the user opens the immersive
@@ -225,7 +225,7 @@
 <!-- ═══════════ Section 2 ═══════════ -->
 <div class="chapter-head" id="s2">
   <div>
-    <div class="kicker">Section 2 of 7</div>
+    <div class="kicker">Section 2 of 5</div>
     <h2>Create the RGB Spheres</h2>
     <p class="overview">Create the visual representation of each RGB light using RealityKit
     entities, materials, and a radiating glow. Each sphere is a
@@ -240,6 +240,7 @@
     <div class="step" data-code="c-makesphere">
       <div class="steplabel">Step 1</div>
       <h3>Create a Sphere</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RGBSphere.swift</code></div>
       <p>A <code class="inline">ModelEntity</code> combines a mesh and materials to create
       a visible object. The <code class="inline">makeRGBSphere</code> function creates a
       sphere with a radius of <code class="inline">0.15</code> meters and stores its color
@@ -249,6 +250,7 @@
     <div class="step" data-code="c-rgbcolor">
       <div class="steplabel">Step 2</div>
       <h3>Create the RGB Colors</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RGBColor.swift</code></div>
       <p>The <code class="inline">RGBColor</code> structure stores red, green, and blue
       values separately — Red <code class="inline">(1, 0, 0)</code>, Green
       <code class="inline">(0, 1, 0)</code>, Blue <code class="inline">(0, 0, 1)</code>.
@@ -272,6 +274,15 @@
       <code class="inline">BillboardComponent</code>. The glow is visual only.</p>
       <div class="mobilecode"></div>
     </div>
+    <div class="step" data-code="c-place">
+      <div class="steplabel">Step 5</div>
+      <h3>Place the RGB Spheres</h3>
+      <p>Create the three spheres in <code class="inline">ImmersiveView</code>'s
+      <code class="inline">RealityView</code>, position them in front of the user, and add
+      them to a head anchor. At this point the spheres are visible in the immersive space,
+      but they cannot be manipulated yet.</p>
+      <div class="mobilecode"></div>
+    </div>
   </div>
   <div class="panel"><div class="panel-sticky">
     <div class="codewindow">
@@ -281,16 +292,16 @@
   </div></div>
 </div>
 
-<!-- ═══════════ Section 3 ═══════════ -->
-<div class="chapter-head" id="s3">
+<!-- ═══════════ Section 4 ═══════════ -->
+<div class="chapter-head" id="s4">
   <div>
-    <div class="kicker">Section 3 of 7</div>
-    <h2>Add Components</h2>
+    <div class="kicker">Section 3 of 5</div>
+    <h2>Make the Spheres Interactive</h2>
     <p class="overview">Use custom RealityKit components to store information about each
-    RGB sphere. Components allow an entity to carry data that describes its role or
-    state.</p>
+    RGB sphere, then add the components and event handling needed to make the spheres
+    selectable and movable in the immersive space.</p>
   </div>
-  <div class="chapter-art"><div class="mini sphere g"></div></div>
+  <div class="chapter-art"><div class="mini sphere b"></div></div>
 </div>
 
 <div class="steps-layout">
@@ -298,6 +309,7 @@
     <div class="step" data-code="c-colorcomp">
       <div class="steplabel">Step 1</div>
       <h3>Store RGB Color</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereComponents.swift</code></div>
       <p>The <code class="inline">RGBColorComponent</code> stores the RGB color associated
       with a sphere, keeping the color data attached to the entity itself.</p>
       <div class="mobilecode"></div>
@@ -310,31 +322,10 @@
       while movable copies are created for interaction.</p>
       <div class="mobilecode"></div>
     </div>
-  </div>
-  <div class="panel"><div class="panel-sticky">
-    <div class="codewindow">
-      <div class="bar"><span class="dot"></span><span class="filename">SphereComponents.swift</span></div>
-      <pre class="codebody"></pre>
-    </div>
-  </div></div>
-</div>
-
-<!-- ═══════════ Section 4 ═══════════ -->
-<div class="chapter-head" id="s4">
-  <div>
-    <div class="kicker">Section 4 of 7</div>
-    <h2>Make the Spheres Interactive</h2>
-    <p class="overview">Add the components and event handling needed to make the RGB
-    spheres selectable and movable in the immersive space.</p>
-  </div>
-  <div class="chapter-art"><div class="mini sphere b"></div></div>
-</div>
-
-<div class="steps-layout">
-  <div class="steps">
     <div class="step" data-code="c-interaction">
-      <div class="steplabel">Step 1</div>
+      <div class="steplabel">Step 3</div>
       <h3>Prepare a Sphere for Interaction</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereInteraction.swift</code></div>
       <p><code class="inline">configureSphereForInteraction</code> adds an
       <code class="inline">InputTargetComponent</code> so the entity can receive input, a
       <code class="inline">CollisionComponent</code> that defines the targetable area, and
@@ -343,8 +334,9 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-manip">
-      <div class="steplabel">Step 2</div>
+      <div class="steplabel">Step 4</div>
       <h3>Handle Manipulation Events</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereInteractionManager.swift</code></div>
       <p>The <code class="inline">SphereInteractionManager</code> responds to manipulation
       events in three stages: beginning a manipulation, updating the sphere's position, and
       releasing it. Original spheres remain fixed while movable clones follow the user's
@@ -354,7 +346,7 @@
   </div>
   <div class="panel"><div class="panel-sticky">
     <div class="codewindow">
-      <div class="bar"><span class="dot"></span><span class="filename">SphereInteraction.swift</span></div>
+      <div class="bar"><span class="dot"></span><span class="filename">SphereComponents.swift</span></div>
       <pre class="codebody"></pre>
     </div>
   </div></div>
@@ -363,7 +355,7 @@
 <!-- ═══════════ Section 5 ═══════════ -->
 <div class="chapter-head" id="s5">
   <div>
-    <div class="kicker">Section 5 of 7</div>
+    <div class="kicker">Section 4 of 5</div>
     <h2>Mix Colors</h2>
     <p class="overview">Store RGB values and combine them when two light sources overlap.
     Combining red and green produces yellow; red and blue produce magenta; when all three
@@ -376,8 +368,17 @@
 
 <div class="steps-layout">
   <div class="steps">
-    <div class="step" data-code="c-mix">
+    <div class="step" data-code="c-clone">
       <div class="steplabel">Step 1</div>
+      <h3>Create a Movable Clone</h3>
+      <p>Original spheres never leave their fixed positions. When the user starts
+      manipulating an original sphere, create a movable <em>clone</em> with the same color,
+      glow, and interaction components. The clone joins the movable sphere collection —
+      these clones are what overlap and mix colors.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-mix">
+      <div class="steplabel">Step 2</div>
       <h3>Combine RGB Colors</h3>
       <p>The <code class="inline">mixed(with:)</code> function adds the RGB components of
       two colors together and normalizes the result to the
@@ -390,8 +391,9 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-overlapsys">
-      <div class="steplabel">Step 2</div>
+      <div class="steplabel">Step 3</div>
       <h3>Detect Overlapping Spheres</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereOverlapSystem.swift</code></div>
       <p>The <code class="inline">SphereOverlapSystem</code> compares the world-space
       positions of every pair of movable spheres. If the distance between two centers is
       smaller than the overlap distance, the spheres overlap and the midpoint becomes the
@@ -399,7 +401,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-overlapval">
-      <div class="steplabel">Step 3</div>
+      <div class="steplabel">Step 4</div>
       <h3>Describe the Overlap</h3>
       <p>Each overlap is described by a <code class="inline">SphereOverlap</code> value —
       the two spheres, the midpoint position, the mixed color, and a unique key that
@@ -418,7 +420,7 @@
 <!-- ═══════════ Section 6 ═══════════ -->
 <div class="chapter-head" id="s6">
   <div>
-    <div class="kicker">Section 6 of 7</div>
+    <div class="kicker">Section 5 of 5</div>
     <h2>Add Overlap Targets</h2>
     <p class="overview">Create an invisible interaction point at the location where two RGB
     spheres overlap, so the user can interact with the mixed color without directly
@@ -445,6 +447,7 @@
     <div class="step" data-code="c-overlapcomp">
       <div class="steplabel">Step 2</div>
       <h3>Store Overlap Information</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>OverlapVisualComponent.swift</code></div>
       <p><code class="inline">OverlapVisualComponent</code> keeps the overlap key and the
       mixed RGB color associated with the target. The key identifies which pair of spheres
       produced the target.</p>
@@ -466,65 +469,6 @@
       <pre class="codebody"></pre>
     </div>
   </div></div>
-</div>
-
-<!-- ═══════════ Section 7 ═══════════ -->
-<div class="chapter-head" id="s7">
-  <div>
-    <div class="kicker">Section 7 of 7</div>
-    <h2>Add Visual Feedback</h2>
-    <p class="overview">Add visual feedback to show the selected sphere and make the RGB
-    lights appear luminous: a soft radiating glow around each sphere, and a white selection
-    rim around the currently selected one.</p>
-  </div>
-  <div class="chapter-art">
-    <div class="mini sphere r"></div><div class="mini sphere g" style="margin-left:-28px"></div>
-    <div class="mini sphere b" style="margin-left:-28px"></div>
-  </div>
-</div>
-
-<div class="steps-layout">
-  <div class="steps">
-    <div class="step" data-code="c-glow2">
-      <div class="steplabel">Step 1</div>
-      <h3>Create the Radiating Glow</h3>
-      <p>A radial gradient texture on a billboarded plane — strongest at the center, fading
-      toward the edges, tinted with the sphere's RGB color. Using a flat plane instead of a
-      transparent sphere avoids a "balloon" look while keeping a soft luminous effect.</p>
-      <div class="mobilecode"></div>
-    </div>
-    <div class="step" data-code="c-rim">
-      <div class="steplabel">Step 2</div>
-      <h3>Create the Selection Rim</h3>
-      <p>A thin white ring built as a custom annular mesh rather than a torus, so no
-      unwanted geometry shows through the transparent sphere. A
-      <code class="inline">BillboardComponent</code> keeps the rim facing the user, and
-      only one sphere carries the rim at a time.</p>
-      <div class="mobilecode"></div>
-    </div>
-    <div class="step" data-code="c-noninteractive">
-      <div class="steplabel">Step 3</div>
-      <h3>Keep Visual Elements Non-Interactive</h3>
-      <p>Remove the glow and rim's <code class="inline">CollisionComponent</code>,
-      <code class="inline">InputTargetComponent</code>, and
-      <code class="inline">ManipulationComponent</code> so users interact with the RGB
-      sphere itself — the visual layer stays separate from the interaction layer.</p>
-      <div class="mobilecode"></div>
-    </div>
-  </div>
-  <div class="panel"><div class="panel-sticky">
-    <div class="codewindow">
-      <div class="bar"><span class="dot"></span><span class="filename">SphericalSelectionRim.swift</span></div>
-      <pre class="codebody"></pre>
-    </div>
-  </div></div>
-</div>
-
-<div class="result-callout">
-  <div class="box"><strong>Result</strong> — The RGB spheres now have a soft colored glow
-  and a clear selection indicator. The glow communicates that the spheres represent
-  sources of light, while the selection rim helps the user understand which sphere is
-  currently being manipulated.</div>
 </div>
 
 <footer>
@@ -792,6 +736,39 @@ func addRadiatingGlow(
 }
 </template>
 
+<template id="c-place" data-name="ImmersiveView.swift">
+import SwiftUI
+import RealityKit
+
+struct ImmersiveView: View {
+
+    var body: some View {
+        RealityView { content in
+            // Register custom components before using them.
+            RGBColorComponent.registerComponent()
+            OriginalSphereComponent.registerComponent()
+
+            let headAnchor = AnchorEntity(.head)
+
+            // The three original spheres stay fixed.
+            let red = makeRGBSphere(color: .red)
+            let green = makeRGBSphere(color: .green)
+            let blue = makeRGBSphere(color: .blue)
+
+            red.position = SIMD3&lt;Float&gt;(0.0, 0.25, -1.5)
+            green.position = SIMD3&lt;Float&gt;(-0.3, -0.15, -1.5)
+            blue.position = SIMD3&lt;Float&gt;(0.3, -0.15, -1.5)
+
+            headAnchor.addChild(red)
+            headAnchor.addChild(green)
+            headAnchor.addChild(blue)
+
+            content.add(headAnchor)
+        }
+    }
+}
+</template>
+
 <template id="c-colorcomp" data-name="SphereComponents.swift">
 import RealityKit
 
@@ -809,10 +786,6 @@ import RealityKit
 struct OriginalSphereComponent: Component {
     let color: RGBColor
     let fixedPosition: SIMD3&lt;Float&gt;
-}
-
-/// Marks a movable clone created for interaction.
-struct DraggableCloneComponent: Component {
 }
 </template>
 
@@ -900,6 +873,54 @@ extension RGBColor {
             blue: min(blue, 1.0)
         )
     }
+}
+</template>
+
+<template id="c-clone" data-name="SphereInteractionManager.swift">
+// An original RGB sphere creates a movable clone.
+if let original = entity.components[OriginalSphereComponent.self] {
+    let clone = createClone(from: entity)
+
+    clone.position = entity.position
+    entity.parent?.addChild(clone)
+    movableSpheres.append(clone)
+
+    state = .original(
+        sphere: entity,
+        position: original.fixedPosition,
+        clone: clone
+    )
+
+    selectSphere(clone)
+    return
+}
+
+private func createClone(
+    from original: ModelEntity
+) -> ModelEntity {
+    let color = original.components[RGBColorComponent.self]?.color ?? .red
+
+    let clone = ModelEntity(
+        mesh: .generateSphere(radius: sphereRadius),
+        materials: [
+            makeRGBMaterial(color: color.uiColor)
+        ]
+    )
+
+    clone.name = "Clone"
+
+    clone.components.set(
+        RGBColorComponent(color: color)
+    )
+
+    addRadiatingGlow(
+        to: clone,
+        color: color.uiColor
+    )
+
+    configureSphereForInteraction(clone)
+
+    return clone
 }
 </template>
 
@@ -1034,99 +1055,11 @@ func createMixedSphere(
 }
 </template>
 
-<template id="c-glow2" data-name="RGBSphere.swift">
-import RealityKit
-import UIKit
-
-func makeGlowTexture(
-    color: RGBColor
-) -> TextureResource? {
-
-    // Radial gradient: strongest at the center,
-    // fading toward the edges.
-    let size = CGSize(width: 256, height: 256)
-
-    let renderer = UIGraphicsImageRenderer(
-        size: size
-    )
-
-    let image = renderer.image { context in
-        let colors = [
-            color.uiColor.withAlphaComponent(0.8).cgColor,
-            color.uiColor.withAlphaComponent(0.0).cgColor
-        ]
-        // ... draw the radial gradient
-    }
-
-    return try? TextureResource.generate(
-        from: image.cgImage!,
-        options: .init(semantic: .color)
-    )
-}
-</template>
-
-<template id="c-rim" data-name="SphericalSelectionRim.swift">
-import RealityKit
-
-func makeSelectionRim() -> ModelEntity {
-
-    // A custom annular mesh — not a torus — so no
-    // unwanted geometry shows through the sphere.
-    let mesh = makeAnnularMesh(
-        innerRadius: 0.16,
-        outerRadius: 0.175
-    )
-
-    var material = UnlitMaterial()
-    material.color = .init(tint: .white)
-
-    let rim = ModelEntity(
-        mesh: mesh,
-        materials: [material]
-    )
-
-    // Always face the user.
-    rim.components.set(
-        BillboardComponent()
-    )
-
-    return rim
-}
-</template>
-
-<template id="c-noninteractive" data-name="SphereInteractionManager.swift">
-import RealityKit
-
-func makeVisualOnly(_ entity: Entity) {
-
-    // Visual elements must not intercept input —
-    // the user interacts with the sphere itself.
-    entity.components.remove(
-        CollisionComponent.self
-    )
-    entity.components.remove(
-        InputTargetComponent.self
-    )
-    entity.components.remove(
-        ManipulationComponent.self
-    )
-}
-
-// Show the rim on the selected sphere only.
-func select(_ sphere: ModelEntity) {
-    currentRim?.removeFromParent()
-    let rim = makeSelectionRim()
-    makeVisualOnly(rim)
-    sphere.addChild(rim)
-    currentRim = rim
-}
-</template>
-
 <script>
 (function () {
   // ── tiny Swift syntax highlighter ──
   var KEYWORDS = /\b(import|struct|class|enum|case|let|var|func|extension|return|guard|else|for|in|while|switch|default|break|continue|if|await|async|try|throws|private|static|final|some|self|nil|true|false|fallthrough|@main|@MainActor|@Observable|@State|@Environment|@unknown)\b/g;
-  var TYPES = /\b(AppModel|ImmersiveSpaceState|App|Scene|WindowGroup|ImmersiveSpace|ImmersiveView|ContentView|View|VStack|Button|Task|Text|ToggleImmersiveSpaceButton|ModelEntity|Entity|MeshResource|RGBColor|RGBColorComponent|OriginalSphereComponent|DraggableCloneComponent|OverlapVisualComponent|Component|PhysicallyBasedMaterial|UnlitMaterial|InputTargetComponent|CollisionComponent|ManipulationComponent|BillboardComponent|SphereOverlap|SphereOverlapSystem|SphereInteractionManager|SIMD3|Float|String|Codable|CGSize|UIGraphicsImageRenderer|TextureResource|UIColor)\b/g;
+  var TYPES = /\b(AppModel|ImmersiveSpaceState|App|Scene|WindowGroup|ImmersiveSpace|ImmersiveView|ContentView|View|VStack|Button|Task|Text|ToggleImmersiveSpaceButton|ModelEntity|Entity|MeshResource|RGBColor|RGBColorComponent|OriginalSphereComponent|DraggableCloneComponent|OverlapVisualComponent|Component|PhysicallyBasedMaterial|UnlitMaterial|InputTargetComponent|CollisionComponent|ManipulationComponent|BillboardComponent|SphereOverlap|SphereOverlapSystem|SphereInteractionManager|SIMD3|Float|String|Codable|AnchorEntity|RealityView|CGSize|UIGraphicsImageRenderer|TextureResource|UIColor)\b/g;
 
   function esc(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -1213,7 +1146,7 @@ func select(_ sphere: ModelEntity) {
     s1: { h2: "이머시브 공간 만들기", ov: "RGB 구가 나타날 이머시브 공간을 만드는 것부터 시작합니다. 앱은 일반 SwiftUI 윈도우에서 시작하며, 사용자가 이머시브 공간을 열면 RealityKit이 RGB 구를 배치하고 조작할 별도의 3D 환경을 만듭니다." },
     s2: { h2: "RGB 구 만들기", ov: "RealityKit 엔티티, 머티리얼, 퍼지는 글로우를 사용해 각 RGB 빛의 시각적 표현을 만듭니다. 각 구는 구형 메시, 색상 머티리얼, RGB 색상 값을 가진 <code class=\"inline\">ModelEntity</code>입니다." },
     s3: { h2: "컴포넌트 추가하기", ov: "커스텀 RealityKit 컴포넌트로 각 RGB 구에 대한 정보를 저장합니다. 컴포넌트는 엔티티가 자신의 역할이나 상태를 설명하는 데이터를 지니게 해 줍니다." },
-    s4: { h2: "구를 인터랙티브하게 만들기", ov: "RGB 구를 이머시브 공간에서 선택하고 움직일 수 있도록 필요한 컴포넌트와 이벤트 처리를 추가합니다." },
+    s4: { h2: "구를 인터랙티브하게 만들기", ov: "커스텀 RealityKit 컴포넌트로 각 구의 정보를 저장한 뒤, 구를 이머시브 공간에서 선택하고 움직일 수 있도록 필요한 컴포넌트와 이벤트 처리를 추가합니다." },
     s5: { h2: "색 혼합하기", ov: "RGB 값을 저장하고 두 광원이 겹칠 때 결합합니다. 빨강+초록은 노랑, 빨강+파랑은 마젠타가 되며, 삼원색이 모두 겹치면 흰색이 됩니다." },
     s6: { h2: "겹침 타깃 추가하기", ov: "두 RGB 구가 겹치는 위치에 보이지 않는 인터랙션 지점을 만들어, 원본 구를 직접 조작하지 않고도 혼합 색과 상호작용할 수 있게 합니다." },
     s7: { h2: "시각적 피드백 추가하기", ov: "선택된 구를 보여주고 RGB 빛이 발광하는 것처럼 보이게 하는 시각적 피드백을 추가합니다: 각 구 주위의 부드러운 글로우와, 현재 선택된 구를 감싸는 흰색 선택 링." }
@@ -1230,10 +1163,12 @@ func select(_ sphere: ModelEntity) {
     "c-rgbcolor": { h3: "RGB 색상 만들기", p: C("RGBColor") + " 구조체는 빨강·초록·파랑 값을 따로 저장합니다 — Red " + C("(1, 0, 0)") + ", Green " + C("(0, 1, 0)") + ", Blue " + C("(0, 0, 1)") + ". RGB 값을 시각적 색상과 분리해 두면 나중에 색을 혼합할 수 있습니다." },
     "c-material": { h3: "구 머티리얼 만들기", p: "구는 베이스 색상에 투명도와 발광 색상을 결합해 빛나는 느낌을 내는 " + C("PhysicallyBasedMaterial") + "을 사용합니다." },
     "c-glow": { h3: "퍼지는 글로우 추가하기", p: "두 번째 시각 레이어가 구 주위의 부드러운 글로우를 만듭니다. 평면에 방사형 그라데이션 텍스처를 적용하고 " + C("BillboardComponent") + "로 항상 시청자를 향하게 합니다. 글로우는 시각 요소일 뿐입니다." },
+    "c-place": { h3: "RGB 구 배치하기", p: C("ImmersiveView") + "의 " + C("RealityView") + "에서 세 개의 구를 만들어 사용자 앞에 배치하고 헤드 앵커에 추가합니다. 이 시점에서 구는 이머시브 공간에 보이지만 아직 조작할 수는 없습니다." },
     "c-colorcomp": { h3: "RGB 색상 저장하기", p: C("RGBColorComponent") + "는 구에 연결된 RGB 색상을 저장해, 색상 데이터를 엔티티 자체에 붙여 둡니다." },
     "c-origcomp": { h3: "원본 구 식별하기", p: C("OriginalSphereComponent") + "는 원본 구를 식별하고 고정 위치를 저장합니다 — 그래서 세 개의 원본 구는 제자리에 남고, 이동 가능한 복제본이 인터랙션용으로 생성됩니다." },
     "c-interaction": { h3: "인터랙션을 위한 구 준비하기", p: C("configureSphereForInteraction") + "은 입력을 받을 수 있게 하는 " + C("InputTargetComponent") + ", 타깃 영역을 정의하는 " + C("CollisionComponent") + ", 사용자가 구를 움직일 수 있게 하는 " + C("ManipulationComponent") + "를 추가합니다." },
     "c-manip": { h3: "조작 이벤트 처리하기", p: C("SphereInteractionManager") + "는 조작 시작, 위치 업데이트, 놓기 세 단계의 이벤트에 응답합니다. 원본 구는 고정된 채, 이동 가능한 복제본이 사용자의 인터랙션을 따라갑니다." },
+    "c-clone": { h3: "이동 가능한 복제본 만들기", p: "원본 구는 고정 위치를 떠나지 않습니다. 사용자가 원본 구를 조작하기 시작하면 같은 색·글로우·인터랙션 컴포넌트를 가진 이동 가능한 <em>복제본</em>을 만듭니다. 복제본은 이동 가능한 구 컬렉션에 합류하며 — 실제로 겹치고 색을 혼합하는 것은 이 복제본들입니다." },
     "c-mix": { h3: "RGB 색 결합하기", p: C("mixed(with:)") + " 함수는 두 색의 RGB 성분을 더한 뒤 " + C("0...1") + " 범위로 정규화합니다." },
     "c-overlapsys": { h3: "겹치는 구 감지하기", p: C("SphereOverlapSystem") + "은 이동 가능한 구의 모든 쌍의 월드 좌표를 비교합니다. 두 중심 사이 거리가 겹침 거리보다 작으면 겹친 것으로 판정하고, 중간점이 색 혼합 인터랙션의 위치가 됩니다." },
     "c-overlapval": { h3: "겹침 기술하기", p: "각 겹침은 " + C("SphereOverlap") + " 값으로 기술됩니다 — 두 구, 중간점 위치, 혼합 색상, 그리고 같은 쌍에 중복 타깃이 생기지 않게 하는 고유 키." },
@@ -1278,6 +1213,8 @@ func select(_ sphere: ModelEntity) {
       save(step.dataset.code + "p", p);
       save(step.dataset.code + "l", label);
       h3.innerHTML = ko ? t.h3 : en[step.dataset.code + "h3"];
+      var nf = step.querySelector(".newfile-label");
+      if (nf) nf.textContent = ko ? "새 파일 만들기:" : "New file:";
       p.innerHTML = ko ? t.p : en[step.dataset.code + "p"];
       label.innerHTML = ko
         ? KO_STEP_LABEL + en[step.dataset.code + "l"].replace(/[^0-9]/g, "")

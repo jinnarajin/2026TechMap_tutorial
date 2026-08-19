@@ -9,7 +9,6 @@ import SwiftUI
 import RealityKit
 
 struct ImmersiveView: View {
-
     @StateObject private var interactionManager = SphereInteractionManager()
     @StateObject private var handTrackingManager = HandTrackingManager()
 
@@ -21,7 +20,7 @@ struct ImmersiveView: View {
 
     var body: some View {
         RealityView { content, attachments in
-            // Register custom RealityKit components before using them.
+            // Register custom components before using them.
             RGBColorComponent.registerComponent()
             OriginalSphereComponent.registerComponent()
             OverlapVisualComponent.registerComponent()
@@ -29,28 +28,18 @@ struct ImmersiveView: View {
 
             let headAnchor = AnchorEntity(.head)
 
-            // The three original spheres stay fixed in the scene.
             let red = makeRGBSphere(color: .red, rgbColor: .red)
             let green = makeRGBSphere(color: .green, rgbColor: .green)
             let blue = makeRGBSphere(color: .blue, rgbColor: .blue)
 
-            red.position = SIMD3<Float>(0.0, 0.25, -1.5)
-            green.position = SIMD3<Float>(-0.3, -0.15, -1.5)
-            blue.position = SIMD3<Float>(0.3, -0.15, -1.5)
+            red.position = SIMD3(0.0, 0.25, -1.5)
+            green.position = SIMD3(-0.3, -0.15, -1.5)
+            blue.position = SIMD3(0.3, -0.15, -1.5)
 
-            // Store the original position so the sphere can return
-            // to its fixed position after manipulation.
-            red.components.set(
-                OriginalSphereComponent(color: .red, fixedPosition: red.position)
-            )
-
-            green.components.set(
-                OriginalSphereComponent(color: .green, fixedPosition: green.position)
-            )
-
-            blue.components.set(
-                OriginalSphereComponent(color: .blue, fixedPosition: blue.position)
-            )
+            // Keep the original spheres fixed at their starting positions.
+            red.components.set(OriginalSphereComponent(color: .red, fixedPosition: red.position))
+            green.components.set(OriginalSphereComponent(color: .green, fixedPosition: green.position))
+            blue.components.set(OriginalSphereComponent(color: .blue, fixedPosition: blue.position))
 
             configureSphereForInteraction(red)
             configureSphereForInteraction(green)
@@ -82,9 +71,9 @@ struct ImmersiveView: View {
             headAnchor.addChild(green)
             headAnchor.addChild(blue)
 
-            // Attach the SwiftUI Clear All button to the same head anchor.
+            // Attach the Clear All button to the same head anchor.
             if let clearButton = attachments.entity(for: "clearAllButton") {
-                clearButton.position = SIMD3<Float>(0.0, -0.40, -1.2)
+                clearButton.position = SIMD3(0.0, -0.40, -1.2)
                 headAnchor.addChild(clearButton)
             }
 
@@ -99,7 +88,6 @@ struct ImmersiveView: View {
 
             // The manager handles RealityKit manipulation events.
             interactionManager.subscribe(to: content)
-
         } attachments: {
             Attachment(id: "clearAllButton") {
                 Button {

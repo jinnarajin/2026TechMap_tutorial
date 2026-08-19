@@ -15,9 +15,9 @@ struct RGBColor: Codable, Equatable {
 
     // MARK: - Primary Colors
 
-    static let red = RGBColor(red: 1.0, green: 0.0, blue: 0.0)
-    static let green = RGBColor(red: 0.0, green: 1.0, blue: 0.0)
-    static let blue = RGBColor(red: 0.0, green: 0.0, blue: 1.0)
+    static let red = RGBColor(red: 1, green: 0, blue: 0)
+    static let green = RGBColor(red: 0, green: 1, blue: 0)
+    static let blue = RGBColor(red: 0, green: 0, blue: 1)
 
     // MARK: - Mixing
 
@@ -26,8 +26,7 @@ struct RGBColor: Codable, Equatable {
             red: red + other.red,
             green: green + other.green,
             blue: blue + other.blue
-        )
-        .normalized()
+        ).normalized()
     }
 
     static func mixed(colors: [RGBColor]) -> RGBColor {
@@ -35,28 +34,20 @@ struct RGBColor: Codable, Equatable {
             return RGBColor(red: 0, green: 0, blue: 0)
         }
 
-        let totalRed = colors.reduce(0) { $0 + $1.red }
-        let totalGreen = colors.reduce(0) { $0 + $1.green }
-        let totalBlue = colors.reduce(0) { $0 + $1.blue }
-
         return RGBColor(
-            red: totalRed,
-            green: totalGreen,
-            blue: totalBlue
-        )
-        .normalized()
+            red: colors.reduce(0) { $0 + $1.red },
+            green: colors.reduce(0) { $0 + $1.green },
+            blue: colors.reduce(0) { $0 + $1.blue }
+        ).normalized()
     }
 
     // MARK: - Normalization
 
-    /// Keeps additive RGB values within the 0...1 range while
-    /// preserving their relative proportions.
+    /// Keeps additive RGB values within the 0...1 range while preserving their proportions.
     func normalized() -> RGBColor {
         let maximum = max(red, green, blue)
 
-        guard maximum > 1.0 else {
-            return self
-        }
+        guard maximum > 1 else { return self }
 
         return RGBColor(
             red: red / maximum,
@@ -69,10 +60,10 @@ struct RGBColor: Codable, Equatable {
 
     var uiColor: UIColor {
         UIColor(
-            red: CGFloat(min(max(red, 0.0), 1.0)),
-            green: CGFloat(min(max(green, 0.0), 1.0)),
-            blue: CGFloat(min(max(blue, 0.0), 1.0)),
-            alpha: 1.0
+            red: CGFloat(min(max(red, 0), 1)),
+            green: CGFloat(min(max(green, 0), 1)),
+            blue: CGFloat(min(max(blue, 0), 1)),
+            alpha: 1
         )
     }
 }
