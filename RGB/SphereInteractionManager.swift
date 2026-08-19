@@ -27,6 +27,7 @@ final class SphereInteractionManager: ObservableObject {
 
     private var movableSpheres: [ModelEntity] = []
     private var overlapTargets: [ModelEntity] = []
+    private var originalSpheres: [ModelEntity] = []
 
     private weak var selectedSphere: ModelEntity?
     private var selectionRim: ModelEntity?
@@ -49,6 +50,73 @@ final class SphereInteractionManager: ObservableObject {
         releaseSubscription = content.subscribe(to: ManipulationEvents.WillRelease.self) { [weak self] event in
             self?.handleManipulationReleased(event)
         }
+    }
+
+    func setOriginalSpheres(_ spheres: [ModelEntity]) {
+        originalSpheres = spheres
+    }
+
+    var canAdjustLightWithHandDial: Bool {
+        if case .idle = state {
+            return true
+        }
+
+        return false
+    }
+
+    func selectedLightSphere() -> ModelEntity? {
+        selectedSphere
+    }
+
+    func selectedLightIntensity() -> Float? {
+        selectedSphere?.components[SphereLightComponent.self]?.intensity
+    }
+
+    func closestLightSphere(to worldPosition: SIMD3<Float>) -> ModelEntity? {
+        guard canAdjustLightWithHandDial else {
+            return nil
+        }
+
+        return lightAdjustableSpheres().min {
+            simd_distance($0.position(relativeTo: nil), worldPosition)
+                < simd_distance($1.position(relativeTo: nil), worldPosition)
+        }
+    }
+
+    func selectLightSphere(_ sphere: ModelEntity) {
+        selectSphere(sphere)
+    }
+
+    func setLightIntensity(
+        _ intensity: Float,
+        for sphere: ModelEntity
+    ) {
+        applySphereLightIntensity(intensity, to: sphere)
+    }
+
+    func setLightIntensity(
+        _ intensity: Float,
+        forOriginalColor color: RGBColor
+    ) {
+        guard let sphere = originalSpheres.first(where: {
+            $0.components[RGBColorComponent.self]?.color == color
+        }) else {
+            return
+        }
+
+        setLightIntensity(intensity, for: sphere)
+    }
+
+    func setLightIntensityForSelectedSphere(
+        _ intensity: Float,
+        fallbackOriginalColor color: RGBColor
+    ) {
+        if let selectedSphere {
+            setLightIntensity(intensity, for: selectedSphere)
+            return
+        }
+
+        setLightIntensity(intensity, forOriginalColor: color)
     }
 
     // MARK: - Selection
@@ -269,7 +337,20 @@ final class SphereInteractionManager: ObservableObject {
         clone.name = "Clone"
         clone.components.set(RGBColorComponent(color: color))
 
-        addRadiatingGlow(to: clone, color: color.uiColor)
+        clone.components.set(
+            RGBColorComponent(color: color)
+        )
+
+        addRadiatingGlow(
+            to: clone,
+            color: color.uiColor
+        )
+
+        let originalIntensity =
+            original.components[SphereLightComponent.self]?.intensity
+            ?? SphereLightComponent.defaultIntensity
+        applySphereLightIntensity(originalIntensity, to: clone)
+
         configureSphereForInteraction(clone)
 
         return clone
@@ -284,7 +365,25 @@ final class SphereInteractionManager: ObservableObject {
         mixedSphere.name = "MixedSphere"
         mixedSphere.components.set(RGBColorComponent(color: overlap.color))
 
-        addRadiatingGlow(to: mixedSphere, color: overlap.color.uiColor)
+        mixedSphere.components.set(
+            RGBColorComponent(
+                color: overlap.color
+            )
+        )
+
+        addRadiatingGlow(
+            to: mixedSphere,
+            color: overlap.color.uiColor
+        )
+
+        let mixedIntensity = (
+            (overlap.firstSphere.components[SphereLightComponent.self]?.intensity
+                ?? SphereLightComponent.defaultIntensity)
+            + (overlap.secondSphere.components[SphereLightComponent.self]?.intensity
+                ?? SphereLightComponent.defaultIntensity)
+        ) / 2.0
+        applySphereLightIntensity(mixedIntensity, to: mixedSphere)
+
         configureSphereForInteraction(mixedSphere)
 
         if let parent = overlap.firstSphere.parent {
@@ -306,5 +405,11 @@ final class SphereInteractionManager: ObservableObject {
         }
 
         sphere.position = parent.convert(position: target.position, from: target.parent)
+    }
+
+    private func lightAdjustableSpheres() -> [ModelEntity] {
+        (originalSpheres + movableSpheres).filter {
+            $0.components[RGBColorComponent.self] != nil
+        }
     }
 }
