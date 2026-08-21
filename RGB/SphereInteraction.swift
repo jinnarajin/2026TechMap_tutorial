@@ -11,13 +11,10 @@ func configureSphereForInteraction(_ sphere: ModelEntity) {
     sphere.components.set(InputTargetComponent())
 
     sphere.components.set(
-        CollisionComponent(
-            shapes: [.generateSphere(radius: 0.15)]
-        )
+        CollisionComponent(shapes: [.generateSphere(radius: 0.15)])
     )
 
     var manipulation = ManipulationComponent()
     manipulation.releaseBehavior = .stay
-
     sphere.components.set(manipulation)
 }
