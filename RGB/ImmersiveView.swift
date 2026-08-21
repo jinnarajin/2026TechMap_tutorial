@@ -59,14 +59,11 @@ struct ImmersiveView: View {
             interactionManager.setOriginalSpheres([red, green, blue])
 
             let lightDialController = LightDialController { worldPosition in
-                guard let sphere = interactionManager.closestLightSphere(
+                interactionManager.closestLightSphere(
                     to: worldPosition
-                ) else {
-                    return nil
-                }
-
+                )
+            } targetSelector: { sphere in
                 interactionManager.selectLightSphere(sphere)
-                return sphere
             } intensityApplier: { sphere, intensity in
                 interactionManager.setLightIntensity(
                     intensity,

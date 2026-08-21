@@ -98,7 +98,6 @@ func addRadiatingGlow(to sphere: ModelEntity, color: UIColor) {
 
     let glow = makeGlowPlane(texture: texture, size: 0.42)
 
-    glow.name = "RGBGlow"
     glow.position = SIMD3(0, 0, 0.015)
     glow.components.set(BillboardComponent())
 

@@ -4,6 +4,7 @@
 //
 
 import ARKit
+import Foundation
 import RealityKit
 import simd
 
@@ -11,81 +12,140 @@ import simd
 final class LightDialController {
 
     typealias TargetProvider = (SIMD3<Float>) -> ModelEntity?
+    typealias TargetSelector = (ModelEntity) -> Void
     typealias IntensityApplier = (ModelEntity, Float) -> Void
 
+    private enum DialState {
+        case idle
+        case candidate(
+            handID: UUID,
+            target: ModelEntity,
+            startedAt: TimeInterval
+        )
+        case adjusting(
+            handID: UUID,
+            target: ModelEntity
+        )
+    }
+
     private let targetProvider: TargetProvider
+    private let targetSelector: TargetSelector
     private let intensityApplier: IntensityApplier
 
-    private var activeHandID: UUID?
-    private weak var activeTarget: ModelEntity?
-    private var initialAngle: Float = 0
+    private var state: DialState = .idle
+    private var initialPalmAxis = SIMD3<Float>(1, 0, 0)
+    private var rotationAxis = SIMD3<Float>(0, 0, 1)
     private var initialIntensity: Float = SphereLightComponent.defaultIntensity
     private var smoothedIntensity: Float = SphereLightComponent.defaultIntensity
 
-    private let pinchStartDistance: Float = 0.035
-    private let pinchEndDistance: Float = 0.055
-    private let angleDeadZone: Float = 0.035
+    private let activationDistance: Float = 0.30
+    private let releaseDistance: Float = 0.40
+    private let openPalmHoldDuration: TimeInterval = 0.30
+    private let angleDeadZone: Float = .pi / 36.0
     private let intensityPerRadian: Float = 0.32
-    private let smoothingAmount: Float = 0.28
+    private let smoothingAmount: Float = 0.35
+    private let rotationDirection: Float = -1.0
 
     init(
         targetProvider: @escaping TargetProvider,
+        targetSelector: @escaping TargetSelector,
         intensityApplier: @escaping IntensityApplier
     ) {
         self.targetProvider = targetProvider
+        self.targetSelector = targetSelector
         self.intensityApplier = intensityApplier
     }
 
     func process(anchor: HandAnchor) {
         guard anchor.isTracked,
               let sample = HandDialSample(anchor: anchor) else {
-            endDialIfNeeded(for: anchor.id)
+            cancelDial()
             return
         }
 
-        if let activeHandID, activeHandID != anchor.id {
-            return
-        }
+        let now = ProcessInfo.processInfo.systemUptime
 
-        if sample.pinchDistance <= pinchStartDistance {
-            if activeTarget == nil {
-                beginDial(with: sample, handID: anchor.id)
-            } else {
-                updateDial(with: sample)
+        switch state {
+        case .idle:
+            guard sample.isOpenPalm,
+                  let target = targetProvider(sample.palmCenter),
+                  distance(from: sample, to: target) <= activationDistance
+            else {
+                return
             }
-        } else if sample.pinchDistance >= pinchEndDistance {
-            endDialIfNeeded(for: anchor.id)
+
+            state = .candidate(
+                handID: anchor.id,
+                target: target,
+                startedAt: now
+            )
+
+        case let .candidate(handID, target, startedAt):
+            guard handID == anchor.id else {
+                return
+            }
+
+            guard sample.isOpenPalm,
+                  distance(from: sample, to: target) <= releaseDistance
+            else {
+                cancelDial()
+                return
+            }
+
+            guard now - startedAt >= openPalmHoldDuration else {
+                return
+            }
+
+            beginDial(with: sample, handID: handID, target: target)
+
+        case let .adjusting(handID, target):
+            guard handID == anchor.id else {
+                return
+            }
+
+            guard sample.isOpenPalm,
+                  distance(from: sample, to: target) <= releaseDistance
+            else {
+                cancelDial()
+                return
+            }
+
+            updateDial(with: sample, target: target)
         }
     }
 
     func cancelDial() {
-        activeHandID = nil
-        activeTarget = nil
+        state = .idle
     }
 
     private func beginDial(
         with sample: HandDialSample,
-        handID: UUID
+        handID: UUID,
+        target: ModelEntity
     ) {
-        guard let target = targetProvider(sample.pinchCenter) else {
-            return
-        }
-
-        activeHandID = handID
-        activeTarget = target
-        initialAngle = sample.angle
+        targetSelector(target)
+        state = .adjusting(handID: handID, target: target)
+        initialPalmAxis = sample.palmAxis
+        rotationAxis = normalized(
+            target.position(relativeTo: nil) - sample.palmCenter
+        )
         initialIntensity = target.components[SphereLightComponent.self]?.intensity
             ?? SphereLightComponent.defaultIntensity
         smoothedIntensity = initialIntensity
     }
 
-    private func updateDial(with sample: HandDialSample) {
-        guard let activeTarget else {
-            return
-        }
-
-        let rawDelta = normalizedAngle(sample.angle - initialAngle)
-        let adjustedDelta: Float = abs(rawDelta) < angleDeadZone ? 0 : -rawDelta
+    private func updateDial(
+        with sample: HandDialSample,
+        target: ModelEntity
+    ) {
+        let rawDelta = signedAngle(
+            from: initialPalmAxis,
+            to: sample.palmAxis,
+            around: rotationAxis
+        )
+        let adjustedDelta: Float = abs(rawDelta) < angleDeadZone
+            ? 0
+            : rawDelta * rotationDirection
         let targetIntensity = clamp(
             initialIntensity + (adjustedDelta * intensityPerRadian)
         )
@@ -93,29 +153,37 @@ final class LightDialController {
             + ((targetIntensity - smoothedIntensity) * smoothingAmount)
 
         smoothedIntensity = nextIntensity
-        intensityApplier(activeTarget, nextIntensity)
+        intensityApplier(target, nextIntensity)
     }
 
-    private func endDialIfNeeded(for handID: UUID) {
-        guard activeHandID == handID else {
-            return
-        }
-
-        cancelDial()
+    private func distance(
+        from sample: HandDialSample,
+        to target: ModelEntity
+    ) -> Float {
+        simd_distance(sample.palmCenter, target.position(relativeTo: nil))
     }
 
-    private func normalizedAngle(_ angle: Float) -> Float {
-        var result = angle
+    private func signedAngle(
+        from initialAxis: SIMD3<Float>,
+        to currentAxis: SIMD3<Float>,
+        around axis: SIMD3<Float>
+    ) -> Float {
+        let initial = normalized(
+            initialAxis - (axis * simd_dot(initialAxis, axis))
+        )
+        let current = normalized(
+            currentAxis - (axis * simd_dot(currentAxis, axis))
+        )
 
-        while result > .pi {
-            result -= 2.0 * .pi
+        guard simd_length(initial) > 0.001,
+              simd_length(current) > 0.001 else {
+            return 0
         }
 
-        while result < -.pi {
-            result += 2.0 * .pi
-        }
+        let sine = simd_dot(axis, simd_cross(initial, current))
+        let cosine = simd_dot(initial, current)
 
-        return result
+        return atan2(sine, cosine)
     }
 
     private func clamp(_ value: Float) -> Float {
@@ -124,51 +192,122 @@ final class LightDialController {
             SphereLightComponent.maximumIntensity
         )
     }
+
+    private func normalized(_ vector: SIMD3<Float>) -> SIMD3<Float> {
+        let length = simd_length(vector)
+
+        guard length > 0.001 else {
+            return SIMD3<Float>(0, 0, 1)
+        }
+
+        return vector / length
+    }
 }
 
 private struct HandDialSample {
-    let pinchCenter: SIMD3<Float>
-    let pinchDistance: Float
-    let angle: Float
+    let palmCenter: SIMD3<Float>
+    let palmAxis: SIMD3<Float>
+    let isOpenPalm: Bool
 
     init?(anchor: HandAnchor) {
         guard let skeleton = anchor.handSkeleton else {
             return nil
         }
 
-        let thumbTip = skeleton.joint(.thumbTip)
-        let indexTip = skeleton.joint(.indexFingerTip)
         let wrist = skeleton.joint(.wrist)
+        let indexKnuckle = skeleton.joint(.indexFingerKnuckle)
+        let middleKnuckle = skeleton.joint(.middleFingerKnuckle)
+        let ringKnuckle = skeleton.joint(.ringFingerKnuckle)
+        let littleKnuckle = skeleton.joint(.littleFingerKnuckle)
+        let indexTip = skeleton.joint(.indexFingerTip)
+        let middleTip = skeleton.joint(.middleFingerTip)
+        let ringTip = skeleton.joint(.ringFingerTip)
 
-        guard thumbTip.isTracked,
+        guard wrist.isTracked,
+              indexKnuckle.isTracked,
+              middleKnuckle.isTracked,
+              ringKnuckle.isTracked,
+              littleKnuckle.isTracked,
               indexTip.isTracked,
-              wrist.isTracked else {
+              middleTip.isTracked,
+              ringTip.isTracked else {
             return nil
         }
 
-        let thumbPosition = Self.worldPosition(
-            for: thumbTip,
-            in: anchor
-        )
-        let indexPosition = Self.worldPosition(
-            for: indexTip,
-            in: anchor
-        )
         let wristPosition = Self.worldPosition(
             for: wrist,
             in: anchor
         )
+        let indexKnucklePosition = Self.worldPosition(
+            for: indexKnuckle,
+            in: anchor
+        )
+        let middleKnucklePosition = Self.worldPosition(
+            for: middleKnuckle,
+            in: anchor
+        )
+        let ringKnucklePosition = Self.worldPosition(
+            for: ringKnuckle,
+            in: anchor
+        )
+        let littleKnucklePosition = Self.worldPosition(
+            for: littleKnuckle,
+            in: anchor
+        )
+        let indexTipPosition = Self.worldPosition(
+            for: indexTip,
+            in: anchor
+        )
+        let middleTipPosition = Self.worldPosition(
+            for: middleTip,
+            in: anchor
+        )
+        let ringTipPosition = Self.worldPosition(
+            for: ringTip,
+            in: anchor
+        )
 
-        let pinchCenter = (thumbPosition + indexPosition) / 2.0
-        let dialVector = pinchCenter - wristPosition
+        let palmWidth = simd_distance(
+            indexKnucklePosition,
+            littleKnucklePosition
+        )
 
-        guard simd_length(dialVector) > 0.01 else {
+        guard palmWidth > 0.02 else {
             return nil
         }
 
-        self.pinchCenter = pinchCenter
-        self.pinchDistance = simd_distance(thumbPosition, indexPosition)
-        self.angle = atan2(dialVector.y, dialVector.x)
+        let palmAxis = littleKnucklePosition - indexKnucklePosition
+
+        guard simd_length(palmAxis) > 0.001 else {
+            return nil
+        }
+
+        self.palmCenter = (
+            wristPosition
+            + indexKnucklePosition
+            + middleKnucklePosition
+            + littleKnucklePosition
+        ) / 4.0
+        self.palmAxis = palmAxis / simd_length(palmAxis)
+        self.isOpenPalm =
+            Self.isFingerExtended(
+                tip: indexTipPosition,
+                knuckle: indexKnucklePosition,
+                wrist: wristPosition,
+                palmWidth: palmWidth
+            )
+            && Self.isFingerExtended(
+                tip: middleTipPosition,
+                knuckle: middleKnucklePosition,
+                wrist: wristPosition,
+                palmWidth: palmWidth
+            )
+            && Self.isFingerExtended(
+                tip: ringTipPosition,
+                knuckle: ringKnucklePosition,
+                wrist: wristPosition,
+                palmWidth: palmWidth
+            )
     }
 
     private static func worldPosition(
@@ -182,5 +321,19 @@ private struct HandDialSample {
             transform.columns.3.y,
             transform.columns.3.z
         )
+    }
+
+    private static func isFingerExtended(
+        tip: SIMD3<Float>,
+        knuckle: SIMD3<Float>,
+        wrist: SIMD3<Float>,
+        palmWidth: Float
+    ) -> Bool {
+        let tipFromKnuckle = simd_distance(tip, knuckle)
+        let tipFromWrist = simd_distance(tip, wrist)
+        let knuckleFromWrist = simd_distance(knuckle, wrist)
+
+        return tipFromKnuckle > palmWidth * 0.45
+            && tipFromWrist > knuckleFromWrist + (palmWidth * 0.35)
     }
 }
