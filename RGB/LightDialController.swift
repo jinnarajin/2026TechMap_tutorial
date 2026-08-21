@@ -31,12 +31,14 @@ final class LightDialController {
     private let targetProvider: TargetProvider
     private let targetSelector: TargetSelector
     private let intensityApplier: IntensityApplier
+    var diagnosticsHandler: ((String) -> Void)?
 
     private var state: DialState = .idle
     private var initialPalmAxis = SIMD3<Float>(1, 0, 0)
     private var rotationAxis = SIMD3<Float>(0, 0, 1)
     private var initialIntensity: Float = SphereLightComponent.defaultIntensity
     private var smoothedIntensity: Float = SphereLightComponent.defaultIntensity
+    private var lastDiagnosticsLogTime: TimeInterval = 0
 
     private let activationDistance: Float = 0.30
     private let releaseDistance: Float = 0.40
@@ -57,18 +59,54 @@ final class LightDialController {
     }
 
     func process(anchor: HandAnchor) {
-        guard anchor.isTracked,
-              let sample = HandDialSample(anchor: anchor) else {
+        guard anchor.isTracked else {
+            logDiagnostics(
+                "state=\(stateName) chirality=\(anchor.chirality) " +
+                "isTracked=false handSkeleton=\(anchor.handSkeleton != nil) " +
+                "sample=false reason=anchor-not-tracked"
+            )
+            cancelDial()
+            return
+        }
+
+        guard let sample = HandDialSample(anchor: anchor) else {
+            logDiagnostics(
+                "state=\(stateName) chirality=\(anchor.chirality) " +
+                "isTracked=true handSkeleton=\(anchor.handSkeleton != nil) " +
+                "sample=false reason=skeleton-or-required-joints-unavailable"
+            )
             cancelDial()
             return
         }
 
         let now = ProcessInfo.processInfo.systemUptime
+        let target = targetProvider(sample.palmCenter)
+        let targetPosition = target?.position(relativeTo: nil)
+        let targetDistance = target.map {
+            distance(from: sample, to: $0)
+        }
+        let passesActivationDistance = targetDistance.map {
+            $0 <= activationDistance
+        } ?? false
+
+        logDiagnostics(
+            "state=\(stateName) chirality=\(anchor.chirality) " +
+            "isTracked=true handSkeleton=true openPalm=\(sample.isOpenPalm) " +
+            "indexOpen=\(sample.indexFingerExtended) " +
+            "middleOpen=\(sample.middleFingerExtended) " +
+            "ringOpen=\(sample.ringFingerExtended) " +
+            "palmCenter=\(format(sample.palmCenter)) " +
+            "nearest=\(target?.name ?? "nil") " +
+            "targetWorld=\(format(targetPosition)) " +
+            "distance=\(format(targetDistance)) " +
+            "activation<=\(activationDistance)=\(passesActivationDistance) " +
+            "coordinateCheck=ARKit joint world vs RealityKit position(relativeTo:nil)"
+        )
 
         switch state {
         case .idle:
             guard sample.isOpenPalm,
-                  let target = targetProvider(sample.palmCenter),
+                  let target,
                   distance(from: sample, to: target) <= activationDistance
             else {
                 return
@@ -202,12 +240,58 @@ final class LightDialController {
 
         return vector / length
     }
+
+    private var stateName: String {
+        switch state {
+        case .idle:
+            return "idle"
+        case .candidate:
+            return "candidate"
+        case .adjusting:
+            return "adjusting"
+        }
+    }
+
+    private func logDiagnostics(_ message: String) {
+        let now = ProcessInfo.processInfo.systemUptime
+
+        guard now - lastDiagnosticsLogTime >= 0.5 else {
+            return
+        }
+
+        lastDiagnosticsLogTime = now
+        diagnosticsHandler?("LightDial \(message)")
+    }
+
+    private func format(_ value: SIMD3<Float>?) -> String {
+        guard let value else {
+            return "nil"
+        }
+
+        return String(
+            format: "(%.3f, %.3f, %.3f)",
+            value.x,
+            value.y,
+            value.z
+        )
+    }
+
+    private func format(_ value: Float?) -> String {
+        guard let value else {
+            return "nil"
+        }
+
+        return String(format: "%.3f", value)
+    }
 }
 
 private struct HandDialSample {
     let palmCenter: SIMD3<Float>
     let palmAxis: SIMD3<Float>
     let isOpenPalm: Bool
+    let indexFingerExtended: Bool
+    let middleFingerExtended: Bool
+    let ringFingerExtended: Bool
 
     init?(anchor: HandAnchor) {
         guard let skeleton = anchor.handSkeleton else {
@@ -289,25 +373,27 @@ private struct HandDialSample {
             + littleKnucklePosition
         ) / 4.0
         self.palmAxis = palmAxis / simd_length(palmAxis)
-        self.isOpenPalm =
-            Self.isFingerExtended(
-                tip: indexTipPosition,
-                knuckle: indexKnucklePosition,
-                wrist: wristPosition,
-                palmWidth: palmWidth
-            )
-            && Self.isFingerExtended(
-                tip: middleTipPosition,
-                knuckle: middleKnucklePosition,
-                wrist: wristPosition,
-                palmWidth: palmWidth
-            )
-            && Self.isFingerExtended(
-                tip: ringTipPosition,
-                knuckle: ringKnucklePosition,
-                wrist: wristPosition,
-                palmWidth: palmWidth
-            )
+        indexFingerExtended = Self.isFingerExtended(
+            tip: indexTipPosition,
+            knuckle: indexKnucklePosition,
+            wrist: wristPosition,
+            palmWidth: palmWidth
+        )
+        middleFingerExtended = Self.isFingerExtended(
+            tip: middleTipPosition,
+            knuckle: middleKnucklePosition,
+            wrist: wristPosition,
+            palmWidth: palmWidth
+        )
+        ringFingerExtended = Self.isFingerExtended(
+            tip: ringTipPosition,
+            knuckle: ringKnucklePosition,
+            wrist: wristPosition,
+            palmWidth: palmWidth
+        )
+        isOpenPalm = indexFingerExtended
+            && middleFingerExtended
+            && ringFingerExtended
     }
 
     private static func worldPosition(

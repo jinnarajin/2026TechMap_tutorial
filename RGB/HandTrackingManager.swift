@@ -17,12 +17,17 @@ final class HandTrackingManager: ObservableObject {
     let handTrackingProvider = HandTrackingProvider()
 
     @Published private(set) var isRunning = false
+    @Published private(set) var debugStatus = "Hand tracking diagnostics idle."
 
     private var anchorUpdatesTask: Task<Void, Never>?
     private var lightDialController: LightDialController?
+    private var lastAnchorDebugLogTime: TimeInterval = 0
 
     func connectLightDialController(_ controller: LightDialController) {
         lightDialController = controller
+        controller.diagnosticsHandler = { [weak self] message in
+            self?.publishDebugStatus(message)
+        }
     }
 
     func start() async {
@@ -81,10 +86,33 @@ final class HandTrackingManager: ObservableObject {
     private func handle(_ update: AnchorUpdate<HandAnchor>) {
         switch update.event {
         case .added, .updated:
+            logAnchorDiagnostics(update.anchor)
             lightDialController?.process(anchor: update.anchor)
 
         case .removed:
+            publishDebugStatus("HandAnchor removed. light dial canceled.")
             lightDialController?.cancelDial()
         }
+    }
+
+    private func logAnchorDiagnostics(_ anchor: HandAnchor) {
+        let now = ProcessInfo.processInfo.systemUptime
+
+        guard now - lastAnchorDebugLogTime >= 0.5 else {
+            return
+        }
+
+        lastAnchorDebugLogTime = now
+
+        let hasSkeleton = anchor.handSkeleton != nil
+        publishDebugStatus(
+            "HandAnchor update chirality=\(anchor.chirality) " +
+            "isTracked=\(anchor.isTracked) handSkeleton=\(hasSkeleton)"
+        )
+    }
+
+    private func publishDebugStatus(_ message: String) {
+        debugStatus = message
+        print("[HandLightDebug] \(message)")
     }
 }

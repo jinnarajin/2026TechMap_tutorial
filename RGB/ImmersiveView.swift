@@ -127,6 +127,11 @@ struct ImmersiveView: View {
                         ),
                         in: 0...1
                     )
+
+                    Text(handTrackingManager.debugStatus)
+                        .font(.caption)
+                        .lineLimit(6)
+                        .monospacedDigit()
                 }
                 .frame(width: 360)
                 .padding(16)
