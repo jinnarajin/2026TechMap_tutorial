@@ -68,7 +68,6 @@ struct ImmersiveView: View {
             headAnchor.addChild(red)
             headAnchor.addChild(green)
             headAnchor.addChild(blue)
-            content.add(lightDialController.skeletonRoot)
 
             // Attach the Clear All button to the same head anchor.
             if let clearButton = attachments.entity(for: "clearAllButton") {

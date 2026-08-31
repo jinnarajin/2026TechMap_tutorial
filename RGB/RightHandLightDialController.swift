@@ -8,7 +8,6 @@
 import ARKit
 import RealityKit
 import simd
-import UIKit
 
 struct RightHandLightDebugState {
     var isRightHandTracked = false
@@ -44,24 +43,17 @@ final class RightHandLightDialController {
     typealias TargetProvider = (SIMD3<Float>) -> ModelEntity?
     typealias IntensityApplier = (ModelEntity, Float) -> Void
 
-    let skeletonRoot = Entity()
-
     private let targetProvider: TargetProvider
     private let intensityApplier: IntensityApplier
 
     private weak var activeTarget: ModelEntity?
     private var smoothedIntensity: Float = SphereLightComponent.defaultIntensity
     private var smoothedNormalizedBrightness: Float = SphereLightComponent.defaultIntensity / SphereLightComponent.maximumIntensity
-    private var jointEntities: [String: ModelEntity] = [:]
-    private var boneEntities: [String: ModelEntity] = [:]
 
     private let minIntensity = SphereLightComponent.minimumIntensity
     private let maxIntensity = SphereLightComponent.maximumIntensity
     private let inputSmoothingAmount: Float = 0.055
     private let intensitySmoothingAmount: Float = 0.065
-    private let jointMaterial = UnlitMaterial(color: .cyan)
-    private let wristMaterial = UnlitMaterial(color: .yellow)
-    private let boneMaterial = UnlitMaterial(color: .white.withAlphaComponent(0.82))
 
     private(set) var debugState = RightHandLightDebugState()
 
@@ -71,8 +63,6 @@ final class RightHandLightDialController {
     ) {
         self.targetProvider = targetProvider
         self.intensityApplier = intensityApplier
-        skeletonRoot.name = "Right Hand Wrist Roll Skeleton"
-        skeletonRoot.isEnabled = false
     }
 
     func process(anchor: HandAnchor) {
@@ -83,16 +73,12 @@ final class RightHandLightDialController {
         guard anchor.isTracked,
               let sample = RightHandWristRollSample(anchor: anchor) else {
             activeTarget = nil
-            skeletonRoot.isEnabled = false
             debugState = RightHandLightDebugState(
                 status: "오른손 앵커/스켈레톤 인식 안됨",
                 extra: "오른손을 Vision Pro 시야 안으로 넣어주세요."
             )
             return
         }
-
-        skeletonRoot.isEnabled = true
-        updateSkeleton(joints: sample.joints)
 
         guard sample.isWristTracked else {
             activeTarget = nil
@@ -149,88 +135,8 @@ final class RightHandLightDialController {
 
     func cancelDial() {
         activeTarget = nil
-        skeletonRoot.isEnabled = false
         debugState = RightHandLightDebugState(status: "오른손 추적 해제")
     }
-
-    private func updateSkeleton(joints: [String: SIMD3<Float>]) {
-        let activeJointIDs = Set(joints.keys)
-        for id in Set(jointEntities.keys).subtracting(activeJointIDs) {
-            jointEntities[id]?.removeFromParent()
-            jointEntities.removeValue(forKey: id)
-        }
-
-        for (id, position) in joints {
-            let entity = jointEntities[id] ?? makeJoint(id: id)
-            entity.position = position
-        }
-
-        let bones = Self.bonePairs.compactMap { startKey, endKey -> (String, SIMD3<Float>, SIMD3<Float>)? in
-            guard let start = joints[startKey], let end = joints[endKey] else {
-                return nil
-            }
-            return ("\(startKey)-\(endKey)", start, end)
-        }
-
-        let activeBoneIDs = Set(bones.map(\.0))
-        for id in Set(boneEntities.keys).subtracting(activeBoneIDs) {
-            boneEntities[id]?.removeFromParent()
-            boneEntities.removeValue(forKey: id)
-        }
-
-        for (id, start, end) in bones {
-            let entity = boneEntities[id] ?? makeBone(id: id)
-            placeBone(entity, from: start, to: end)
-        }
-    }
-
-    private func makeJoint(id: String) -> ModelEntity {
-        let radius: Float = id == "wrist" ? 0.014 : id == "forearmEstimate" ? 0.011 : 0.008
-        let material = id == "wrist" ? wristMaterial : id == "forearmEstimate" ? boneMaterial : jointMaterial
-        let entity = ModelEntity(
-            mesh: .generateSphere(radius: radius),
-            materials: [material]
-        )
-        entity.name = "RightHandJoint_\(id)"
-        skeletonRoot.addChild(entity)
-        jointEntities[id] = entity
-        return entity
-    }
-
-    private func makeBone(id: String) -> ModelEntity {
-        let entity = ModelEntity(
-            mesh: .generateBox(width: 0.006, height: 0.006, depth: 1.0),
-            materials: [boneMaterial]
-        )
-        entity.name = "RightHandBone_\(id)"
-        skeletonRoot.addChild(entity)
-        boneEntities[id] = entity
-        return entity
-    }
-
-    private func placeBone(_ entity: Entity, from start: SIMD3<Float>, to end: SIMD3<Float>) {
-        let vector = end - start
-        let length = max(simd_length(vector), 0.001)
-        entity.position = (start + end) * 0.5
-        entity.scale = SIMD3<Float>(1, 1, length)
-        entity.orientation = simd_quatf(from: SIMD3<Float>(0, 0, 1), to: simd_normalize(vector))
-    }
-
-    private static let bonePairs = [
-        ("wrist", "thumbKnuckle"), ("thumbKnuckle", "thumbIntermediateBase"),
-        ("thumbIntermediateBase", "thumbIntermediateTip"), ("thumbIntermediateTip", "thumbTip"),
-        ("wrist", "indexMetacarpal"), ("indexMetacarpal", "indexKnuckle"),
-        ("indexKnuckle", "indexIntermediateBase"), ("indexIntermediateBase", "indexIntermediateTip"),
-        ("indexIntermediateTip", "indexTip"), ("wrist", "middleMetacarpal"),
-        ("middleMetacarpal", "middleKnuckle"), ("middleKnuckle", "middleIntermediateBase"),
-        ("middleIntermediateBase", "middleIntermediateTip"), ("middleIntermediateTip", "middleTip"),
-        ("wrist", "ringMetacarpal"), ("ringMetacarpal", "ringKnuckle"),
-        ("ringKnuckle", "ringIntermediateBase"), ("ringIntermediateBase", "ringIntermediateTip"),
-        ("ringIntermediateTip", "ringTip"), ("wrist", "littleMetacarpal"),
-        ("littleMetacarpal", "littleKnuckle"), ("littleKnuckle", "littleIntermediateBase"),
-        ("littleIntermediateBase", "littleIntermediateTip"), ("littleIntermediateTip", "littleTip"),
-        ("forearmEstimate", "wrist")
-    ]
 }
 
 private struct RightHandWristRollSample {
