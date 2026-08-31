@@ -12,12 +12,6 @@ struct ImmersiveView: View {
     @StateObject private var interactionManager = SphereInteractionManager()
     @StateObject private var handTrackingManager = HandTrackingManager()
 
-#if targetEnvironment(simulator)
-    @State private var debugLightColor: DebugLightColor = .red
-    @State private var debugLightIntensity =
-        Double(SphereLightComponent.defaultIntensity)
-#endif
-
     var body: some View {
         RealityView { content, attachments in
             // Register custom components before using them.
@@ -47,7 +41,11 @@ struct ImmersiveView: View {
 
             interactionManager.setOriginalSpheres([red, green, blue])
 
-            let lightDialController = LightDialController { worldPosition in
+            let lightDialController = RightHandLightDialController { worldPosition in
+                if let selectedSphere = interactionManager.selectedLightSphere() {
+                    return selectedSphere
+                }
+
                 guard let sphere = interactionManager.closestLightSphere(
                     to: worldPosition
                 ) else {
@@ -70,6 +68,7 @@ struct ImmersiveView: View {
             headAnchor.addChild(red)
             headAnchor.addChild(green)
             headAnchor.addChild(blue)
+            content.add(lightDialController.skeletonRoot)
 
             // Attach the Clear All button to the same head anchor.
             if let clearButton = attachments.entity(for: "clearAllButton") {
@@ -77,12 +76,10 @@ struct ImmersiveView: View {
                 headAnchor.addChild(clearButton)
             }
 
-#if targetEnvironment(simulator)
-            if let debugControls = attachments.entity(for: "lightDebugControls") {
-                debugControls.position = SIMD3<Float>(0.0, -0.58, -1.2)
-                headAnchor.addChild(debugControls)
+            if let debugPanel = attachments.entity(for: "rightHandDebugPanel") {
+                debugPanel.position = SIMD3<Float>(-0.58, 0.32, -1.25)
+                headAnchor.addChild(debugPanel)
             }
-#endif
 
             content.add(headAnchor)
 
@@ -101,51 +98,21 @@ struct ImmersiveView: View {
                 .buttonStyle(.borderedProminent)
             }
 
-#if targetEnvironment(simulator)
-            Attachment(id: "lightDebugControls") {
-                VStack(spacing: 12) {
-                    Picker("Sphere", selection: $debugLightColor) {
-                        ForEach(DebugLightColor.allCases) { color in
-                            Text(color.rawValue).tag(color)
-                        }
-                    }
-                    .pickerStyle(.segmented)
+            Attachment(id: "rightHandDebugPanel") {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Right Hand Light Debug")
+                        .font(.headline)
 
-                    Slider(
-                        value: Binding(
-                            get: {
-                                Double(
-                                    interactionManager.selectedLightIntensity()
-                                        ?? Float(debugLightIntensity)
-                                )
-                            },
-                            set: { newValue in
-                                debugLightIntensity = newValue
-                                interactionManager
-                                    .setLightIntensityForSelectedSphere(
-                                    Float(newValue),
-                                    fallbackOriginalColor: debugLightColor.rgbColor
-                                )
-                            }
-                        ),
-                        in: 0...1
-                    )
+                    ForEach(Array(handTrackingManager.debugLines.enumerated()), id: \.offset) { _, line in
+                        Text(line)
+                            .font(.system(size: 12, weight: .medium, design: .monospaced))
+                            .lineLimit(2)
+                    }
                 }
-                .frame(width: 360)
+                .frame(width: 430, alignment: .leading)
                 .padding(16)
                 .glassBackgroundEffect()
-                .onChange(of: debugLightColor) { _, newValue in
-                    guard interactionManager.selectedLightSphere() == nil else {
-                        return
-                    }
-
-                    interactionManager.setLightIntensity(
-                        Float(debugLightIntensity),
-                        forOriginalColor: newValue.rgbColor
-                    )
-                }
             }
-#endif
         }
         .task {
             await handTrackingManager.start()
@@ -155,29 +122,6 @@ struct ImmersiveView: View {
         }
     }
 }
-
-#if targetEnvironment(simulator)
-private enum DebugLightColor: String, CaseIterable, Identifiable {
-    case red = "Red"
-    case green = "Green"
-    case blue = "Blue"
-
-    var id: Self {
-        self
-    }
-
-    var rgbColor: RGBColor {
-        switch self {
-        case .red:
-            return .red
-        case .green:
-            return .green
-        case .blue:
-            return .blue
-        }
-    }
-}
-#endif
 
 #Preview {
     ImmersiveView()
