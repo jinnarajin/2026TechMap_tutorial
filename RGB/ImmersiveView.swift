@@ -76,11 +76,6 @@ struct ImmersiveView: View {
                 headAnchor.addChild(clearButton)
             }
 
-            if let debugPanel = attachments.entity(for: "rightHandDebugPanel") {
-                debugPanel.position = SIMD3<Float>(-0.58, 0.32, -1.25)
-                headAnchor.addChild(debugPanel)
-            }
-
             content.add(headAnchor)
 
             // The manager handles RealityKit manipulation events.
@@ -96,22 +91,6 @@ struct ImmersiveView: View {
                         .padding(.vertical, 12)
                 }
                 .buttonStyle(.borderedProminent)
-            }
-
-            Attachment(id: "rightHandDebugPanel") {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Right Hand Light Debug")
-                        .font(.headline)
-
-                    ForEach(Array(handTrackingManager.debugLines.enumerated()), id: \.offset) { _, line in
-                        Text(line)
-                            .font(.system(size: 12, weight: .medium, design: .monospaced))
-                            .lineLimit(2)
-                    }
-                }
-                .frame(width: 430, alignment: .leading)
-                .padding(16)
-                .glassBackgroundEffect()
             }
         }
         .task {
