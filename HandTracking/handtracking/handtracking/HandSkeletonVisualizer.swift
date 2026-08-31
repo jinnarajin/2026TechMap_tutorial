@@ -8,6 +8,9 @@ import SwiftUI
 final class HandSkeletonVisualizer {
     let rootEntity = Entity()
 
+    private(set) var leftRotationDegrees: Float?
+    private(set) var rightRotationDegrees: Float?
+
     private let session = ARKitSession()
     private let provider = HandTrackingProvider()
     private let leftHand = SkeletonHandEntity(color: .cyan)
@@ -50,6 +53,8 @@ final class HandSkeletonVisualizer {
         trackingTask = nil
         leftHand.setVisible(false)
         rightHand.setVisible(false)
+        leftRotationDegrees = nil
+        rightRotationDegrees = nil
     }
 
     private func updateHand(using anchor: HandAnchor) {
@@ -62,6 +67,83 @@ final class HandSkeletonVisualizer {
 
         hand.update(anchorTransform: anchor.originFromAnchorTransform,
                     skeleton: skeleton)
+        updateHorizontalRotation(for: anchor, skeleton: skeleton)
+    }
+
+    /// Measures forearm pronation/supination around the elbow-to-wrist axis.
+    /// Thumb-up is 0°, palm-down is -90°, and palm-up is +90°.
+    private func updateHorizontalRotation(for anchor: HandAnchor,
+                                          skeleton: HandSkeleton) {
+        let forearmArm = skeleton.joint(.forearmArm)
+        let forearmWrist = skeleton.joint(.forearmWrist)
+        let index = skeleton.joint(.indexFingerKnuckle)
+        let little = skeleton.joint(.littleFingerKnuckle)
+
+        guard forearmArm.isTracked,
+              forearmWrist.isTracked,
+              index.isTracked,
+              little.isTracked else { return }
+
+        let worldFromArm = anchor.originFromAnchorTransform
+            * forearmArm.anchorFromJointTransform
+        let worldFromForearmWrist = anchor.originFromAnchorTransform
+            * forearmWrist.anchorFromJointTransform
+        let worldFromIndex = anchor.originFromAnchorTransform
+            * index.anchorFromJointTransform
+        let worldFromLittle = anchor.originFromAnchorTransform
+            * little.anchorFromJointTransform
+
+        let armPosition = worldFromArm.position
+        let wristPosition = worldFromForearmWrist.position
+        var forearmAxis = wristPosition - armPosition
+        let axisLength = simd_length(forearmAxis)
+        guard axisLength > 0.0001 else { return }
+        forearmAxis /= axisLength
+
+        let towardIndex = worldFromIndex.position - wristPosition
+        let towardLittle = worldFromLittle.position - wristPosition
+        var palmNormal = simd_cross(towardIndex, towardLittle)
+
+        // Mirrored joint order reverses the cross product on the left hand.
+        if anchor.chirality == .left {
+            palmNormal *= -1
+        }
+
+        // Remove any component along the forearm, leaving only its twist direction.
+        palmNormal -= simd_dot(palmNormal, forearmAxis) * forearmAxis
+        let palmNormalLength = simd_length(palmNormal)
+        guard palmNormalLength > 0.0001 else { return }
+        palmNormal /= palmNormalLength
+
+        let worldUp = SIMD3<Float>(0, 1, 0)
+        var neutralPalmDirection = simd_cross(worldUp, forearmAxis)
+        if anchor.chirality == .left {
+            neutralPalmDirection *= -1
+        }
+
+        let neutralLength = simd_length(neutralPalmDirection)
+        guard neutralLength > 0.0001 else { return }
+        neutralPalmDirection /= neutralLength
+
+        let sine = simd_dot(forearmAxis,
+                            simd_cross(neutralPalmDirection, palmNormal))
+        let cosine = simd_dot(neutralPalmDirection, palmNormal)
+        var degrees = atan2(sine, cosine) * 180 / .pi
+
+        // Keep the clinical sign convention identical for both hands.
+        if anchor.chirality == .left {
+            degrees *= -1
+        }
+
+        setAngle(degrees, for: anchor.chirality)
+    }
+
+    private func setAngle(_ degrees: Float, for chirality: HandAnchor.Chirality) {
+        if chirality == .left {
+            leftRotationDegrees = degrees
+        } else {
+            rightRotationDegrees = degrees
+        }
     }
 }
 
@@ -156,4 +238,3 @@ private extension simd_float4x4 {
         SIMD3(columns.3.x, columns.3.y, columns.3.z)
     }
 }
-
