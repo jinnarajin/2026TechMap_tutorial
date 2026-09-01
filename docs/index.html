@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build an Interactive RGB Light Experience — RGB Tutorials</title>
+<style>
+  :root {
+    --bg: #000; --text: #f5f5f7; --muted: #86868b; --blue: #2997ff;
+    --border: #2d2d2f; --card: #161617;
+    --code-bg: #1a1a1e; --code-text: #d8d8dc;
+    --kw: #ff7ab2; --type: #6bdfff; --str: #ff8170; --cmt: #7f8c98; --num: #d9c97c; --fn: #78c2b3;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code.inline { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .875em;
+    background: rgba(255,255,255,.08); border-radius: 4px; padding: .1em .35em; }
+
+  /* ── top nav ─────────────────────────────── */
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(29,29,31,.72);
+    backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid rgba(255,255,255,.1);
+    font-size: .82rem; }
+  .topnav .inner { max-width: 1250px; margin: 0 auto; padding: .65rem 1.4rem;
+    display: flex; gap: 1.4rem; align-items: center; overflow-x: auto; white-space: nowrap;
+    scrollbar-width: none; }
+  .topnav .brand { font-weight: 600; color: var(--text); font-size: .9rem; }
+  .topnav a { color: #d1d1d6; }
+  .topnav a:hover { color: #fff; text-decoration: none; }
+
+  /* ── hero ────────────────────────────────── */
+  .hero { background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, #26264d 0%, transparent 60%),
+      linear-gradient(180deg, #101024 0%, #000 90%);
+    padding: 4.5rem 1.4rem 3.5rem; }
+  .hero .inner { max-width: 800px; margin: 0 auto; text-align: center; }
+  .hero .eyebrow { color: var(--muted); font-size: 1rem; }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; letter-spacing: -.015em;
+    margin: .4rem auto 1.2rem; }
+  .hero p.lede { color: #d1d1d6; font-size: 1.05rem; max-width: 640px; margin: 0 auto; }
+  .spheres { display: flex; justify-content: center; gap: 2.2rem; margin: 2.6rem 0; }
+  .sphere { width: 92px; height: 92px; border-radius: 50%; }
+  .sphere.r { background: radial-gradient(circle at 35% 32%, #ffb3b3, #e00000 72%); box-shadow: 0 0 80px 14px rgba(255,40,40,.4); }
+  .sphere.g { background: radial-gradient(circle at 35% 32%, #b3ffb3, #00b400 72%); box-shadow: 0 0 80px 14px rgba(40,255,40,.3); }
+  .sphere.b { background: radial-gradient(circle at 35% 32%, #b3b3ff, #1414e0 72%); box-shadow: 0 0 80px 14px rgba(70,70,255,.45); }
+  .hero .time { display: inline-flex; align-items: center; gap: .6rem; margin-top: .6rem;
+    color: var(--text); font-size: .95rem; }
+  .hero .time .ring { width: 30px; height: 30px; border-radius: 50%;
+    border: 2.5px solid var(--blue); border-left-color: rgba(41,151,255,.25);
+    transform: rotate(45deg); }
+  .hero .time small { display: block; color: var(--muted); font-size: .75rem; text-align: left; }
+
+  /* ── section chapters ─────────────────────── */
+  .chapter-head { max-width: 1250px; margin: 0 auto; padding: 5rem 1.4rem 1rem;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+  .chapter-head .kicker { color: var(--muted); font-size: .85rem; margin-bottom: .4rem; }
+  .chapter-head h2 { font-size: clamp(1.6rem, 3vw, 2.3rem); letter-spacing: -.01em; margin: 0 0 1rem; }
+  .chapter-head .overview { color: #d1d1d6; }
+  .learning-card { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; margin-top: .25rem; }
+  .learning-card > div { background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.2rem; }
+  .learning-card strong { display: block; margin-bottom: .3rem; font-size: .9rem; }
+  .learning-card p { margin: 0; color: #d1d1d6; font-size: .9rem; }
+  .concept { border-left: 3px solid #bf5af2 !important; }
+  .goal { border-left: 3px solid var(--blue) !important; }
+  .chapter-art { display: flex; justify-content: center; }
+  .chapter-art .mini { width: 60px; height: 60px; border-radius: 50%; margin: 0 -8px; }
+
+  /* ── steps + sticky code panel ─────────────── */
+  .steps-layout { max-width: 1250px; margin: 0 auto; padding: 1rem 1.4rem 3rem;
+    display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr); gap: 2.5rem; }
+  .steps { padding: 20vh 0 20vh; }
+  .step { position: relative; padding: 1.1rem 1.3rem; margin: 0 0 42vh; border-radius: 12px;
+    border-left: 4px solid transparent; opacity: .35; transition: opacity .25s, background .25s; }
+  .step:last-child { margin-bottom: 10vh; }
+  .step.active { opacity: 1; background: rgba(255,255,255,.045); border-left-color: var(--blue); }
+  .step .steplabel { color: var(--muted); font-size: .8rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .06em; }
+  .step h3 { margin: .3rem 0 .5rem; font-size: 1.02rem; }
+  .newfile { color: var(--blue); font-size: .85rem; font-weight: 600; margin: 0 0 .5rem; }
+  .newfile code { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .code-location { color: #d1d1d6; font-size: .83rem; margin: .15rem 0 .65rem;
+    padding: .55rem .7rem; border-radius: 8px; background: rgba(41,151,255,.09);
+    border: 1px solid rgba(41,151,255,.24); }
+  .code-location strong { color: #64b5ff; }
+  .step p { margin: 0 0 .5rem; color: #d1d1d6; font-size: .95rem; }
+  .step ul { color: #d1d1d6; font-size: .95rem; margin: .4rem 0; padding-left: 1.2rem; }
+
+  .panel { position: relative; }
+  .panel-sticky { position: sticky; top: 4.5rem; height: calc(100vh - 6rem);
+    display: flex; flex-direction: column; }
+  .codewindow { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; display: flex; flex-direction: column; max-height: 100%; }
+  .codewindow .bar { background: #232327; padding: .55rem 1rem; font-size: .8rem;
+    color: #d1d1d6; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .5rem; }
+  .codewindow .bar .dot { width: 10px; height: 10px; border-radius: 50%; background: #3a3a3e; }
+  .change-key { margin-left: auto; color: #a8c7fa; font-family: -apple-system,
+    BlinkMacSystemFont, "SF Pro Text", sans-serif; font-size: .72rem; white-space: nowrap; }
+  .change-key::before { content: ""; display: inline-block; width: .7rem; height: .7rem;
+    border-radius: 2px; background: rgba(41,151,255,.42); margin-right: .35rem;
+    vertical-align: -.08rem; }
+  .codewindow pre { margin: 0; padding: 1rem 1.2rem; overflow: auto; flex: 1;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .78rem; line-height: 1.55;
+    color: var(--code-text); tab-size: 4; }
+  .codewindow pre.codebody > .code-line,
+  .step .mobilecode pre > .code-line { display: block; min-width: max-content; margin: 0 -1.2rem;
+    padding: 0 1.2rem; }
+  .codewindow pre.codebody > .code-line.changed,
+  .step .mobilecode pre > .code-line.changed {
+    background-color: rgba(41,151,255,.26) !important;
+    background-image: linear-gradient(90deg,
+      rgba(41,151,255,.34) 0%, rgba(41,151,255,.20) 72%, rgba(41,151,255,.14) 100%) !important;
+    border-left: 4px solid #2997ff !important;
+    padding-left: calc(1.2rem - 4px); }
+  .k { color: var(--kw); } .t { color: var(--type); } .s { color: var(--str); }
+  .c { color: var(--cmt); font-style: italic; } .n { color: var(--num); } .f { color: var(--fn); }
+
+  .result-callout { max-width: 1250px; margin: 0 auto 2rem; padding: 0 1.4rem; }
+  .result-callout .box { background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.2rem 1.5rem; color: #d1d1d6; }
+  .result-callout strong { color: var(--text); }
+  .result-callout .box { border-left: 4px solid #30d158; }
+  .result-callout .checklist { margin: .55rem 0 0; padding-left: 1.2rem; }
+  .device-note { max-width: 800px; margin: 1.4rem auto 0; text-align: left;
+    background: rgba(255,159,10,.1); border: 1px solid rgba(255,159,10,.35);
+    border-radius: 12px; padding: .9rem 1.1rem; color: #f5d5a0; font-size: .9rem; }
+
+  footer { border-top: 1px solid var(--border); color: var(--muted); font-size: .85rem;
+    text-align: center; padding: 2.2rem 1.4rem 3rem; margin-top: 3rem; }
+
+  .step .mobilecode { display: none; margin-top: .8rem; }
+  .step .mobilecode::before { content: attr(data-change-label); display: block;
+    color: #a8c7fa; font-size: .72rem; margin: 0 0 .35rem; }
+  .step .mobilecode pre { background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: .8rem 1rem; overflow: auto;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .74rem; line-height: 1.5; }
+  .step .mobilecode pre > .code-line { margin: 0 -1rem; padding: 0 1rem; }
+  .step .mobilecode pre > .code-line.changed { padding-left: calc(1rem - 4px); }
+  @media (max-width: 900px) {
+    .chapter-head { grid-template-columns: 1fr; gap: 1rem; }
+    .chapter-art { display: none; }
+    .steps-layout { grid-template-columns: 1fr; }
+    .panel { display: none; }
+    .steps { padding: 0; }
+    .step { margin-bottom: 1.2rem; opacity: 1; background: rgba(255,255,255,.04); }
+    .step .mobilecode { display: block; }
+    .learning-card { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav"><div class="inner">
+  <span class="brand">RGB&nbsp;Tutorials</span>
+  <a href="#s1">Immersive Space</a>
+  <a href="#s2">RGB Spheres</a>
+  <a href="#s4">Interaction</a>
+  <a href="#s5">Mix Colors</a>
+  <a href="#s6">Overlap Targets</a>
+  <a href="#s7">Light Control</a>
+  <a href="#" id="langtoggle" style="margin-left:auto;color:#fff;font-weight:600">한국어</a>
+</div></nav>
+
+<header class="hero"><div class="inner">
+  <div class="eyebrow">visionOS · RealityKit</div>
+  <h1>Build an Interactive RGB Light Experience</h1>
+  <p class="lede">Learn how to use RealityKit in visionOS to create an immersive RGB light
+  experience. You will create glowing RGB spheres, make them interactive, combine their
+  colors, detect when they overlap, and control a selected sphere's brightness with your
+  right-hand wrist rotation.</p>
+  <div class="spheres">
+    <div class="sphere r"></div><div class="sphere g"></div><div class="sphere b"></div>
+  </div>
+  <div class="time"><div class="ring"></div><span><small>Estimated&nbsp;Time</small>25&nbsp;minutes</span></div>
+  <div class="device-note i18n"
+    data-en="&lt;strong&gt;Testing note&lt;/strong&gt; — You can build the project and inspect the immersive layout in the visionOS Simulator. For the intended direct hand interaction and spatial depth, run the finished experience on Apple Vision Pro."
+    data-ko="&lt;strong&gt;테스트 환경 안내&lt;/strong&gt; — visionOS Simulator에서도 프로젝트를 빌드하고 이머시브 배치를 확인할 수 있습니다. 의도한 직접 손 인터랙션과 공간감을 최종 확인하려면 Apple Vision Pro에서 실행하세요."><strong>Testing note</strong> — You can build the project and inspect
+  the immersive layout in the visionOS Simulator. For the intended direct hand interaction
+  and spatial depth, run the finished experience on Apple Vision Pro.</div>
+</div></header>
+
+<!-- ═══════════ Section 1 ═══════════ -->
+<div class="chapter-head" id="s1">
+  <div>
+    <div class="kicker">Section 1 of 6</div>
+    <h2>Create the Immersive Space</h2>
+    <p class="overview">Start by creating the immersive space where the RGB spheres will
+    appear. The app starts in a regular SwiftUI window; when the user opens the immersive
+    space, RealityKit creates a separate 3D environment where the RGB spheres will be
+    placed and interacted with.</p>
+  </div>
+  <div class="chapter-art">
+    <div class="mini sphere r"></div><div class="mini sphere g"></div><div class="mini sphere b"></div>
+  </div>
+</div>
+
+<div class="steps-layout">
+  <div class="steps">
+    <div class="step" data-code="c-newproject">
+      <div class="steplabel">Step 1</div>
+      <h3>Create the Project</h3>
+      <p>In Xcode, choose <code class="inline">File → New → Project…</code>, select the
+      <strong>visionOS</strong> tab, and choose the <strong>App</strong> template under
+      Application.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-options">
+      <div class="steplabel">Step 2</div>
+      <h3>Choose the Project Options</h3>
+      <p>Enter a product name, then set <code class="inline">Initial Scene</code> to
+      <strong>Window</strong>, <code class="inline">Immersive Space Renderer</code> to
+      <strong>RealityKit</strong>, and <code class="inline">Immersive Space</code> to
+      <strong>Full</strong>. The app starts in a window and opens a full immersive
+      space.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-appmodel">
+      <div class="steplabel">Step 3</div>
+      <h3>Create the App Model</h3>
+      <p>The <code class="inline">AppModel</code> keeps track of the immersive space's
+      current state. <code class="inline">immersiveSpaceID</code> identifies the immersive
+      space, while <code class="inline">immersiveSpaceState</code> tracks whether the space
+      is closed, in transition, or open.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-app">
+      <div class="steplabel">Step 4</div>
+      <h3>Define the App's Scenes</h3>
+      <p>The <code class="inline">App</code> structure defines both the regular window and
+      the immersive space. The <code class="inline">WindowGroup</code> displays the initial
+      SwiftUI interface; the <code class="inline">ImmersiveSpace</code> scene contains the
+      <code class="inline">ImmersiveView</code>. When the space appears the state becomes
+      <code class="inline">open</code>, and returns to <code class="inline">closed</code>
+      when it disappears.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-toggle">
+      <div class="steplabel">Step 5</div>
+      <h3>Open and Close the Immersive Space</h3>
+      <p><code class="inline">openImmersiveSpace</code> opens the space by identifier and
+      <code class="inline">dismissImmersiveSpace</code> closes it. The
+      <code class="inline">inTransition</code> state disables the button while the space is
+      opening or closing.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-content">
+      <div class="steplabel">Step 6</div>
+      <h3>Create the Initial View</h3>
+      <p>The regular window only needs a button to enter the immersive experience. At this
+      point the app can open and close an empty immersive space — the RGB spheres come
+      next.</p>
+      <div class="mobilecode"></div>
+    </div>
+  </div>
+  <div class="panel"><div class="panel-sticky">
+    <div class="codewindow">
+      <div class="bar"><span class="dot"></span><span class="filename">AppModel.swift</span></div>
+      <pre class="codebody"></pre>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════════ Section 2 ═══════════ -->
+<div class="chapter-head" id="s2">
+  <div>
+    <div class="kicker">Section 2 of 6</div>
+    <h2>Create the RGB Spheres</h2>
+    <p class="overview">Create the visual representation of each RGB light using RealityKit
+    entities, materials, and a radiating glow. Each sphere is a
+    <code class="inline">ModelEntity</code> with a spherical mesh, a colored material, and
+    an RGB color value.</p>
+  </div>
+  <div class="chapter-art"><div class="mini sphere r"></div></div>
+</div>
+
+<div class="steps-layout">
+  <div class="steps">
+    <div class="step" data-code="c-makesphere">
+      <div class="steplabel">Step 1</div>
+      <h3>Create a Sphere</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RGBSphere.swift</code></div>
+      <p>A <code class="inline">ModelEntity</code> combines a mesh and materials to create
+      a visible object. The <code class="inline">makeRGBSphere</code> function creates a
+      sphere with a radius of <code class="inline">0.15</code> meters and stores its color
+      using <code class="inline">RGBColorComponent</code>.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-rgbcolor">
+      <div class="steplabel">Step 2</div>
+      <h3>Create the RGB Colors</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RGBColor.swift</code></div>
+      <p>The <code class="inline">RGBColor</code> structure stores red, green, and blue
+      values separately — Red <code class="inline">(1, 0, 0)</code>, Green
+      <code class="inline">(0, 1, 0)</code>, Blue <code class="inline">(0, 0, 1)</code>.
+      Keeping RGB values separate from the visual color makes it possible to combine them
+      later.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-material">
+      <div class="steplabel">Step 3</div>
+      <h3>Create the Sphere Material</h3>
+      <p>The sphere uses a <code class="inline">PhysicallyBasedMaterial</code> that combines
+      its base color with transparency and emissive color to create a luminous
+      appearance.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-glow">
+      <div class="steplabel">Step 4</div>
+      <h3>Add a Radiating Glow</h3>
+      <p>A second visual layer creates the soft glow around each sphere: a radial gradient
+      texture applied to a plane, kept facing the viewer by a
+      <code class="inline">BillboardComponent</code>. The glow is visual only.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-place">
+      <div class="steplabel">Step 5</div>
+      <h3>Place the RGB Spheres</h3>
+      <p>Create the three spheres in <code class="inline">ImmersiveView</code>'s
+      <code class="inline">RealityView</code>, position them in front of the user, and add
+      them to a head anchor. At this point the spheres are visible in the immersive space,
+      but they cannot be manipulated yet.</p>
+      <div class="mobilecode"></div>
+    </div>
+  </div>
+  <div class="panel"><div class="panel-sticky">
+    <div class="codewindow">
+      <div class="bar"><span class="dot"></span><span class="filename">RGBSphere.swift</span></div>
+      <pre class="codebody"></pre>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════════ Section 4 ═══════════ -->
+<div class="chapter-head" id="s4">
+  <div>
+    <div class="kicker">Section 3 of 6</div>
+    <h2>Make the Spheres Interactive</h2>
+    <p class="overview">Use custom RealityKit components to store information about each
+    RGB sphere, then add the components and event handling needed to make the spheres
+    selectable and movable in the immersive space.</p>
+  </div>
+  <div class="chapter-art"><div class="mini sphere b"></div></div>
+</div>
+
+<div class="steps-layout">
+  <div class="steps">
+    <div class="step" data-code="c-colorcomp">
+      <div class="steplabel">Step 1</div>
+      <h3>Store RGB Color</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereComponents.swift</code></div>
+      <p>The <code class="inline">RGBColorComponent</code> stores the RGB color associated
+      with a sphere, keeping the color data attached to the entity itself.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-origcomp">
+      <div class="steplabel">Step 2</div>
+      <h3>Identify Original Spheres</h3>
+      <p>The <code class="inline">OriginalSphereComponent</code> identifies an original
+      sphere and stores its fixed position — so the three original spheres remain in place
+      while movable copies are created for interaction.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-interaction">
+      <div class="steplabel">Step 3</div>
+      <h3>Prepare a Sphere for Interaction</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereInteraction.swift</code></div>
+      <p><code class="inline">configureSphereForInteraction</code> adds an
+      <code class="inline">InputTargetComponent</code> so the entity can receive input, a
+      <code class="inline">CollisionComponent</code> that defines the targetable area, and
+      a <code class="inline">ManipulationComponent</code> that lets the user move the
+      sphere.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-manip">
+      <div class="steplabel">Step 4</div>
+      <h3>Handle Manipulation Events</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereInteractionManager.swift</code></div>
+      <p>The <code class="inline">SphereInteractionManager</code> responds to manipulation
+      events in three stages: beginning a manipulation, updating the sphere's position, and
+      releasing it. Original spheres remain fixed while movable clones follow the user's
+      interaction.</p>
+      <div class="mobilecode"></div>
+    </div>
+  </div>
+  <div class="panel"><div class="panel-sticky">
+    <div class="codewindow">
+      <div class="bar"><span class="dot"></span><span class="filename">SphereComponents.swift</span></div>
+      <pre class="codebody"></pre>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════════ Section 5 ═══════════ -->
+<div class="chapter-head" id="s5">
+  <div>
+    <div class="kicker">Section 4 of 6</div>
+    <h2>Mix Colors</h2>
+    <p class="overview">Store RGB values and combine them when two light sources overlap.
+    Combining red and green produces yellow; red and blue produce magenta; when all three
+    primary lights overlap, the result becomes white.</p>
+  </div>
+  <div class="chapter-art">
+    <div class="mini sphere r"></div><div class="mini sphere g" style="margin-left:-28px"></div>
+  </div>
+</div>
+
+<div class="steps-layout">
+  <div class="steps">
+    <div class="step" data-code="c-clone">
+      <div class="steplabel">Step 1</div>
+      <h3>Create a Movable Clone</h3>
+      <p>Original spheres never leave their fixed positions. When the user starts
+      manipulating an original sphere, create a movable <em>clone</em> with the same color,
+      glow, and interaction components. The clone joins the movable sphere collection —
+      these clones are what overlap and mix colors.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-mix">
+      <div class="steplabel">Step 2</div>
+      <h3>Combine RGB Colors</h3>
+      <p>The <code class="inline">mixed(with:)</code> function adds the RGB components of
+      two colors together and normalizes the result to the
+      <code class="inline">0...1</code> range.</p>
+      <ul>
+        <li>Red + Green → Yellow</li>
+        <li>Red + Blue → Magenta</li>
+        <li>Green + Blue → Cyan</li>
+      </ul>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-overlapsys">
+      <div class="steplabel">Step 3</div>
+      <h3>Detect Overlapping Spheres</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereOverlapSystem.swift</code></div>
+      <p>The <code class="inline">SphereOverlapSystem</code> compares the world-space
+      positions of every pair of movable spheres. If the distance between two centers is
+      smaller than the overlap distance, the spheres overlap and the midpoint becomes the
+      location of the color-mixing interaction.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-overlapval">
+      <div class="steplabel">Step 4</div>
+      <h3>Describe the Overlap</h3>
+      <p>Each overlap is described by a <code class="inline">SphereOverlap</code> value —
+      the two spheres, the midpoint position, the mixed color, and a unique key that
+      prevents duplicate interaction targets for the same pair.</p>
+      <div class="mobilecode"></div>
+    </div>
+  </div>
+  <div class="panel"><div class="panel-sticky">
+    <div class="codewindow">
+      <div class="bar"><span class="dot"></span><span class="filename">RGBColor.swift</span></div>
+      <pre class="codebody"></pre>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════════ Section 6 ═══════════ -->
+<div class="chapter-head" id="s6">
+  <div>
+    <div class="kicker">Section 5 of 6</div>
+    <h2>Add Overlap Targets</h2>
+    <p class="overview">Create an invisible interaction point at the location where two RGB
+    spheres overlap, so the user can interact with the mixed color without directly
+    manipulating the original spheres.</p>
+  </div>
+  <div class="chapter-art">
+    <div class="mini sphere g"></div><div class="mini sphere b" style="margin-left:-28px"></div>
+  </div>
+</div>
+
+<div class="steps-layout">
+  <div class="steps">
+    <div class="step" data-code="c-overlaptarget">
+      <div class="steplabel">Step 1</div>
+      <h3>Create the Overlap Target</h3>
+      <p>Create an invisible <code class="inline">ModelEntity</code> at the midpoint of the
+      overlapping spheres. It needs no visible mesh — a
+      <code class="inline">CollisionComponent</code>,
+      <code class="inline">InputTargetComponent</code>, and
+      <code class="inline">ManipulationComponent</code> make it respond to the user's
+      gesture.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-overlapcomp">
+      <div class="steplabel">Step 2</div>
+      <h3>Store Overlap Information</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>OverlapVisualComponent.swift</code></div>
+      <p><code class="inline">OverlapVisualComponent</code> keeps the overlap key and the
+      mixed RGB color associated with the target. The key identifies which pair of spheres
+      produced the target.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-mixedsphere">
+      <div class="steplabel">Step 3</div>
+      <h3>Create the Mixed Sphere</h3>
+      <p>When the user begins manipulating an overlap target, create a new sphere with the
+      calculated mixed color at the overlap point. It joins the movable sphere collection,
+      so the resulting color can participate in future overlaps. Targets that no longer
+      correspond to an overlap are removed as spheres move.</p>
+      <div class="mobilecode"></div>
+    </div>
+  </div>
+  <div class="panel"><div class="panel-sticky">
+    <div class="codewindow">
+      <div class="bar"><span class="dot"></span><span class="filename">SphereInteractionManager.swift</span></div>
+      <pre class="codebody"></pre>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════════ Section 7 ═══════════ -->
+<div class="chapter-head" id="s7">
+  <div>
+    <div class="kicker">Section 6 of 6</div>
+    <h2>Control Light with Your Right Hand</h2>
+    <p class="overview">Use ARKit hand tracking to adjust the selected sphere's light
+    intensity. With all five fingers extended, rotate your right wrist from palm-down to
+    palm-up. The sphere changes its emissive intensity and glow opacity while keeping the
+    same size.</p>
+  </div>
+  <div class="chapter-art"><div class="mini sphere r"></div></div>
+</div>
+
+<div class="steps-layout">
+  <div class="steps">
+    <div class="step" data-code="c-lightcomponent">
+      <div class="steplabel">Step 1</div>
+      <h3>Store Light Intensity</h3>
+      <p><code class="inline">SphereLightComponent</code> stores brightness on each sphere.
+      The range is <code class="inline">0.0...2.4</code>, with
+      <code class="inline">1.2</code> as the initial value.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-applylight">
+      <div class="steplabel">Step 2</div>
+      <h3>Apply Brightness to the Sphere</h3>
+      <p>Normalize the stored intensity, then update the material's base color,
+      transparency, and <code class="inline">emissiveIntensity</code>. Update the glow's
+      opacity separately, so brightness changes without changing the sphere's size.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-wristroll">
+      <div class="steplabel">Step 3</div>
+      <h3>Convert Wrist Rotation to Brightness</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RightHandLightDialController.swift</code></div>
+      <p>Process only the right-hand anchor. When all five fingers are extended, map the
+      palm normal from down to up into a <code class="inline">0...1</code> brightness value,
+      then smooth both the input and the applied intensity to prevent sudden jumps.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-connectdial">
+      <div class="steplabel">Step 4</div>
+      <h3>Connect Tracking to the Selected Sphere</h3>
+      <p>Create the controller in <code class="inline">ImmersiveView</code>. A selected
+      sphere takes priority; otherwise, use the closest light sphere to the wrist. The
+      controller applies each smoothed intensity value through
+      <code class="inline">applySphereLightIntensity</code>.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-mixedlight">
+      <div class="steplabel">Step 5</div>
+      <h3>Give Mixed Spheres an Initial Brightness</h3>
+      <p>When two spheres create a mixed sphere, initialize its intensity with the average
+      of the two source values. This is a snapshot: later changes to either source do not
+      automatically change an already-created mixed sphere.</p>
+      <div class="mobilecode"></div>
+    </div>
+  </div>
+  <div class="panel"><div class="panel-sticky">
+    <div class="codewindow">
+      <div class="bar"><span class="dot"></span><span class="filename">SphereComponents.swift</span></div>
+      <pre class="codebody"></pre>
+    </div>
+  </div></div>
+</div>
+
+<footer>
+  RGB — a visionOS learning project · Apple Developer Academy ·
+  <a href="https://github.com/jinnarajin/2026TechMap_tutorial">View on GitHub</a>
+</footer>
+
+<!-- ═══════════ code templates ═══════════ -->
+<template id="c-newproject" data-name="Choose a template" data-img="images/01-template.png">
+Xcode ▸ File ▸ New ▸ Project…
+
+Choose a template for your new project:
+
+  Platform:      visionOS
+  Application:   ▸ App          ← select this
+                   Immersive Environment App
+
+Then click Next.
+</template>
+
+<template id="c-options" data-name="Choose options" data-img="images/02-options.png">
+Choose options for your new project:
+
+  Product Name:               RGB
+  Team:                       Your Team
+  Organization Identifier:    com.example
+
+  Initial Scene:              Window
+  Immersive Space Renderer:   RealityKit
+  Immersive Space:            Full
+
+  Testing System:             Swift Testing
+
+Then click Next and create the project.
+</template>
+
+<template id="c-appmodel" data-name="AppModel.swift">
+import SwiftUI
+
+/// Maintains app-wide state
+@MainActor
+@Observable
+class AppModel {
+    let immersiveSpaceID = "ImmersiveSpace"
+
+    enum ImmersiveSpaceState {
+        case closed
+        case inTransition
+        case open
+    }
+
+    var immersiveSpaceState = ImmersiveSpaceState.closed
+}
+</template>
+
+<template id="c-app" data-name="RGBApp.swift">
+import SwiftUI
+
+@main
+struct RGBApp: App {
+
+    @State private var appModel = AppModel()
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environment(appModel)
+        }
+
+        ImmersiveSpace(id: appModel.immersiveSpaceID) {
+            ImmersiveView()
+                .environment(appModel)
+                .onAppear {
+                    appModel.immersiveSpaceState = .open
+                }
+                .onDisappear {
+                    appModel.immersiveSpaceState = .closed
+                }
+        }
+        .immersionStyle(selection: .constant(.full), in: .full)
+    }
+}
+</template>
+
+<template id="c-toggle" data-name="ToggleImmersiveSpaceButton.swift">
+import SwiftUI
+
+struct ToggleImmersiveSpaceButton: View {
+
+    @Environment(AppModel.self) private var appModel
+
+    @Environment(\.dismissImmersiveSpace)
+    private var dismissImmersiveSpace
+
+    @Environment(\.openImmersiveSpace)
+    private var openImmersiveSpace
+
+    var body: some View {
+        Button {
+            Task { @MainActor in
+                switch appModel.immersiveSpaceState {
+                case .open:
+                    appModel.immersiveSpaceState = .inTransition
+                    await dismissImmersiveSpace()
+
+                case .closed:
+                    appModel.immersiveSpaceState = .inTransition
+                    switch await openImmersiveSpace(
+                        id: appModel.immersiveSpaceID
+                    ) {
+                    case .opened:
+                        break
+                    case .userCancelled, .error:
+                        fallthrough
+                    @unknown default:
+                        appModel.immersiveSpaceState = .closed
+                    }
+
+                case .inTransition:
+                    break
+                }
+            }
+        } label: {
+            Text(appModel.immersiveSpaceState == .open
+                 ? "Hide Immersive Space"
+                 : "Show Immersive Space")
+        }
+        .disabled(appModel.immersiveSpaceState == .inTransition)
+    }
+}
+</template>
+
+<template id="c-content" data-name="ContentView.swift">
+import SwiftUI
+import RealityKit
+
+struct ContentView: View {
+
+    var body: some View {
+        VStack {
+            ToggleImmersiveSpaceButton()
+        }
+    }
+}
+
+#Preview(windowStyle: .automatic) {
+    ContentView()
+        .environment(AppModel())
+}
+</template>
+
+<template id="c-makesphere" data-name="RGBSphere.swift">
+import RealityKit
+import UIKit
+
+func makeRGBSphere(
+    color: RGBColor
+) -> ModelEntity {
+
+    // Create the spherical mesh.
+    let mesh = MeshResource.generateSphere(
+        radius: 0.15
+    )
+
+    // Create the luminous material.
+    let material = makeSphereMaterial(
+        color: color
+    )
+
+    let sphere = ModelEntity(
+        mesh: mesh,
+        materials: [material]
+    )
+
+    // Store the sphere's RGB color.
+    sphere.components.set(
+        RGBColorComponent(color: color)
+    )
+
+    return sphere
+}
+</template>
+
+<template id="c-rgbcolor" data-name="RGBColor.swift">
+import UIKit
+
+struct RGBColor: Codable {
+
+    let red: Float
+    let green: Float
+    let blue: Float
+
+    // MARK: - Primary Colors
+
+    static let red = RGBColor(
+        red: 1.0, green: 0.0, blue: 0.0
+    )
+
+    static let green = RGBColor(
+        red: 0.0, green: 1.0, blue: 0.0
+    )
+
+    static let blue = RGBColor(
+        red: 0.0, green: 0.0, blue: 1.0
+    )
+}
+</template>
+
+<template id="c-material" data-name="RGBSphere.swift">
+import RealityKit
+
+func makeSphereMaterial(
+    color: RGBColor
+) -> PhysicallyBasedMaterial {
+
+    var material = PhysicallyBasedMaterial()
+
+    // Base color with transparency.
+    material.baseColor = .init(
+        tint: color.uiColor.withAlphaComponent(0.6)
+    )
+    material.blending = .transparent(
+        opacity: .init(floatLiteral: 0.6)
+    )
+
+    // Emissive color makes the sphere luminous.
+    material.emissiveColor = .init(
+        color: color.uiColor
+    )
+    material.emissiveIntensity = 2.0
+
+    return material
+}
+</template>
+
+<template id="c-glow" data-name="RGBSphere.swift">
+import RealityKit
+
+func addRadiatingGlow(
+    to sphere: ModelEntity,
+    color: RGBColor
+) {
+    // A radial gradient texture on a flat plane.
+    let glowMesh = MeshResource.generatePlane(
+        width: 0.6,
+        height: 0.6
+    )
+
+    let glowMaterial = makeGlowMaterial(
+        color: color
+    )
+
+    let glow = ModelEntity(
+        mesh: glowMesh,
+        materials: [glowMaterial]
+    )
+
+    // Always face the viewer.
+    glow.components.set(
+        BillboardComponent()
+    )
+
+    // Visual only — no interaction components.
+    sphere.addChild(glow)
+}
+</template>
+
+<template id="c-place" data-name="ImmersiveView.swift">
+import SwiftUI
+import RealityKit
+
+struct ImmersiveView: View {
+
+    var body: some View {
+        RealityView { content in
+            // Register custom components before using them.
+            RGBColorComponent.registerComponent()
+            OriginalSphereComponent.registerComponent()
+
+            let headAnchor = AnchorEntity(.head)
+
+            // The three original spheres stay fixed.
+            let red = makeRGBSphere(color: .red)
+            let green = makeRGBSphere(color: .green)
+            let blue = makeRGBSphere(color: .blue)
+
+            red.position = SIMD3&lt;Float&gt;(0.0, 0.25, -1.5)
+            green.position = SIMD3&lt;Float&gt;(-0.3, -0.15, -1.5)
+            blue.position = SIMD3&lt;Float&gt;(0.3, -0.15, -1.5)
+
+            headAnchor.addChild(red)
+            headAnchor.addChild(green)
+            headAnchor.addChild(blue)
+
+            content.add(headAnchor)
+        }
+    }
+}
+</template>
+
+<template id="c-colorcomp" data-name="SphereComponents.swift">
+import RealityKit
+
+/// Stores the RGB color associated with a sphere.
+struct RGBColorComponent: Component {
+    let color: RGBColor
+}
+</template>
+
+<template id="c-origcomp" data-name="SphereComponents.swift">
+import RealityKit
+
+/// Identifies one of the three original RGB spheres
+/// and stores its fixed position.
+struct OriginalSphereComponent: Component {
+    let color: RGBColor
+    let fixedPosition: SIMD3&lt;Float&gt;
+}
+</template>
+
+<template id="c-interaction" data-name="SphereInteraction.swift">
+import RealityKit
+
+func configureSphereForInteraction(
+    _ sphere: ModelEntity
+) {
+    // Allow the entity to receive input.
+    sphere.components.set(
+        InputTargetComponent()
+    )
+
+    // Define the area that can be targeted.
+    sphere.components.set(
+        CollisionComponent(
+            shapes: [
+                .generateSphere(radius: 0.15)
+            ]
+        )
+    )
+
+    // Enable the user to move the sphere.
+    var manipulation = ManipulationComponent()
+    manipulation.releaseBehavior = .stay
+
+    sphere.components.set(manipulation)
+}
+</template>
+
+<template id="c-manip" data-name="SphereInteractionManager.swift">
+import RealityKit
+
+extension SphereInteractionManager {
+
+    func handleManipulationBegan(
+        _ sphere: ModelEntity
+    ) {
+        // Original spheres stay fixed — create a
+        // movable clone that follows the gesture.
+        selectSphere(sphere)
+    }
+
+    func handleManipulationUpdated(
+        _ sphere: ModelEntity
+    ) {
+        // Track the sphere's position and update
+        // overlap targets each frame.
+        updateOverlaps()
+    }
+
+    func handleManipulationEnded(
+        _ sphere: ModelEntity
+    ) {
+        // Finalize the position and refresh
+        // overlap targets.
+        updateOverlaps()
+    }
+}
+</template>
+
+<template id="c-mix" data-name="RGBColor.swift">
+extension RGBColor {
+
+    // MARK: - Mixing
+
+    func mixed(
+        with other: RGBColor
+    ) -> RGBColor {
+
+        RGBColor(
+            red: red + other.red,
+            green: green + other.green,
+            blue: blue + other.blue
+        )
+        .normalized()
+    }
+
+    /// Keeps each component in the 0...1 range.
+    func normalized() -> RGBColor {
+        RGBColor(
+            red: min(red, 1.0),
+            green: min(green, 1.0),
+            blue: min(blue, 1.0)
+        )
+    }
+}
+</template>
+
+<template id="c-clone" data-name="SphereInteractionManager.swift">
+// An original RGB sphere creates a movable clone.
+if let original = entity.components[OriginalSphereComponent.self] {
+    let clone = createClone(from: entity)
+
+    clone.position = entity.position
+    entity.parent?.addChild(clone)
+    movableSpheres.append(clone)
+
+    state = .original(
+        sphere: entity,
+        position: original.fixedPosition,
+        clone: clone
+    )
+
+    selectSphere(clone)
+    return
+}
+
+private func createClone(
+    from original: ModelEntity
+) -> ModelEntity {
+    let color = original.components[RGBColorComponent.self]?.color ?? .red
+
+    let clone = ModelEntity(
+        mesh: .generateSphere(radius: sphereRadius),
+        materials: [
+            makeRGBMaterial(color: color.uiColor)
+        ]
+    )
+
+    clone.name = "Clone"
+
+    clone.components.set(
+        RGBColorComponent(color: color)
+    )
+
+    addRadiatingGlow(
+        to: clone,
+        color: color.uiColor
+    )
+
+    configureSphereForInteraction(clone)
+
+    return clone
+}
+</template>
+
+<template id="c-overlapsys" data-name="SphereOverlapSystem.swift">
+import RealityKit
+import simd
+
+final class SphereOverlapSystem {
+
+    private let overlapDistance: Float = 0.30
+
+    func checkOverlap(
+        spheres: [ModelEntity]
+    ) -> [SphereOverlap] {
+
+        guard spheres.count >= 2 else { return [] }
+
+        var overlaps: [SphereOverlap] = []
+
+        for firstIndex in 0..&lt;(spheres.count - 1) {
+            for secondIndex in
+                (firstIndex + 1)..&lt;spheres.count {
+
+                let first = spheres[firstIndex]
+                let second = spheres[secondIndex]
+
+                let distance = simd_distance(
+                    first.position(relativeTo: nil),
+                    second.position(relativeTo: nil)
+                )
+
+                guard distance &lt; overlapDistance
+                else { continue }
+
+                // ... build the SphereOverlap value
+            }
+        }
+
+        return overlaps
+    }
+}
+</template>
+
+<template id="c-overlapval" data-name="SphereOverlapSystem.swift">
+import RealityKit
+import simd
+
+/// Describes what is overlapping, where the
+/// overlap occurs, and what color to produce.
+struct SphereOverlap {
+
+    let firstSphere: ModelEntity
+    let secondSphere: ModelEntity
+
+    /// Midpoint between the two spheres.
+    let position: SIMD3&lt;Float&gt;
+
+    /// The mixed RGB color.
+    let color: RGBColor
+
+    /// Unique key for this pair of spheres.
+    let key: String
+}
+</template>
+
+<template id="c-overlaptarget" data-name="SphereInteractionManager.swift">
+import RealityKit
+
+func makeOverlapTarget(
+    for overlap: SphereOverlap
+) -> ModelEntity {
+
+    // Invisible — no visible mesh needed.
+    let target = ModelEntity()
+    target.position = overlap.position
+
+    target.components.set(
+        InputTargetComponent()
+    )
+
+    target.components.set(
+        CollisionComponent(
+            shapes: [
+                .generateSphere(radius: 0.08)
+            ]
+        )
+    )
+
+    // Follow the user's manipulation gesture.
+    target.components.set(
+        ManipulationComponent()
+    )
+
+    return target
+}
+</template>
+
+<template id="c-overlapcomp" data-name="OverlapVisualComponent.swift">
+import RealityKit
+
+struct OverlapVisualComponent: Component {
+
+    /// Identifies which pair of spheres
+    /// produced this target.
+    let overlapKey: String
+
+    /// Used when the user interacts with the
+    /// target to create the mixed sphere.
+    let mixedColor: RGBColor
+}
+</template>
+
+<template id="c-mixedsphere" data-name="SphereInteractionManager.swift">
+import RealityKit
+
+func createMixedSphere(
+    from overlap: SphereOverlap
+) {
+    // Build a sphere with the mixed color.
+    let mixed = makeRGBSphere(
+        color: overlap.color
+    )
+
+    mixed.position = overlap.position
+
+    configureSphereForInteraction(mixed)
+
+    // Joins the movable collection, so it can
+    // participate in future overlaps.
+    movableSpheres.append(mixed)
+    rootEntity.addChild(mixed)
+}
+</template>
+
+<template id="c-lightcomponent" data-name="SphereComponents.swift">
+import RealityKit
+
+struct SphereLightComponent: Component {
+    var intensity: Float
+
+    static let minimumIntensity: Float = 0.0
+    static let maximumIntensity: Float = 2.4
+    static let defaultIntensity: Float = 1.2
+}
+</template>
+
+<template id="c-applylight" data-name="RGBSphere.swift">
+func applySphereLightIntensity(
+    _ intensity: Float,
+    to sphere: ModelEntity
+) {
+    let clampedIntensity = min(
+        max(intensity, SphereLightComponent.minimumIntensity),
+        SphereLightComponent.maximumIntensity
+    )
+
+    sphere.components.set(
+        SphereLightComponent(intensity: clampedIntensity)
+    )
+
+    let color = sphere.components[RGBColorComponent.self]?.color.uiColor
+        ?? .white
+    let normalized = clampedIntensity
+        / SphereLightComponent.maximumIntensity
+    let core = CGFloat(min(max(0.10 + normalized * 0.90, 0), 1))
+    let emissiveIntensity = 0.08 + pow(normalized, 1.08) * 13.5
+
+    if var material = sphere.model?.materials.first
+        as? PhysicallyBasedMaterial {
+        material.baseColor = .init(tint: color.withAlphaComponent(core))
+        material.blending = .transparent(opacity: .init(floatLiteral: Float(core)))
+        material.emissiveColor = .init(color: color.withAlphaComponent(core))
+        material.emissiveIntensity = emissiveIntensity
+        sphere.model?.materials = [material]
+    }
+
+    if let glow = sphere.findEntity(named: "RadiatingGlow") as? ModelEntity,
+       var glowMaterial = glow.model?.materials.first as? UnlitMaterial {
+        glowMaterial.blending = .transparent(
+            opacity: .init(floatLiteral: 0.08 + normalized * 0.92)
+        )
+        glow.model?.materials = [glowMaterial]
+    }
+}
+</template>
+
+<template id="c-wristroll" data-name="RightHandLightDialController.swift">
+import ARKit
+import RealityKit
+import simd
+
+@MainActor
+final class RightHandLightDialController {
+    func process(anchor: HandAnchor) {
+        guard anchor.chirality == .right,
+              anchor.isTracked,
+              let sample = RightHandWristRollSample(anchor: anchor)
+        else { return }
+
+        let target = targetProvider(sample.wristPosition)
+        let curvedBrightness = brightnessCurve(
+            sample.normalizedBrightness
+        )
+
+        guard sample.areAllFingersExtended,
+              let target else { return }
+
+        smoothedNormalizedBrightness +=
+            (curvedBrightness - smoothedNormalizedBrightness) * 0.055
+
+        let targetIntensity = SphereLightComponent.minimumIntensity
+            + smoothedNormalizedBrightness
+            * (SphereLightComponent.maximumIntensity
+                - SphereLightComponent.minimumIntensity)
+
+        smoothedIntensity +=
+            (targetIntensity - smoothedIntensity) * 0.065
+        intensityApplier(target, smoothedIntensity)
+    }
+}
+
+// palmNormal down(-1) → up(+1) becomes dark(0) → bright(1).
+let upAmount = simd_dot(
+    palmNormal,
+    SIMD3&lt;Float&gt;(0, 1, 0)
+).clamped(to: -1...1)
+let normalizedBrightness = ((upAmount + 1) * 0.5).clamped(to: 0...1)
+</template>
+
+<template id="c-connectdial" data-name="ImmersiveView.swift">
+let lightDialController = RightHandLightDialController { worldPosition in
+    // A sphere selected by the user takes priority.
+    if let selectedSphere = interactionManager.selectedLightSphere() {
+        return selectedSphere
+    }
+
+    guard let sphere = interactionManager.closestLightSphere(
+        to: worldPosition
+    ) else {
+        return nil
+    }
+
+    interactionManager.selectLightSphere(sphere)
+    return sphere
+} intensityApplier: { sphere, intensity in
+    interactionManager.setLightIntensity(
+        intensity,
+        for: sphere
+    )
+}
+
+handTrackingManager.connectLightDialController(
+    lightDialController
+)
+</template>
+
+<template id="c-mixedlight" data-name="SphereInteractionManager.swift">
+let mixedIntensity = (
+    (overlap.firstSphere.components[SphereLightComponent.self]?.intensity
+        ?? SphereLightComponent.defaultIntensity)
+    + (overlap.secondSphere.components[SphereLightComponent.self]?.intensity
+        ?? SphereLightComponent.defaultIntensity)
+) / 2.0
+
+applySphereLightIntensity(
+    mixedIntensity,
+    to: mixedSphere
+)
+</template>
+
+<script>
+// Add the learning context that a first-time RealityKit learner needs around the code.
+(function () {
+  var sections = {
+    s1: {
+      concept: ["Immersive space", "An ImmersiveSpace is a visionOS scene that places RealityKit content around the viewer. WindowGroup remains the app's 2D entry point; openImmersiveSpace moves the experience into 3D.", "이머시브 공간", "ImmersiveSpace는 RealityKit 콘텐츠를 사용자 주변에 배치하는 visionOS Scene입니다. WindowGroup은 앱의 2D 시작 화면이고, openImmersiveSpace가 경험을 3D 공간으로 전환합니다."],
+      goal: ["What you will make", "A window with a button that reliably opens and closes an empty immersive space.", "이번 Section에서 만들 것", "버튼으로 빈 이머시브 공간을 안정적으로 열고 닫는 윈도우를 만듭니다."],
+      check: ["The app first shows a window with an Open Immersive Space button.", "Selecting it opens an empty full immersive space; selecting Close returns to the window."],
+      checkKo: ["앱을 실행하면 먼저 Open Immersive Space 버튼이 있는 윈도우가 보입니다.", "버튼을 누르면 빈 Full Immersive Space가 열리고, Close를 누르면 윈도우로 돌아옵니다."]
+    },
+    s2: {
+      concept: ["Entity, mesh, and material", "An Entity is an object in a RealityKit scene. ModelEntity becomes visible by combining a mesh (shape) with a material (appearance), while components attach additional data or behavior.", "Entity, Mesh, Material", "Entity는 RealityKit Scene 안의 객체입니다. ModelEntity는 형태를 정하는 Mesh와 외형을 정하는 Material을 결합해 화면에 보이며, Component는 데이터나 동작을 덧붙입니다."],
+      goal: ["What you will make", "Three glowing red, green, and blue spheres placed in front of the viewer.", "이번 Section에서 만들 것", "사용자 앞에 배치되는 빨강·초록·파랑의 빛나는 구 3개를 만듭니다."],
+      check: ["Opening the immersive space shows three glowing spheres in a row.", "The spheres stay in place and are visible, but cannot be moved yet."],
+      checkKo: ["이머시브 공간을 열면 빛나는 RGB 구 3개가 한 줄로 보입니다.", "구는 제자리에 있고 화면에는 보이지만, 아직 움직일 수 없습니다."]
+    },
+    s4: {
+      concept: ["Entity–Component thinking", "The entity is the sphere itself; RGBColorComponent stores its color, InputTargetComponent allows input, CollisionComponent defines the hittable shape, and ManipulationComponent enables movement.", "Entity–Component 사고방식", "Entity는 구 자체이고, RGBColorComponent는 색상, InputTargetComponent는 입력 가능 여부, CollisionComponent는 터치 영역, ManipulationComponent는 이동 동작을 담당합니다."],
+      goal: ["What you will make", "Selectable RGB spheres that create movable copies while the originals remain fixed.", "이번 Section에서 만들 것", "원본은 고정된 채 이동 가능한 복제본을 만들어 조작할 수 있는 RGB 구를 만듭니다."],
+      check: ["Starting an interaction on an original sphere creates a movable copy.", "The original RGB spheres remain at their starting positions."],
+      checkKo: ["원본 구를 조작하기 시작하면 이동 가능한 복제본이 생깁니다.", "원본 RGB 구 3개는 시작 위치에 그대로 남아 있습니다."]
+    },
+    s5: {
+      concept: ["System and world position", "A RealityKit System processes entities that have matching components. This system compares each sphere's position in shared world coordinates so overlap detection remains correct after movement.", "System과 World Position", "RealityKit System은 필요한 Component를 가진 Entity들을 처리합니다. 이 System은 이동 후에도 겹침을 정확히 판단하도록 공통 World 좌표에서 각 구의 위치를 비교합니다."],
+      goal: ["What you will make", "Overlap detection that calculates an additive RGB color for every intersecting pair.", "이번 Section에서 만들 것", "서로 겹친 구 쌍을 감지하고 가산 혼합 RGB 색상을 계산합니다."],
+      check: ["Move two clones until their volumes visibly overlap.", "The system detects one pair and calculates yellow, magenta, or cyan from the source colors."],
+      checkKo: ["복제본 2개를 부피가 겹치도록 이동합니다.", "System이 하나의 쌍을 감지하고 원본 색상에 따라 노랑·마젠타·시안을 계산합니다."]
+    },
+    s6: {
+      concept: ["Invisible interaction target", "A target can participate in input without being rendered. Its collision shape receives the gesture, while OverlapVisualComponent carries the mixed color needed to create the next sphere.", "보이지 않는 Interaction Target", "Target은 화면에 그려지지 않아도 입력에 참여할 수 있습니다. Collision Shape이 제스처를 받고, OverlapVisualComponent가 새 구 생성에 필요한 혼합 색상을 전달합니다."],
+      goal: ["What you will make", "An interaction point at each overlap that produces a movable mixed-color sphere.", "이번 Section에서 만들 것", "각 겹침 위치를 조작하면 이동 가능한 혼합 색상 구가 생기는 Interaction Point를 만듭니다."],
+      check: ["Interact at the midpoint of two overlapping spheres to create a mixed-color sphere.", "Move the source spheres apart; the obsolete invisible target is removed."],
+      checkKo: ["겹친 두 구의 중간점을 조작하면 혼합 색상 구가 생깁니다.", "원본 구를 서로 떼면 더 이상 유효하지 않은 보이지 않는 Target이 제거됩니다."]
+    },
+    s7: {
+      concept: ["Hand tracking and wrist roll", "ARKit's HandTrackingProvider supplies hand anchors and tracked joints. The controller uses the right palm's orientation—not the sphere's scale—to turn a wrist roll into a smooth light-intensity value.", "Hand Tracking과 Wrist Roll", "ARKit의 HandTrackingProvider가 Hand Anchor와 추적된 Joint를 제공합니다. Controller는 구의 크기가 아니라 오른손 손바닥 방향을 이용해 손목 회전을 부드러운 빛 세기 값으로 바꿉니다."],
+      goal: ["What you will make", "A selected sphere whose emitted light becomes darker or brighter as an open right hand rotates.", "이번 Section에서 만들 것", "펼친 오른손을 회전하면 선택된 구의 발광이 어두워지거나 밝아지는 기능을 만듭니다."],
+      check: ["On Apple Vision Pro, select a sphere so its selection rim appears, then fully extend all five right-hand fingers.", "Slowly rotate palm-down to palm-up: emissive light and glow change smoothly, while sphere size stays fixed. A newly mixed sphere starts at the two source intensities' average."],
+      checkKo: ["Apple Vision Pro에서 구를 선택해 Selection Rim을 표시한 뒤 오른손 다섯 손가락을 모두 펼칩니다.", "Palm-down에서 palm-up으로 천천히 회전하면 구 크기는 유지되고 발광과 Glow가 부드럽게 변합니다. 새 혼합 구는 두 원본 빛 세기의 평균으로 시작합니다."]
+    }
+  };
+
+  var locations = {
+    "c-newproject": ["Xcode menu — no code yet", "Xcode 메뉴 — 아직 코드를 작성하지 않습니다"],
+    "c-options": ["New Project options — configure before creating the project", "새 프로젝트 Options — 프로젝트 생성 전에 설정합니다"],
+    "c-appmodel": ["AppModel.swift — replace the generated file contents", "AppModel.swift — 생성된 파일 전체를 교체합니다"],
+    "c-app": ["RGBApp.swift — inside the App declaration", "RGBApp.swift — App 선언 내부에 작성합니다"],
+    "c-toggle": ["ToggleImmersiveSpaceButton.swift — replace the generated file contents", "ToggleImmersiveSpaceButton.swift — 생성된 파일 전체를 교체합니다"],
+    "c-content": ["ContentView.swift — replace the body content", "ContentView.swift — body 내용을 교체합니다"],
+    "c-makesphere": ["RGBSphere.swift — add as a new Swift file", "RGBSphere.swift — 새 Swift 파일로 추가합니다"],
+    "c-rgbcolor": ["RGBColor.swift — add as a new Swift file", "RGBColor.swift — 새 Swift 파일로 추가합니다"],
+    "c-material": ["RGBSphere.swift — inside makeRGBSphere(color:)", "RGBSphere.swift — makeRGBSphere(color:) 함수 내부에 작성합니다"],
+    "c-glow": ["RGBSphere.swift — add the glow helper below makeRGBSphere(color:)", "RGBSphere.swift — makeRGBSphere(color:) 아래에 Glow Helper를 추가합니다"],
+    "c-place": ["ImmersiveView.swift — inside the RealityView content closure", "ImmersiveView.swift — RealityView의 Content Closure 내부에 작성합니다"],
+    "c-colorcomp": ["SphereComponents.swift — add as a new Swift file", "SphereComponents.swift — 새 Swift 파일로 추가합니다"],
+    "c-origcomp": ["SphereComponents.swift — below RGBColorComponent", "SphereComponents.swift — RGBColorComponent 아래에 작성합니다"],
+    "c-interaction": ["SphereInteraction.swift — add as a new Swift file", "SphereInteraction.swift — 새 Swift 파일로 추가합니다"],
+    "c-manip": ["SphereInteractionManager.swift — add as a new Swift file", "SphereInteractionManager.swift — 새 Swift 파일로 추가합니다"],
+    "c-clone": ["SphereInteractionManager.swift — in the manipulation-began handler", "SphereInteractionManager.swift — Manipulation Began Handler 내부에 작성합니다"],
+    "c-mix": ["RGBColor.swift — inside RGBColor as mixed(with:)", "RGBColor.swift — RGBColor 내부에 mixed(with:)로 추가합니다"],
+    "c-overlapsys": ["SphereOverlapSystem.swift — add as a new Swift file", "SphereOverlapSystem.swift — 새 Swift 파일로 추가합니다"],
+    "c-overlapval": ["SphereOverlapSystem.swift — below SphereOverlapSystem", "SphereOverlapSystem.swift — SphereOverlapSystem 아래에 작성합니다"],
+    "c-overlaptarget": ["SphereInteractionManager.swift — add as makeOverlapTarget(for:)", "SphereInteractionManager.swift — makeOverlapTarget(for:) 함수로 추가합니다"],
+    "c-overlapcomp": ["OverlapVisualComponent.swift — add as a new Swift file", "OverlapVisualComponent.swift — 새 Swift 파일로 추가합니다"],
+    "c-mixedsphere": ["SphereInteractionManager.swift — add as createMixedSphere(from:)", "SphereInteractionManager.swift — createMixedSphere(from:) 함수로 추가합니다"],
+    "c-lightcomponent": ["SphereComponents.swift — add below the other custom components", "SphereComponents.swift — 다른 Custom Component 아래에 추가합니다"],
+    "c-applylight": ["RGBSphere.swift — replace applySphereLightIntensity(_:to:)", "RGBSphere.swift — applySphereLightIntensity(_:to:) 함수를 교체합니다"],
+    "c-wristroll": ["RightHandLightDialController.swift — add as a new Swift file", "RightHandLightDialController.swift — 새 Swift 파일로 추가합니다"],
+    "c-connectdial": ["ImmersiveView.swift — inside the RealityView content closure, after the original spheres are registered", "ImmersiveView.swift — RealityView Content Closure에서 원본 구를 등록한 다음에 추가합니다"],
+    "c-mixedlight": ["SphereInteractionManager.swift — inside createMixedSphere(overlap:), after adding the glow", "SphereInteractionManager.swift — createMixedSphere(overlap:)에서 Glow를 추가한 다음에 작성합니다"]
+  };
+
+  Object.keys(sections).forEach(function (id) {
+    var head = document.getElementById(id), data = sections[id];
+    if (!head) return;
+    var card = document.createElement("div");
+    card.className = "learning-card";
+    card.innerHTML = '<div class="concept"><strong class="i18n" data-en="' + data.concept[0] + '" data-ko="' + data.concept[2] + '">' + data.concept[0] + '</strong><p class="i18n" data-en="' + data.concept[1] + '" data-ko="' + data.concept[3] + '">' + data.concept[1] + '</p></div>' +
+      '<div class="goal"><strong class="i18n" data-en="' + data.goal[0] + '" data-ko="' + data.goal[2] + '">' + data.goal[0] + '</strong><p class="i18n" data-en="' + data.goal[1] + '" data-ko="' + data.goal[3] + '">' + data.goal[1] + '</p></div>';
+    head.appendChild(card);
+
+    var layout = head.nextElementSibling;
+    if (layout && layout.classList.contains("steps-layout")) {
+      var result = document.createElement("div");
+      result.className = "result-callout";
+      result.innerHTML = '<div class="box"><strong class="i18n" data-en="Checkpoint — expected result" data-ko="Checkpoint — 정상 결과">Checkpoint — expected result</strong><ul class="checklist"><li class="i18n" data-en="' + data.check[0] + '" data-ko="' + data.checkKo[0] + '">' + data.check[0] + '</li><li class="i18n" data-en="' + data.check[1] + '" data-ko="' + data.checkKo[1] + '">' + data.check[1] + '</li></ul></div>';
+      layout.insertAdjacentElement("afterend", result);
+    }
+  });
+
+  document.querySelectorAll(".step").forEach(function (step) {
+    var value = locations[step.dataset.code];
+    if (!value) return;
+    var location = document.createElement("div");
+    location.className = "code-location";
+    location.innerHTML = '<strong class="i18n" data-en="Code location" data-ko="코드 위치">Code location</strong> · <span class="i18n" data-en="' + value[0] + '" data-ko="' + value[1] + '">' + value[0] + '</span>';
+    var anchor = step.querySelector(".newfile") || step.querySelector("p");
+    if (anchor) anchor.insertAdjacentElement(anchor.classList.contains("newfile") ? "afterend" : "beforebegin", location);
+  });
+})();
+</script>
+
+<script>
+(function () {
+  // ── tiny Swift syntax highlighter ──
+  var KEYWORDS = /\b(import|struct|class|enum|case|let|var|func|extension|return|guard|else|for|in|while|switch|default|break|continue|if|await|async|try|throws|private|static|final|some|self|nil|true|false|fallthrough|@main|@MainActor|@Observable|@State|@Environment|@unknown)\b/g;
+  var TYPES = /\b(AppModel|ImmersiveSpaceState|App|Scene|WindowGroup|ImmersiveSpace|ImmersiveView|ContentView|View|VStack|Button|Task|Text|ToggleImmersiveSpaceButton|ModelEntity|Entity|MeshResource|RGBColor|RGBColorComponent|OriginalSphereComponent|DraggableCloneComponent|OverlapVisualComponent|SphereLightComponent|RightHandLightDialController|RightHandWristRollSample|HandAnchor|Component|PhysicallyBasedMaterial|UnlitMaterial|InputTargetComponent|CollisionComponent|ManipulationComponent|BillboardComponent|SphereOverlap|SphereOverlapSystem|SphereInteractionManager|SIMD3|Float|String|Codable|AnchorEntity|RealityView|CGSize|UIGraphicsImageRenderer|TextureResource|UIColor|CGFloat)\b/g;
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function highlightPlain(s) {
+    return esc(s)
+      .replace(KEYWORDS, '<span class="k">$1</span>')
+      .replace(TYPES, '<span class="t">$1</span>')
+      .replace(/\b(\d+\.?\d*)\b/g, '<span class="n">$1</span>');
+  }
+  function highlight(src) {
+    // tokenize comments and strings first, highlight the rest
+    var out = "", re = /(\/\/[^\n]*)|("(?:[^"\\\n]|\\.)*")/g, last = 0, m;
+    while ((m = re.exec(src)) !== null) {
+      out += highlightPlain(src.slice(last, m.index));
+      out += m[1] !== undefined
+        ? '<span class="c">' + esc(m[1]) + "</span>"
+        : '<span class="s">' + esc(m[2]) + "</span>";
+      last = re.lastIndex;
+    }
+    return out + highlightPlain(src.slice(last));
+  }
+
+  // Apple tutorials mark changes to an existing file one line at a time.
+  // A newly created file stays unhighlighted; later additions or replacements in
+  // that file receive the changed-line treatment.
+  function highlightChangedLines(src) {
+    return src.split("\n").map(function (line) {
+      var changed = line.trim().length > 0;
+      return '<span class="code-line' + (changed ? ' changed' : '') + '">' +
+        (line || " ") + "</span>";
+    }).join("");
+  }
+
+  var cache = {};
+  function codeHTML(id, highlightChanges) {
+    var cacheKey = id + (highlightChanges ? ":changed" : ":plain");
+    if (!cache[cacheKey]) {
+      var tpl = document.getElementById(id);
+      if (!tpl) return { name: "", html: "" };
+      if (tpl.dataset.img) {
+        cache[cacheKey] = { name: tpl.dataset.name || "",
+          html: '<img src="' + tpl.dataset.img + '" alt="" style="max-width:100%;border-radius:8px;display:block">',
+          hasChanges: false };
+      } else {
+        var raw = tpl.innerHTML.replace(/^\n+|\s+$/g, "")
+          .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+        var highlighted = highlight(raw);
+        cache[cacheKey] = { name: tpl.dataset.name || "",
+          html: highlightChanges ? highlightChangedLines(highlighted) : highlighted,
+          hasChanges: highlightChanges };
+      }
+    }
+    return cache[cacheKey];
+  }
+
+  // fill mobile inline code
+  document.querySelectorAll(".step").forEach(function (step) {
+    var isNewFile = !!step.querySelector(".newfile");
+    var c = codeHTML(step.dataset.code, !isNewFile);
+    var m = step.querySelector(".mobilecode");
+    if (m) {
+      m.innerHTML = "<pre>" + c.html + "</pre>";
+      if (c.hasChanges) m.dataset.changeLabel = "Highlighted: added or changed";
+    }
+  });
+
+  // scroll-driven sticky panel per section
+  document.querySelectorAll(".steps-layout").forEach(function (layout) {
+    var steps = layout.querySelectorAll(".step");
+    var nameEl = layout.querySelector(".filename");
+    var bodyEl = layout.querySelector(".codebody");
+    var barEl = layout.querySelector(".codewindow .bar");
+    var keyEl = document.createElement("span");
+    keyEl.className = "change-key";
+    keyEl.textContent = "Added or changed";
+    if (barEl) barEl.appendChild(keyEl);
+
+    function activate(step) {
+      steps.forEach(function (s) { s.classList.remove("active"); });
+      step.classList.add("active");
+      var isNewFile = !!step.querySelector(".newfile");
+      var c = codeHTML(step.dataset.code, !isNewFile);
+      if (nameEl) nameEl.textContent = c.name;
+      if (bodyEl) bodyEl.innerHTML = c.html;
+      if (keyEl) keyEl.hidden = !c.hasChanges;
+    }
+
+    activate(steps[0]);
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) activate(entry.target);
+      });
+    }, { rootMargin: "-40% 0px -50% 0px", threshold: 0 });
+
+    steps.forEach(function (s) { observer.observe(s); });
+  });
+})();
+</script>
+
+
+<script>
+(function () {
+  var KO_HERO = {
+    h1: "인터랙티브 RGB 빛 경험 만들기",
+    lede: "visionOS에서 RealityKit을 사용해 몰입형 RGB 빛 경험을 만드는 방법을 배웁니다. 빛나는 RGB 구를 만들고, 인터랙션과 색 혼합을 구현한 뒤, 오른손 손목 회전으로 선택한 구의 밝기를 조절합니다.",
+    time: "예상 시간", minutes: "25분"
+  };
+  var KO_SECTIONS = {
+    s1: { h2: "이머시브 공간 만들기", ov: "RGB 구가 나타날 이머시브 공간을 만드는 것부터 시작합니다. 앱은 일반 SwiftUI 윈도우에서 시작하며, 사용자가 이머시브 공간을 열면 RealityKit이 RGB 구를 배치하고 조작할 별도의 3D 환경을 만듭니다." },
+    s2: { h2: "RGB 구 만들기", ov: "RealityKit 엔티티, 머티리얼, 퍼지는 글로우를 사용해 각 RGB 빛의 시각적 표현을 만듭니다. 각 구는 구형 메시, 색상 머티리얼, RGB 색상 값을 가진 <code class=\"inline\">ModelEntity</code>입니다." },
+    s3: { h2: "컴포넌트 추가하기", ov: "커스텀 RealityKit 컴포넌트로 각 RGB 구에 대한 정보를 저장합니다. 컴포넌트는 엔티티가 자신의 역할이나 상태를 설명하는 데이터를 지니게 해 줍니다." },
+    s4: { h2: "구를 인터랙티브하게 만들기", ov: "커스텀 RealityKit 컴포넌트로 각 구의 정보를 저장한 뒤, 구를 이머시브 공간에서 선택하고 움직일 수 있도록 필요한 컴포넌트와 이벤트 처리를 추가합니다." },
+    s5: { h2: "색 혼합하기", ov: "RGB 값을 저장하고 두 광원이 겹칠 때 결합합니다. 빨강+초록은 노랑, 빨강+파랑은 마젠타가 되며, 삼원색이 모두 겹치면 흰색이 됩니다." },
+    s6: { h2: "겹침 타깃 추가하기", ov: "두 RGB 구가 겹치는 위치에 보이지 않는 인터랙션 지점을 만들어, 원본 구를 직접 조작하지 않고도 혼합 색과 상호작용할 수 있게 합니다." },
+    s7: { h2: "오른손으로 빛 조절하기", ov: "ARKit Hand Tracking으로 선택된 구의 빛 세기를 조절합니다. 오른손 다섯 손가락을 모두 펼친 상태에서 손목을 palm-down에서 palm-up으로 회전하면, 구 크기는 유지되고 Emissive Intensity와 Glow Opacity가 변합니다." }
+  };
+  var C = function (t) { return '<code class="inline">' + t + "</code>"; };
+  var KO_STEPS = {
+    "c-newproject": { h3: "프로젝트 만들기", p: "Xcode에서 " + C("File → New → Project…") + "를 선택하고 <strong>visionOS</strong> 탭에서 Application의 <strong>App</strong> 템플릿을 고릅니다." },
+    "c-options": { h3: "프로젝트 옵션 선택하기", p: "프로덕트 이름을 입력한 뒤 " + C("Initial Scene") + "은 <strong>Window</strong>, " + C("Immersive Space Renderer") + "는 <strong>RealityKit</strong>, " + C("Immersive Space") + "는 <strong>Full</strong>로 설정합니다. 앱은 윈도우에서 시작해 풀 이머시브 공간을 엽니다." },
+    "c-appmodel": { h3: "앱 모델 만들기", p: C("AppModel") + "은 이머시브 공간의 현재 상태를 추적합니다. " + C("immersiveSpaceID") + "는 공간을 식별하고, " + C("immersiveSpaceState") + "는 공간이 닫혀 있는지, 전환 중인지, 열려 있는지를 추적합니다." },
+    "c-app": { h3: "앱의 씬 정의하기", p: C("App") + " 구조체는 일반 윈도우와 이머시브 공간을 모두 정의합니다. " + C("WindowGroup") + "은 초기 SwiftUI 인터페이스를 표시하고, " + C("ImmersiveSpace") + " 씬은 " + C("ImmersiveView") + "를 담습니다. 공간이 나타나면 상태가 " + C("open") + "이 되고, 사라지면 " + C("closed") + "로 돌아갑니다." },
+    "c-toggle": { h3: "이머시브 공간 열고 닫기", p: C("openImmersiveSpace") + "는 식별자로 공간을 열고 " + C("dismissImmersiveSpace") + "는 닫습니다. " + C("inTransition") + " 상태는 공간이 여닫히는 동안 버튼을 비활성화합니다." },
+    "c-content": { h3: "초기 뷰 만들기", p: "일반 윈도우에는 이머시브 경험으로 들어가는 버튼 하나만 있으면 됩니다. 이 시점에서 앱은 빈 이머시브 공간을 열고 닫을 수 있고, RGB 구는 다음 섹션에서 추가합니다." },
+    "c-makesphere": { h3: "구 만들기", p: C("ModelEntity") + "는 메시와 머티리얼을 결합해 보이는 오브젝트를 만듭니다. " + C("makeRGBSphere") + " 함수는 반지름 " + C("0.15") + "미터의 구를 만들고 " + C("RGBColorComponent") + "로 색을 저장합니다." },
+    "c-rgbcolor": { h3: "RGB 색상 만들기", p: C("RGBColor") + " 구조체는 빨강·초록·파랑 값을 따로 저장합니다 — Red " + C("(1, 0, 0)") + ", Green " + C("(0, 1, 0)") + ", Blue " + C("(0, 0, 1)") + ". RGB 값을 시각적 색상과 분리해 두면 나중에 색을 혼합할 수 있습니다." },
+    "c-material": { h3: "구 머티리얼 만들기", p: "구는 베이스 색상에 투명도와 발광 색상을 결합해 빛나는 느낌을 내는 " + C("PhysicallyBasedMaterial") + "을 사용합니다." },
+    "c-glow": { h3: "퍼지는 글로우 추가하기", p: "두 번째 시각 레이어가 구 주위의 부드러운 글로우를 만듭니다. 평면에 방사형 그라데이션 텍스처를 적용하고 " + C("BillboardComponent") + "로 항상 시청자를 향하게 합니다. 글로우는 시각 요소일 뿐입니다." },
+    "c-place": { h3: "RGB 구 배치하기", p: C("ImmersiveView") + "의 " + C("RealityView") + "에서 세 개의 구를 만들어 사용자 앞에 배치하고 헤드 앵커에 추가합니다. 이 시점에서 구는 이머시브 공간에 보이지만 아직 조작할 수는 없습니다." },
+    "c-colorcomp": { h3: "RGB 색상 저장하기", p: C("RGBColorComponent") + "는 구에 연결된 RGB 색상을 저장해, 색상 데이터를 엔티티 자체에 붙여 둡니다." },
+    "c-origcomp": { h3: "원본 구 식별하기", p: C("OriginalSphereComponent") + "는 원본 구를 식별하고 고정 위치를 저장합니다 — 그래서 세 개의 원본 구는 제자리에 남고, 이동 가능한 복제본이 인터랙션용으로 생성됩니다." },
+    "c-interaction": { h3: "인터랙션을 위한 구 준비하기", p: C("configureSphereForInteraction") + "은 입력을 받을 수 있게 하는 " + C("InputTargetComponent") + ", 타깃 영역을 정의하는 " + C("CollisionComponent") + ", 사용자가 구를 움직일 수 있게 하는 " + C("ManipulationComponent") + "를 추가합니다." },
+    "c-manip": { h3: "조작 이벤트 처리하기", p: C("SphereInteractionManager") + "는 조작 시작, 위치 업데이트, 놓기 세 단계의 이벤트에 응답합니다. 원본 구는 고정된 채, 이동 가능한 복제본이 사용자의 인터랙션을 따라갑니다." },
+    "c-clone": { h3: "이동 가능한 복제본 만들기", p: "원본 구는 고정 위치를 떠나지 않습니다. 사용자가 원본 구를 조작하기 시작하면 같은 색·글로우·인터랙션 컴포넌트를 가진 이동 가능한 <em>복제본</em>을 만듭니다. 복제본은 이동 가능한 구 컬렉션에 합류하며 — 실제로 겹치고 색을 혼합하는 것은 이 복제본들입니다." },
+    "c-mix": { h3: "RGB 색 결합하기", p: C("mixed(with:)") + " 함수는 두 색의 RGB 성분을 더한 뒤 " + C("0...1") + " 범위로 정규화합니다." },
+    "c-overlapsys": { h3: "겹치는 구 감지하기", p: C("SphereOverlapSystem") + "은 이동 가능한 구의 모든 쌍의 월드 좌표를 비교합니다. 두 중심 사이 거리가 겹침 거리보다 작으면 겹친 것으로 판정하고, 중간점이 색 혼합 인터랙션의 위치가 됩니다." },
+    "c-overlapval": { h3: "겹침 기술하기", p: "각 겹침은 " + C("SphereOverlap") + " 값으로 기술됩니다 — 두 구, 중간점 위치, 혼합 색상, 그리고 같은 쌍에 중복 타깃이 생기지 않게 하는 고유 키." },
+    "c-overlaptarget": { h3: "겹침 타깃 만들기", p: "겹친 구의 중간점에 보이지 않는 " + C("ModelEntity") + "를 만듭니다. 보이는 메시는 필요 없고 — " + C("CollisionComponent") + ", " + C("InputTargetComponent") + ", " + C("ManipulationComponent") + "가 사용자 제스처에 반응하게 합니다." },
+    "c-overlapcomp": { h3: "겹침 정보 저장하기", p: C("OverlapVisualComponent") + "는 겹침 키와 혼합 RGB 색상을 타깃에 보관합니다. 키는 어떤 구 쌍이 타깃을 만들었는지 식별합니다." },
+    "c-mixedsphere": { h3: "혼합 구 만들기", p: "사용자가 겹침 타깃을 조작하기 시작하면 계산된 혼합 색으로 새 구를 겹침 지점에 만듭니다. 이 구는 이동 가능한 구 컬렉션에 합류해 이후의 겹침에도 참여할 수 있습니다. 더 이상 겹침이 아닌 타깃은 구가 움직일 때 제거됩니다." },
+    "c-lightcomponent": { h3: "빛 세기 저장하기", p: C("SphereLightComponent") + "가 각 구의 밝기를 저장합니다. 범위는 " + C("0.0...2.4") + "이고 초기값은 " + C("1.2") + "입니다." },
+    "c-applylight": { h3: "구에 밝기 적용하기", p: "저장된 빛 세기를 정규화한 다음 Material의 Base Color, 투명도, " + C("emissiveIntensity") + "를 갱신합니다. Glow Opacity는 별도로 변경해 구의 크기를 바꾸지 않고 밝기만 조절합니다." },
+    "c-wristroll": { h3: "손목 회전을 밝기로 변환하기", p: "오른손 Anchor만 처리합니다. 다섯 손가락이 모두 펼쳐졌을 때 손바닥 Normal의 아래→위 방향을 " + C("0...1") + " 밝기로 바꾸고, 입력값과 적용값을 보간해 갑작스러운 변화를 줄입니다." },
+    "c-connectdial": { h3: "선택된 구에 Hand Tracking 연결하기", p: C("ImmersiveView") + "에서 Controller를 만듭니다. 선택된 구가 있으면 우선 사용하고, 없으면 손목과 가장 가까운 빛 구를 선택합니다. 보간된 값은 " + C("applySphereLightIntensity") + "를 통해 적용됩니다." },
+    "c-mixedlight": { h3: "혼합 구의 초기 밝기 정하기", p: "두 구가 혼합 구를 만들 때 두 원본의 현재 빛 세기 평균을 초기값으로 사용합니다. 생성 시점의 Snapshot이므로, 이후 원본 밝기가 바뀌어도 이미 생성된 혼합 구는 자동으로 따라 바뀌지 않습니다." },
+    "c-glow2": { h3: "퍼지는 글로우 만들기", p: "빌보드 평면 위 방사형 그라데이션 텍스처 — 중앙이 가장 강하고 가장자리로 갈수록 옅어지며 구의 RGB 색으로 물듭니다. 투명 구 대신 평면을 쓰면 '풍선' 같은 느낌 없이 부드러운 발광 효과를 냅니다." },
+    "c-rim": { h3: "선택 링 만들기", p: "토러스가 아닌 커스텀 고리 메시로 만든 얇은 흰색 링이라 투명한 구 너머로 불필요한 지오메트리가 보이지 않습니다. " + C("BillboardComponent") + "가 링을 항상 사용자 쪽으로 향하게 하고, 링은 한 번에 하나의 구에만 붙습니다." },
+    "c-noninteractive": { h3: "시각 요소는 비인터랙티브로 유지하기", p: "글로우와 링의 " + C("CollisionComponent") + ", " + C("InputTargetComponent") + ", " + C("ManipulationComponent") + "를 제거해 사용자가 구 자체와 상호작용하게 합니다 — 시각 레이어와 인터랙션 레이어를 분리합니다." }
+  };
+  var KO_STEP_LABEL = "단계 ";
+
+  var en = {};   // saved English HTML, filled on first switch
+  function save(key, el) { if (!(key in en)) en[key] = el.innerHTML; }
+
+  function apply(lang) {
+    var ko = lang === "ko";
+    var h1 = document.querySelector(".hero h1");
+    var lede = document.querySelector(".hero .lede");
+    var time = document.querySelector(".hero .time span");
+    save("h1", h1); save("lede", lede); save("time", time);
+    h1.innerHTML = ko ? KO_HERO.h1 : en.h1;
+    lede.innerHTML = ko ? KO_HERO.lede : en.lede;
+    time.innerHTML = ko ? "<small>" + KO_HERO.time + "</small>" + KO_HERO.minutes : en.time;
+
+    Object.keys(KO_SECTIONS).forEach(function (id) {
+      var head = document.getElementById(id);
+      if (!head) return;
+      var h2 = head.querySelector("h2"), ov = head.querySelector(".overview");
+      save(id + "h2", h2); save(id + "ov", ov);
+      h2.innerHTML = ko ? KO_SECTIONS[id].h2 : en[id + "h2"];
+      ov.innerHTML = ko ? KO_SECTIONS[id].ov : en[id + "ov"];
+    });
+
+    document.querySelectorAll(".step").forEach(function (step) {
+      var t = KO_STEPS[step.dataset.code];
+      if (!t) return;
+      var h3 = step.querySelector("h3"), p = step.querySelector("p");
+      var label = step.querySelector(".steplabel");
+      save(step.dataset.code + "h3", h3);
+      save(step.dataset.code + "p", p);
+      save(step.dataset.code + "l", label);
+      h3.innerHTML = ko ? t.h3 : en[step.dataset.code + "h3"];
+      var nf = step.querySelector(".newfile-label");
+      if (nf) nf.textContent = ko ? "새 파일 만들기:" : "New file:";
+      p.innerHTML = ko ? t.p : en[step.dataset.code + "p"];
+      label.innerHTML = ko
+        ? KO_STEP_LABEL + en[step.dataset.code + "l"].replace(/[^0-9]/g, "")
+        : en[step.dataset.code + "l"];
+    });
+
+    document.querySelectorAll(".i18n").forEach(function (el) {
+      el.innerHTML = ko ? el.dataset.ko : el.dataset.en;
+    });
+
+    document.querySelectorAll(".change-key").forEach(function (el) {
+      el.textContent = ko ? "추가 또는 변경" : "Added or changed";
+    });
+    document.querySelectorAll(".mobilecode[data-change-label]").forEach(function (el) {
+      el.dataset.changeLabel = ko
+        ? "하이라이트: 추가 또는 변경된 코드"
+        : "Highlighted: added or changed";
+    });
+
+    var btn = document.getElementById("langtoggle");
+    btn.textContent = ko ? "English" : "한국어";
+    document.documentElement.lang = ko ? "ko" : "en";
+    try { localStorage.setItem("rgb-lang", lang); } catch (e) {}
+  }
+
+  document.getElementById("langtoggle").addEventListener("click", function (e) {
+    e.preventDefault();
+    apply(document.documentElement.lang === "ko" ? "en" : "ko");
+  });
+
+  var saved = null;
+  try { saved = localStorage.getItem("rgb-lang"); } catch (e) {}
+  if (saved === "ko") apply("ko");
+})();
+</script>
+</body>
+</html>

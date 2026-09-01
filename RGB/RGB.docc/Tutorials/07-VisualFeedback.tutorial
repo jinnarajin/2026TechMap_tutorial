@@ -1,0 +1,83 @@
+# 07-AddVisualFeedback
+
+Add visual feedback to help users understand which RGB sphere is selected
+and make the light sources appear luminous.
+
+## Overview
+
+In this section, you will add two visual elements to the RGB spheres:
+
+- A soft radiating glow around each sphere.
+- A white selection rim around the currently selected sphere.
+
+These elements are visual only. They do not receive input or participate
+in collision detection, so they do not interfere with sphere interaction.
+
+### Add a Radiating Glow
+
+Create a radial gradient texture and apply it to a billboarded plane.
+
+@Code(name: "RGBSphere.swift", file: "07-VisualFeedback.swift")
+
+The radial gradient is strongest at the center and gradually fades toward
+the edges. The gradient uses the sphere's RGB color so each sphere produces
+a matching colored glow.
+
+The glow is attached as a child of the RGB sphere and uses a
+`BillboardComponent` so that it always faces the viewer.
+
+Instead of using another transparent sphere for the glow, the experience
+uses a flat plane with a radial texture. This avoids making the RGB spheres
+look like transparent balloons while still creating a soft luminous effect.
+
+### Keep the Glow Non-Interactive
+
+The glow is only a visual element.
+
+Remove its `CollisionComponent`, `InputTargetComponent`, and
+`ManipulationComponent` so that users interact with the RGB sphere itself
+rather than the glow.
+
+This keeps the visual layer separate from the interaction layer.
+
+### Create a Selection Rim
+
+Create a thin white ring around the currently selected sphere.
+
+@Code(name: "SphericalSelectionRim.swift", file: "07-VisualFeedback.swift")
+
+The selection rim is created as a custom annular mesh rather than a torus.
+This keeps the ring visually simple and prevents unwanted geometry from
+appearing through the transparent sphere.
+
+A `BillboardComponent` keeps the rim facing the user.
+
+### Show the Selected Sphere
+
+When a sphere becomes selected, add the selection rim as a child of the
+sphere.
+
+@Code(name: "SphereInteractionManager.swift", file: "07-VisualFeedback.swift")
+
+Before selecting another sphere, remove the existing selection rim.
+
+This ensures that only one sphere is visually selected at a time.
+
+### Keep the Selection Rim Non-Interactive
+
+The selection rim should not interfere with manipulation.
+
+Remove its `CollisionComponent`, `InputTargetComponent`, and
+`ManipulationComponent`.
+
+The user can therefore continue interacting with the underlying RGB sphere
+while the rim provides visual feedback about the current selection.
+
+## Result
+
+The RGB spheres now have a soft colored glow and a clear selection
+indicator.
+
+The glow communicates that the spheres represent sources of light, while
+the selection rim helps the user understand which sphere is currently being
+manipulated.
