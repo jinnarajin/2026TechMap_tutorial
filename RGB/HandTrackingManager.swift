@@ -17,12 +17,14 @@ final class HandTrackingManager: ObservableObject {
     let handTrackingProvider = HandTrackingProvider()
 
     @Published private(set) var isRunning = false
+    @Published private(set) var debugLines = RightHandLightDebugState().lines
 
     private var anchorUpdatesTask: Task<Void, Never>?
-    private var lightDialController: LightDialController?
+    private var lightDialController: RightHandLightDialController?
 
-    func connectLightDialController(_ controller: LightDialController) {
+    func connectLightDialController(_ controller: RightHandLightDialController) {
         lightDialController = controller
+        debugLines = controller.debugState.lines
     }
 
     func start() async {
@@ -32,7 +34,10 @@ final class HandTrackingManager: ObservableObject {
 
         // 현재 실행 환경이 핸드 트래킹을 지원하는지 확인
         guard HandTrackingProvider.isSupported else {
-            print("Hand tracking is not supported in this environment.")
+            debugLines = RightHandLightDebugState(
+                status: "이 환경에서는 손 추적을 사용할 수 없습니다.",
+                extra: "Simulator라면 실제 오른손 추적이 제한될 수 있습니다."
+            ).lines
             return
         }
 
@@ -42,7 +47,10 @@ final class HandTrackingManager: ObservableObject {
             )
 
             guard authorizationResults[.handTracking] == .allowed else {
-                print("Hand tracking authorization was not granted.")
+                debugLines = RightHandLightDebugState(
+                    status: "손 추적 권한이 허용되지 않았습니다.",
+                    extra: "Settings에서 Hand Tracking 권한을 확인하세요."
+                ).lines
                 return
             }
 
@@ -51,10 +59,16 @@ final class HandTrackingManager: ObservableObject {
 
             isRunning = true
             startAnchorUpdates()
-            print("Hand tracking started.")
+            debugLines = RightHandLightDebugState(
+                status: "손 추적 세션 시작",
+                extra: "오른손을 펼치고 손목을 천천히 뒤집어보세요."
+            ).lines
         } catch {
             isRunning = false
-            print("Failed to start hand tracking: \(error)")
+            debugLines = RightHandLightDebugState(
+                status: "손 추적 세션 시작 실패",
+                extra: error.localizedDescription
+            ).lines
         }
     }
 
@@ -62,6 +76,7 @@ final class HandTrackingManager: ObservableObject {
         anchorUpdatesTask?.cancel()
         anchorUpdatesTask = nil
         lightDialController?.cancelDial()
+        debugLines = lightDialController?.debugState.lines ?? RightHandLightDebugState(status: "손 추적 정지").lines
         session.stop()
         isRunning = false
     }
@@ -79,12 +94,18 @@ final class HandTrackingManager: ObservableObject {
     }
 
     private func handle(_ update: AnchorUpdate<HandAnchor>) {
+        guard update.anchor.chirality == .right else {
+            return
+        }
+
         switch update.event {
         case .added, .updated:
             lightDialController?.process(anchor: update.anchor)
+            debugLines = lightDialController?.debugState.lines ?? debugLines
 
         case .removed:
             lightDialController?.cancelDial()
+            debugLines = lightDialController?.debugState.lines ?? RightHandLightDebugState(status: "손 추적 제거됨").lines
         }
     }
 }
