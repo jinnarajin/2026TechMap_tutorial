@@ -1501,7 +1501,12 @@ applySphereLightIntensity(
       var isNewFile = !!step.querySelector(".newfile");
       var c = codeHTML(step.dataset.code, !isNewFile);
       if (nameEl) nameEl.textContent = c.name;
-      if (bodyEl) bodyEl.innerHTML = c.html;
+      if (bodyEl) {
+        bodyEl.innerHTML = c.html;
+        // Scroll the panel so the first added line is in view.
+        var first = bodyEl.querySelector(".code-line.changed");
+        bodyEl.scrollTop = first ? Math.max(0, first.offsetTop - bodyEl.offsetTop - 24) : 0;
+      }
       if (keyEl) keyEl.hidden = !c.hasChanges;
     }
 
