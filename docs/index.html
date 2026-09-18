@@ -370,11 +370,11 @@
       <div class="steplabel">Step 3</div>
       <h3>Prepare a Sphere for Interaction</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereInteraction.swift</code></div>
-      <p><code class="inline">configureSphereForInteraction</code> adds an
-      <code class="inline">InputTargetComponent</code> so the entity can receive input, a
-      <code class="inline">CollisionComponent</code> that defines the targetable area, and
-      a <code class="inline">ManipulationComponent</code> that lets the user move the
-      sphere.</p>
+      <p>The <code class="inline">configureSphereForInteraction</code> function adds an
+      <code class="inline">InputTargetComponent</code> so the sphere can receive input, a
+      <code class="inline">CollisionComponent</code> that defines the collision and
+      interaction area, and a <code class="inline">ManipulationComponent</code> that lets
+      the user move the sphere directly.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-manip">
@@ -3089,7 +3089,7 @@ final class SphereInteractionManager: ObservableObject {
     "c-place": { h3: "RGB 구 배치하기", p: C("ImmersiveView") + "의 " + C("RealityView") + "에서 세 개의 구를 만들어 사용자 앞에 배치하고 Head Anchor에 추가합니다. 이 시점에서 구는 Immersive Space에 보이지만 아직 조작할 수는 없습니다." },
     "c-colorcomp": { h3: "RGB 색상 저장하기", p: C("RGBColorComponent") + "는 구에 연결된 RGB 색상을 저장해, 색상 데이터를 Entity 자체에 붙여 둡니다." },
     "c-origcomp": { h3: "원본 구 식별하기", p: C("OriginalSphereComponent") + "는 원본 구를 식별하고 고정 위치를 저장합니다 — 그래서 세 개의 원본 구는 제자리에 남고, 이동 가능한 복제본이 인터랙션용으로 생성됩니다." },
-    "c-interaction": { h3: "Interaction을 위한 구 준비하기", p: C("configureSphereForInteraction") + "은 입력을 받을 수 있게 하는 " + C("InputTargetComponent") + ", 타깃 영역을 정의하는 " + C("CollisionComponent") + ", 사용자가 구를 움직일 수 있게 하는 " + C("ManipulationComponent") + "를 추가합니다." },
+    "c-interaction": { h3: "인터랙션을 위한 구 준비하기", p: C("configureSphereForInteraction") + " 함수에서는 구가 사용자 입력을 받을 수 있도록 " + C("InputTargetComponent") + ", 충돌 및 인터랙션 영역을 정의하는 " + C("CollisionComponent") + ", 사용자가 구를 직접 움직일 수 있도록 하는 " + C("ManipulationComponent") + "를 추가합니다." },
     "c-manip": { h3: "조작 이벤트 처리하기", p: C("SphereInteractionManager") + "는 조작 시작, 위치 업데이트, 놓기 세 단계의 이벤트에 응답합니다. 원본 구는 고정된 채, 이동 가능한 복제본이 사용자의 인터랙션을 따라갑니다." },
     "c-wire": { h3: "Manager를 View에 연결하기", p: C("ImmersiveView") + "에 " + C("SphereInteractionManager") + "를 두고, 세 구를 고정 위치를 가진 원본으로 표시한 뒤 인터랙션을 켜고, Manager가 Scene의 조작 이벤트를 구독하게 합니다." },
     "c-clone": { h3: "이동 가능한 복제본 만들기", p: "원본 구는 고정 위치를 떠나지 않습니다. 사용자가 원본 구를 조작하기 시작하면 같은 색·글로우·인터랙션 Component를 가진 이동 가능한 <em>Clone</em>을 만듭니다. 복제본은 이동 가능한 구 컬렉션에 합류하며 — 실제로 겹치고 색을 혼합하는 것은 이 복제본들입니다." },
