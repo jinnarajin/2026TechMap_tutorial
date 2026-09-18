@@ -319,14 +319,26 @@
       appearance.</p>
       <div class="mobilecode"></div>
     </div>
-    <div class="step" data-code="c-glowtex">
+    <div class="step" data-code="c-glowmat">
       <div class="steplabel">Step 5</div>
+      <h3>Create the Glow Material</h3>
+      <p>An <code class="inline">UnlitMaterial</code> shows a texture as-is, unaffected by scene lighting, so the glow keeps its color. Transparent blending lets the faded edge disappear.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-glowtex">
+      <div class="steplabel">Step 6</div>
       <h3>Draw the Glow Texture</h3>
-      <p>Render a radial gradient into a texture with <code class="inline">UIGraphicsImageRenderer</code>: strongest at the center, fading to clear at the edge. An <code class="inline">UnlitMaterial</code> shows it without being affected by scene lighting.</p>
+      <p>Draw a radial gradient with <code class="inline">UIGraphicsImageRenderer</code>: strongest at the center, fading to clear at the edge. The function is not complete yet — the next step returns the result.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-glowtexret">
+      <div class="steplabel">Step 7</div>
+      <h3>Turn the Image into a Texture</h3>
+      <p>Convert the rendered image into a <code class="inline">TextureResource</code> and return it. The gradient is generated in code, so the conversion cannot fail.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-glow">
-      <div class="steplabel">Step 6</div>
+      <div class="steplabel">Step 8</div>
       <h3>Add a Radiating Glow</h3>
       <p>A second visual layer creates the soft glow around each sphere: a radial gradient
       texture applied to a plane, kept facing the viewer by a
@@ -334,7 +346,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-place">
-      <div class="steplabel">Step 7</div>
+      <div class="steplabel">Step 9</div>
       <h3>Place the RGB Spheres</h3>
       <p>Create the three spheres in <code class="inline">ImmersiveView</code>'s
       <code class="inline">RealityView</code>, position them in front of the user, and add
@@ -398,11 +410,17 @@
     <div class="step" data-code="c-events">
       <div class="steplabel">Step 4</div>
       <h3>Subscribe to Manipulation Events</h3>
-      <p>Listen for the three <code class="inline">ManipulationEvents</code> RealityKit sends while the user pinches and drags, and forward each one to a handler. The handlers select the sphere now and grow in later steps.</p>
+      <p>Listen for the three <code class="inline">ManipulationEvents</code> RealityKit sends while the user pinches and drags, and forward each one to a handler. The handlers come in the next step.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-handlers">
+      <div class="steplabel">Step 5</div>
+      <h3>Handle the Three Phases</h3>
+      <p>Begin, update, and end. For now each handler only selects the sphere or refreshes overlaps; later steps add clones, targets, and mixed spheres here.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-wire">
-      <div class="steplabel">Step 5</div>
+      <div class="steplabel">Step 6</div>
       <h3>Wire the Manager into the View</h3>
       <p>Give <code class="inline">ImmersiveView</code> a
       <code class="inline">SphereInteractionManager</code>, mark the three spheres as
@@ -411,7 +429,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-clone">
-      <div class="steplabel">Step 6</div>
+      <div class="steplabel">Step 7</div>
       <h3>Create a Movable Clone</h3>
       <p>Original spheres never leave their fixed positions. When the user starts
       manipulating an original sphere, create a movable <em>clone</em> with the same color,
@@ -420,7 +438,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rim">
-      <div class="steplabel">Step 7</div>
+      <div class="steplabel">Step 8</div>
       <h3>Create the Selection Ring</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphericalSelectionRim.swift</code></div>
       <p>Create a custom white ring so the selected sphere is easy to spot. A
@@ -429,7 +447,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rimverts">
-      <div class="steplabel">Step 8</div>
+      <div class="steplabel">Step 9</div>
       <h3>Place the Ring Vertices</h3>
       <p>Walk around the circle once per segment and add two vertices each time, one on
       the outer edge and one on the inner edge. The ring is flat, so every normal points
@@ -437,7 +455,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rimmesh">
-      <div class="steplabel">Step 9</div>
+      <div class="steplabel">Step 10</div>
       <h3>Connect the Vertices into a Mesh</h3>
       <p>Join neighbouring vertex pairs with two triangles per segment, then hand the
       positions, normals, and triangle indices to a <code class="inline">MeshDescriptor</code>,
@@ -445,7 +463,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-attachrim">
-      <div class="steplabel">Step 10</div>
+      <div class="steplabel">Step 11</div>
       <h3>Show the Ring on the Selected Sphere</h3>
       <p>Keep a single ring. When the selection changes, remove it from the previous sphere
       and attach it to the new one.</p>
@@ -616,23 +634,33 @@
       <p>Find the glow by name and scale its opacity with the same normalized intensity, so brightness changes without changing the sphere's size. Then give every new sphere the default intensity.</p>
       <div class="mobilecode"></div>
     </div>
-    <div class="step" data-code="c-wristroll">
+    <div class="step" data-code="c-dialstate">
       <div class="steplabel">Step 4</div>
-      <h3>Convert Wrist Rotation to Brightness</h3>
+      <h3>Create the Dial Controller</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RightHandLightDialController.swift</code></div>
-      <p>Process only the right-hand anchor. When all five fingers are extended, map the
-      palm normal from down to up into a <code class="inline">0...1</code> brightness value,
-      then smooth both the input and the applied intensity to prevent sudden jumps.</p>
+      <p>The controller receives two closures: one that picks the sphere to control from the wrist position, and one that applies an intensity to it. Two smoothed values keep the light from jumping between frames.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-wristroll">
+      <div class="steplabel">Step 5</div>
+      <h3>Convert Wrist Rotation to Brightness</h3>
+      <p>Process only tracked right-hand anchors. Curve the sampled brightness, smooth it, map it onto the light intensity range, and apply it to the target sphere.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-wristsample">
-      <div class="steplabel">Step 5</div>
+      <div class="steplabel">Step 6</div>
       <h3>Sample the Wrist Roll</h3>
-      <p>Read the wrist joint from the hand skeleton: its position, the direction the palm faces, and whether all five fingers are extended. The palm normal maps to a <code class="inline">0...1</code> brightness value.</p>
+      <p>Read the wrist joint from the hand skeleton: its position and the direction the palm faces. The palm normal maps to a <code class="inline">0...1</code> brightness value. The finger check comes next.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-fingers">
+      <div class="steplabel">Step 7</div>
+      <h3>Check That the Hand Is Open</h3>
+      <p>A finger counts as extended when its tip is farther from the wrist than its middle joint. All five must be extended for the dial to respond.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-handtracking">
-      <div class="steplabel">Step 6</div>
+      <div class="steplabel">Step 8</div>
       <h3>Start Hand Tracking</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>HandTrackingManager.swift</code></div>
       <p>An <code class="inline">ARKitSession</code> runs a
@@ -641,20 +669,20 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-handanchors">
-      <div class="steplabel">Step 7</div>
+      <div class="steplabel">Step 9</div>
       <h3>Forward Hand Anchors</h3>
       <p>Iterate the provider's anchor updates in a task and pass each tracked anchor to the dial controller.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-lightselect">
-      <div class="steplabel">Step 8</div>
+      <div class="steplabel">Step 10</div>
       <h3>Expose Light Selection</h3>
       <p>The manager already tracks the selected sphere. Add small methods so the dial can
       read it, fall back to the nearest movable sphere, and apply an intensity.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-connectdial">
-      <div class="steplabel">Step 9</div>
+      <div class="steplabel">Step 11</div>
       <h3>Connect Tracking to the Selected Sphere</h3>
       <p>Create the controller in <code class="inline">ImmersiveView</code>. A selected
       sphere takes priority; otherwise, use the closest light sphere to the wrist. The
@@ -663,7 +691,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-mixedlight">
-      <div class="steplabel">Step 10</div>
+      <div class="steplabel">Step 12</div>
       <h3>Give Mixed Spheres an Initial Brightness</h3>
       <p>When two spheres create a mixed sphere, initialize its intensity with the average
       of the two source values. This is a snapshot: later changes to either source do not
@@ -950,7 +978,7 @@ func makeRGBSphere(
 +}
 </template>
 
-<template id="c-glowtex" data-name="RGBSphere.swift">
+<template id="c-glowmat" data-name="RGBSphere.swift">
 import RealityKit
 import UIKit
 
@@ -1017,6 +1045,75 @@ func makeSphereMaterial(
 
 +    return material
 +}
+</template>
+
+<template id="c-glowtex" data-name="RGBSphere.swift">
+import RealityKit
+import UIKit
+
+func makeRGBSphere(
+    color: RGBColor
+) -&gt; ModelEntity {
+
+    // Create the spherical mesh.
+    let mesh = MeshResource.generateSphere(
+        radius: 0.15
+    )
+
+    // Create the luminous material.
+    let material = makeSphereMaterial(
+        color: color
+    )
+
+    let sphere = ModelEntity(
+        mesh: mesh,
+        materials: [material]
+    )
+
+    // Store the sphere's RGB color.
+    sphere.components.set(
+        RGBColorComponent(color: color)
+    )
+    return sphere
+}
+
+func makeSphereMaterial(
+    color: RGBColor
+) -&gt; PhysicallyBasedMaterial {
+
+    var material = PhysicallyBasedMaterial()
+
+    // Base color with transparency.
+    material.baseColor = .init(
+        tint: color.uiColor.withAlphaComponent(0.6)
+    )
+    material.blending = .transparent(
+        opacity: .init(floatLiteral: 0.6)
+    )
+
+    // Emissive color makes the sphere luminous.
+    material.emissiveColor = .init(
+        color: color.uiColor
+    )
+    material.emissiveIntensity = 2.0
+
+    return material
+}
+
+func makeGlowMaterial(
+    color: RGBColor
+) -&gt; UnlitMaterial {
+
+    // Unlit, so the glow is not affected by scene lighting.
+    var material = UnlitMaterial(
+        texture: makeRadialGlowTexture(color: color)
+    )
+    material.blending = .transparent(
+        opacity: .init(floatLiteral: 1.0)
+    )
+
+    return material
+}
 
 +/// Draws a circle that fades from the color to clear.
 +func makeRadialGlowTexture(
@@ -1049,13 +1146,114 @@ func makeSphereMaterial(
 +            options: []
 +        )
 +    }
++}
+</template>
 
+<template id="c-glowtexret" data-name="RGBSphere.swift">
+import RealityKit
+import UIKit
+
+func makeRGBSphere(
+    color: RGBColor
+) -&gt; ModelEntity {
+
+    // Create the spherical mesh.
+    let mesh = MeshResource.generateSphere(
+        radius: 0.15
+    )
+
+    // Create the luminous material.
+    let material = makeSphereMaterial(
+        color: color
+    )
+
+    let sphere = ModelEntity(
+        mesh: mesh,
+        materials: [material]
+    )
+
+    // Store the sphere's RGB color.
+    sphere.components.set(
+        RGBColorComponent(color: color)
+    )
+    return sphere
+}
+
+func makeSphereMaterial(
+    color: RGBColor
+) -&gt; PhysicallyBasedMaterial {
+
+    var material = PhysicallyBasedMaterial()
+
+    // Base color with transparency.
+    material.baseColor = .init(
+        tint: color.uiColor.withAlphaComponent(0.6)
+    )
+    material.blending = .transparent(
+        opacity: .init(floatLiteral: 0.6)
+    )
+
+    // Emissive color makes the sphere luminous.
+    material.emissiveColor = .init(
+        color: color.uiColor
+    )
+    material.emissiveIntensity = 2.0
+
+    return material
+}
+
+func makeGlowMaterial(
+    color: RGBColor
+) -&gt; UnlitMaterial {
+
+    // Unlit, so the glow is not affected by scene lighting.
+    var material = UnlitMaterial(
+        texture: makeRadialGlowTexture(color: color)
+    )
+    material.blending = .transparent(
+        opacity: .init(floatLiteral: 1.0)
+    )
+
+    return material
+}
+
+/// Draws a circle that fades from the color to clear.
+func makeRadialGlowTexture(
+    color: RGBColor
+) -&gt; TextureResource {
+
+    let size = 512
+    let renderer = UIGraphicsImageRenderer(
+        size: CGSize(width: size, height: size)
+    )
+
+    let image = renderer.image { context in
+        let center = CGPoint(x: size / 2, y: size / 2)
+        let colors = [
+            color.uiColor.withAlphaComponent(0.6).cgColor,
+            color.uiColor.withAlphaComponent(0.0).cgColor
+        ]
+        let gradient = CGGradient(
+            colorsSpace: CGColorSpaceCreateDeviceRGB(),
+            colors: colors as CFArray,
+            locations: [0.0, 1.0]
+        )!
+
+        context.cgContext.drawRadialGradient(
+            gradient,
+            startCenter: center,
+            startRadius: 0,
+            endCenter: center,
+            endRadius: CGFloat(size) / 2,
+            options: []
+        )
+    }
 +    // The gradient is generated in code, so this cannot fail.
 +    return try! TextureResource(
 +        image: image.cgImage!,
 +        options: .init(semantic: .color)
 +    )
-+}
+}
 </template>
 
 <template id="c-glow" data-name="RGBSphere.swift">
@@ -1159,7 +1357,6 @@ func makeRadialGlowTexture(
             options: []
         )
     }
-
     // The gradient is generated in code, so this cannot fail.
     return try! TextureResource(
         image: image.cgImage!,
@@ -1372,7 +1569,64 @@ final class SphereInteractionManager: ObservableObject {
 +            }
 +        ]
 +    }
+    // MARK: - Selection
 
+    func selectSphere(_ sphere: ModelEntity) {
+        selectedSphere = sphere
+    }
+
+    // MARK: - Overlaps
+
+    func updateOverlaps() {
+        // Overlap targets are added in a later section.
+    }
+}
+</template>
+
+<template id="c-handlers" data-name="SphereInteractionManager.swift">
+import RealityKit
+
+@MainActor
+final class SphereInteractionManager: ObservableObject {
+
+    enum InteractionState {
+        case idle
+        case original(
+            sphere: ModelEntity,
+            position: SIMD3&lt;Float&gt;,
+            clone: ModelEntity
+        )
+        case movable(sphere: ModelEntity)
+    }
+
+    var state: InteractionState = .idle
+
+    /// Clones and mixed spheres — the ones that can move.
+    var movableSpheres: [ModelEntity] = []
+    var overlapTargets: [ModelEntity] = []
+
+    private var selectedSphere: ModelEntity?
+    private var subscriptions: [EventSubscription] = []
+    let overlapSystem = SphereOverlapSystem()
+    // MARK: - Setup
+
+    /// Routes RealityKit manipulation events to the handlers below.
+    func subscribe(to content: RealityViewContent) {
+        subscriptions = [
+            content.subscribe(to: ManipulationEvents.WillBegin.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationBegan(sphere)
+            },
+            content.subscribe(to: ManipulationEvents.DidUpdateTransform.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationUpdated(sphere)
+            },
+            content.subscribe(to: ManipulationEvents.WillRelease.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationEnded(sphere)
+            }
+        ]
+    }
 +    // MARK: - Manipulation
 
 +    func handleManipulationBegan(
@@ -1565,7 +1819,6 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
-
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -1847,7 +2100,6 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
-
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -2077,7 +2329,6 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
-
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -2218,7 +2469,6 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
-
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -2402,7 +2652,6 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
-
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -2591,7 +2840,6 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
-
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -2882,14 +3130,12 @@ func makeRadialGlowTexture(
             options: []
         )
     }
-
     // The gradient is generated in code, so this cannot fail.
     return try! TextureResource(
         image: image.cgImage!,
         options: .init(semantic: .color)
     )
 }
-
 
 func addRadiatingGlow(
     to sphere: ModelEntity,
@@ -3059,14 +3305,12 @@ func makeRadialGlowTexture(
             options: []
         )
     }
-
     // The gradient is generated in code, so this cannot fail.
     return try! TextureResource(
         image: image.cgImage!,
         options: .init(semantic: .color)
     )
 }
-
 
 func addRadiatingGlow(
     to sphere: ModelEntity,
@@ -3138,6 +3382,35 @@ func applySphereLightIntensity(
 }
 </template>
 
+<template id="c-dialstate" data-name="RightHandLightDialController.swift">
+import ARKit
+import RealityKit
+import simd
+
+/// Turns a right-hand wrist roll (palm down → palm up) into a light intensity.
+@MainActor
+final class RightHandLightDialController {
+
+    typealias TargetProvider = (SIMD3&lt;Float&gt;) -&gt; ModelEntity?
+    typealias IntensityApplier = (ModelEntity, Float) -&gt; Void
+
+    private let targetProvider: TargetProvider
+    private let intensityApplier: IntensityApplier
+
+    // Smoothed values keep the light from jumping between frames.
+    private var smoothedNormalizedBrightness: Float = 0.5
+    private var smoothedIntensity: Float = SphereLightComponent.defaultIntensity
+
+    init(
+        targetProvider: @escaping TargetProvider,
+        intensityApplier: @escaping IntensityApplier
+    ) {
+        self.targetProvider = targetProvider
+        self.intensityApplier = intensityApplier
+    }
+}
+</template>
+
 <template id="c-wristroll" data-name="RightHandLightDialController.swift">
 import ARKit
 import RealityKit
@@ -3165,37 +3438,37 @@ final class RightHandLightDialController {
         self.intensityApplier = intensityApplier
     }
 
-    func process(anchor: HandAnchor) {
-        guard anchor.chirality == .right,
-              anchor.isTracked,
-              let sample = RightHandWristRollSample(anchor: anchor)
-        else { return }
++    func process(anchor: HandAnchor) {
++        guard anchor.chirality == .right,
++              anchor.isTracked,
++              let sample = RightHandWristRollSample(anchor: anchor)
++        else { return }
 
-        let target = targetProvider(sample.wristPosition)
-        let curvedBrightness = brightnessCurve(
-            sample.normalizedBrightness
-        )
++        let target = targetProvider(sample.wristPosition)
++        let curvedBrightness = brightnessCurve(
++            sample.normalizedBrightness
++        )
 
-        guard sample.areAllFingersExtended,
-              let target else { return }
++        guard sample.areAllFingersExtended,
++              let target else { return }
 
-        smoothedNormalizedBrightness +=
-            (curvedBrightness - smoothedNormalizedBrightness) * 0.055
++        smoothedNormalizedBrightness +=
++            (curvedBrightness - smoothedNormalizedBrightness) * 0.055
 
-        let targetIntensity = SphereLightComponent.minimumIntensity
-            + smoothedNormalizedBrightness
-            * (SphereLightComponent.maximumIntensity
-                - SphereLightComponent.minimumIntensity)
++        let targetIntensity = SphereLightComponent.minimumIntensity
++            + smoothedNormalizedBrightness
++            * (SphereLightComponent.maximumIntensity
++                - SphereLightComponent.minimumIntensity)
 
-        smoothedIntensity +=
-            (targetIntensity - smoothedIntensity) * 0.065
-        intensityApplier(target, smoothedIntensity)
-    }
++        smoothedIntensity +=
++            (targetIntensity - smoothedIntensity) * 0.065
++        intensityApplier(target, smoothedIntensity)
++    }
 
-    /// Smoothstep: slow near the ends, faster in the middle.
-    private func brightnessCurve(_ value: Float) -&gt; Float {
-        value * value * (3 - 2 * value)
-    }
++    /// Smoothstep: slow near the ends, faster in the middle.
++    private func brightnessCurve(_ value: Float) -&gt; Float {
++        value * value * (3 - 2 * value)
++    }
 }
 </template>
 
@@ -3294,6 +3567,105 @@ final class RightHandLightDialController {
 +        // palmNormal down(-1) → up(+1) becomes dark(0) → bright(1).
 +        let upAmount = min(max(simd_dot(palmNormal, SIMD3&lt;Float&gt;(0, 1, 0)), -1), 1)
 +        normalizedBrightness = min(max((upAmount + 1) * 0.5, 0), 1)
++    }
++}
+</template>
+
+<template id="c-fingers" data-name="RightHandLightDialController.swift">
+import ARKit
+import RealityKit
+import simd
+
+/// Turns a right-hand wrist roll (palm down → palm up) into a light intensity.
+@MainActor
+final class RightHandLightDialController {
+
+    typealias TargetProvider = (SIMD3&lt;Float&gt;) -&gt; ModelEntity?
+    typealias IntensityApplier = (ModelEntity, Float) -&gt; Void
+
+    private let targetProvider: TargetProvider
+    private let intensityApplier: IntensityApplier
+
+    // Smoothed values keep the light from jumping between frames.
+    private var smoothedNormalizedBrightness: Float = 0.5
+    private var smoothedIntensity: Float = SphereLightComponent.defaultIntensity
+
+    init(
+        targetProvider: @escaping TargetProvider,
+        intensityApplier: @escaping IntensityApplier
+    ) {
+        self.targetProvider = targetProvider
+        self.intensityApplier = intensityApplier
+    }
+
+    func process(anchor: HandAnchor) {
+        guard anchor.chirality == .right,
+              anchor.isTracked,
+              let sample = RightHandWristRollSample(anchor: anchor)
+        else { return }
+
+        let target = targetProvider(sample.wristPosition)
+        let curvedBrightness = brightnessCurve(
+            sample.normalizedBrightness
+        )
+
+        guard sample.areAllFingersExtended,
+              let target else { return }
+
+        smoothedNormalizedBrightness +=
+            (curvedBrightness - smoothedNormalizedBrightness) * 0.055
+
+        let targetIntensity = SphereLightComponent.minimumIntensity
+            + smoothedNormalizedBrightness
+            * (SphereLightComponent.maximumIntensity
+                - SphereLightComponent.minimumIntensity)
+
+        smoothedIntensity +=
+            (targetIntensity - smoothedIntensity) * 0.065
+        intensityApplier(target, smoothedIntensity)
+    }
+
+    /// Smoothstep: slow near the ends, faster in the middle.
+    private func brightnessCurve(_ value: Float) -&gt; Float {
+        value * value * (3 - 2 * value)
+    }
+}
+
+/// One frame of the right hand: where the wrist is, which way the palm faces,
+/// and whether the hand is open.
+struct RightHandWristRollSample {
+
+    let wristPosition: SIMD3&lt;Float&gt;
+    let areAllFingersExtended: Bool
+
+    /// 0 = palm down, 1 = palm up.
+    let normalizedBrightness: Float
+
+    init?(anchor: HandAnchor) {
+        guard let skeleton = anchor.handSkeleton else { return nil }
+
+        let wrist = skeleton.joint(.wrist)
+        guard wrist.isTracked else { return nil }
+
+        let wristTransform = anchor.originFromAnchorTransform
+            * wrist.anchorFromJointTransform
+        wristPosition = SIMD3&lt;Float&gt;(
+            wristTransform.columns.3.x,
+            wristTransform.columns.3.y,
+            wristTransform.columns.3.z
+        )
+
+        // The wrist joint's Y axis points out of the palm.
+        // Flip the sign if brightness feels inverted on device.
+        let palmNormal = simd_normalize(SIMD3&lt;Float&gt;(
+            wristTransform.columns.1.x,
+            wristTransform.columns.1.y,
+            wristTransform.columns.1.z
+        ))
+
+        // palmNormal down(-1) → up(+1) becomes dark(0) → bright(1).
+        let upAmount = min(max(simd_dot(palmNormal, SIMD3&lt;Float&gt;(0, 1, 0)), -1), 1)
+        normalizedBrightness = min(max((upAmount + 1) * 0.5, 0), 1)
 
 +        // A finger is extended when its tip is farther from the wrist
 +        // than its middle joint.
@@ -3313,8 +3685,8 @@ final class RightHandLightDialController {
 +            )
 +            return tipDistance &gt; middleDistance
 +        }
-+    }
-+}
+    }
+}
 </template>
 
 <template id="c-handtracking" data-name="HandTrackingManager.swift">
@@ -3455,7 +3827,6 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
-
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -3773,7 +4144,6 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
-
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -4030,14 +4400,17 @@ final class SphereInteractionManager: ObservableObject {
     "c-makesphere": ["RGBSphere.swift — add as a new Swift file", "RGBSphere.swift — 새 Swift 파일로 추가합니다"],
     "c-rgbcolor": ["RGBColor.swift — add as a new Swift file", "RGBColor.swift — 새 Swift 파일로 추가합니다"],
     "c-material": ["RGBSphere.swift — add below makeRGBSphere(color:)", "RGBSphere.swift — makeRGBSphere(color:) 아래에 추가합니다"],
-    "c-glowtex": ["RGBSphere.swift — add below makeSphereMaterial(color:)", "RGBSphere.swift — makeSphereMaterial(color:) 아래에 추가합니다"],
+    "c-glowmat": ["RGBSphere.swift — add below makeSphereMaterial(color:)", "RGBSphere.swift — makeSphereMaterial(color:) 아래에 추가합니다"],
+    "c-glowtex": ["RGBSphere.swift — add below makeGlowMaterial(color:)", "RGBSphere.swift — makeGlowMaterial(color:) 아래에 추가합니다"],
+    "c-glowtexret": ["RGBSphere.swift — add the marked lines at the end of makeRadialGlowTexture(color:)", "RGBSphere.swift — makeRadialGlowTexture(color:) 끝에 표시된 줄을 추가합니다"],
     "c-glow": ["RGBSphere.swift — add addRadiatingGlow(to:color:) below makeRadialGlowTexture(color:) and call it from makeRGBSphere(color:)", "RGBSphere.swift — makeRadialGlowTexture(color:) 아래에 addRadiatingGlow(to:color:)를 추가하고 makeRGBSphere(color:)에서 호출합니다"],
     "c-place": ["ImmersiveView.swift — inside the RealityView content closure", "ImmersiveView.swift — RealityView의 Content Closure 내부에 작성합니다"],
     "c-colorcomp": ["SphereComponents.swift — add as a new Swift file", "SphereComponents.swift — 새 Swift 파일로 추가합니다"],
     "c-origcomp": ["SphereComponents.swift — below RGBColorComponent", "SphereComponents.swift — RGBColorComponent 아래에 작성합니다"],
     "c-interaction": ["SphereInteraction.swift — add as a new Swift file", "SphereInteraction.swift — 새 Swift 파일로 추가합니다"],
     "c-manip": ["SphereInteractionManager.swift — add as a new Swift file", "SphereInteractionManager.swift — 새 Swift 파일로 추가합니다"],
-    "c-events": ["SphereInteractionManager.swift — add subscribe(to:) and the three handlers below the properties", "SphereInteractionManager.swift — Property 아래에 subscribe(to:)와 핸들러 3개를 추가합니다"],
+    "c-events": ["SphereInteractionManager.swift — add subscribe(to:) below the properties", "SphereInteractionManager.swift — Property 아래에 subscribe(to:)를 추가합니다"],
+    "c-handlers": ["SphereInteractionManager.swift — add the three handlers below subscribe(to:)", "SphereInteractionManager.swift — subscribe(to:) 아래에 핸들러 3개를 추가합니다"],
     "c-wire": ["ImmersiveView.swift — add the manager Property, register OriginalSphereComponent, then the marked lines inside RealityView", "ImmersiveView.swift — Manager Property를 추가하고 OriginalSphereComponent를 등록한 뒤 RealityView 안의 표시된 줄을 작성합니다"],
     "c-clone": ["SphereInteractionManager.swift — inside handleManipulationBegan(_:), plus createClone(from:) below", "SphereInteractionManager.swift — handleManipulationBegan(_:) 내부와 그 아래 createClone(from:)에 추가합니다"],
     "c-rim": ["SphericalSelectionRim.swift — add as a new Swift file", "SphericalSelectionRim.swift — 새 Swift 파일로 추가합니다"],
@@ -4055,8 +4428,10 @@ final class SphereInteractionManager: ObservableObject {
     "c-lightcomponent": ["SphereComponents.swift — add below the other custom components", "SphereComponents.swift — 다른 커스텀 Component 아래에 추가합니다"],
     "c-applylight": ["RGBSphere.swift — add below addRadiatingGlow(to:color:)", "RGBSphere.swift — addRadiatingGlow(to:color:) 아래에 추가합니다"],
     "c-applyglow": ["RGBSphere.swift — add the marked lines to applySphereLightIntensity(_:to:) and makeRGBSphere(color:)", "RGBSphere.swift — applySphereLightIntensity(_:to:)와 makeRGBSphere(color:)에 표시된 줄을 추가합니다"],
-    "c-wristroll": ["RightHandLightDialController.swift — add as a new Swift file", "RightHandLightDialController.swift — 새 Swift 파일로 추가합니다"],
+    "c-dialstate": ["RightHandLightDialController.swift — add as a new Swift file", "RightHandLightDialController.swift — 새 Swift 파일로 추가합니다"],
+    "c-wristroll": ["RightHandLightDialController.swift — add process(anchor:) and brightnessCurve(_:) below init", "RightHandLightDialController.swift — init 아래에 process(anchor:)와 brightnessCurve(_:)를 추가합니다"],
     "c-wristsample": ["RightHandLightDialController.swift — add below RightHandLightDialController", "RightHandLightDialController.swift — RightHandLightDialController 아래에 추가합니다"],
+    "c-fingers": ["RightHandLightDialController.swift — add the marked lines at the end of init?(anchor:)", "RightHandLightDialController.swift — init?(anchor:) 끝에 표시된 줄을 추가합니다"],
     "c-handtracking": ["HandTrackingManager.swift — add as a new Swift file", "HandTrackingManager.swift — 새 Swift 파일로 추가합니다"],
     "c-handanchors": ["HandTrackingManager.swift — add the marked lines at the end of start()", "HandTrackingManager.swift — start() 끝에 표시된 줄을 추가합니다"],
     "c-lightselect": ["SphereInteractionManager.swift — add below createMixedSphere(from:)", "SphereInteractionManager.swift — createMixedSphere(from:) 아래에 추가합니다"],
@@ -4353,14 +4728,17 @@ final class SphereInteractionManager: ObservableObject {
     "c-makesphere": { h3: "구 만들기", p: C("ModelEntity") + "는 Mesh와 Material을 결합해 보이는 오브젝트를 만듭니다. " + C("makeRGBSphere") + " 함수는 반지름 " + C("0.15") + "미터의 구를 만들고 " + C("RGBColorComponent") + "로 색을 저장합니다." },
     "c-rgbcolor": { h3: "RGB 색상 만들기", p: C("RGBColor") + " 구조체는 빨강·초록·파랑 값을 따로 저장합니다 — Red " + C("(1, 0, 0)") + ", Green " + C("(0, 1, 0)") + ", Blue " + C("(0, 0, 1)") + ". RGB 값을 시각적 색상과 분리해 두면 나중에 색을 혼합할 수 있습니다." },
     "c-material": { h3: "구 Material 만들기", p: "구는 베이스 색상에 투명도와 발광 색상을 결합해 빛나는 느낌을 내는 " + C("PhysicallyBasedMaterial") + "을 사용합니다." },
-    "c-glowtex": { h3: "글로우 Texture 그리기", p: C("UIGraphicsImageRenderer") + "로 중앙이 가장 진하고 가장자리로 갈수록 투명해지는 방사형 그라데이션을 Texture에 그립니다. " + C("UnlitMaterial") + "은 Scene 조명의 영향 없이 그 Texture를 그대로 보여줍니다." },
+    "c-glowmat": { h3: "글로우 Material 만들기", p: C("UnlitMaterial") + "은 Scene 조명의 영향 없이 Texture를 그대로 보여주어 글로우 색이 유지됩니다. 투명 블렌딩으로 옅어진 가장자리가 사라집니다." },
+    "c-glowtex": { h3: "글로우 Texture 그리기", p: C("UIGraphicsImageRenderer") + "로 중앙이 가장 진하고 가장자리로 갈수록 투명해지는 방사형 그라데이션을 그립니다. 함수는 아직 미완성이며, 다음 단계에서 결과를 반환합니다." },
+    "c-glowtexret": { h3: "이미지를 Texture로 바꾸기", p: "그린 이미지를 " + C("TextureResource") + "로 변환해 반환합니다. 그라데이션은 코드로 생성하므로 변환이 실패하지 않습니다." },
     "c-glow": { h3: "퍼지는 글로우 추가하기", p: "두 번째 시각 레이어가 구 주위의 부드러운 글로우를 만듭니다. 평면에 방사형 그라데이션 Texture를 적용하고 " + C("BillboardComponent") + "로 항상 시청자를 향하게 합니다. 글로우는 시각 요소일 뿐입니다." },
     "c-place": { h3: "RGB 구 배치하기", p: C("ImmersiveView") + "의 " + C("RealityView") + "에서 세 개의 구를 만들어 사용자 앞에 배치하고 Head Anchor에 추가합니다. 이 시점에서 구는 Immersive Space에 보이지만 아직 조작할 수는 없습니다." },
     "c-colorcomp": { h3: "RGB 색상 저장하기", p: C("RGBColorComponent") + "는 구에 연결된 RGB 색상을 저장해, 색상 데이터를 Entity 자체에 붙여 둡니다." },
     "c-origcomp": { h3: "원본 구 식별하기", p: C("OriginalSphereComponent") + "는 원본 구를 식별하고 고정 위치를 저장합니다 — 그래서 세 개의 원본 구는 제자리에 남고, 이동 가능한 복제본이 인터랙션용으로 생성됩니다." },
     "c-interaction": { h3: "인터랙션을 위한 구 준비하기", p: C("configureSphereForInteraction") + " 함수에서는 구가 사용자 입력을 받을 수 있도록 " + C("InputTargetComponent") + ", 충돌 및 인터랙션 영역을 정의하는 " + C("CollisionComponent") + ", 사용자가 구를 직접 움직일 수 있도록 하는 " + C("ManipulationComponent") + "를 추가합니다. 충돌 영역의 반지름은 " + C("radius") + " 매개변수로 받아 뒤에서 다른 크기의 Entity에도 재사용합니다." },
     "c-manip": { h3: "조작 이벤트 처리하기", p: C("SphereInteractionManager") + "는 조작 시작, 위치 업데이트, 놓기 세 단계의 이벤트에 응답합니다. 원본 구는 고정된 채, 이동 가능한 복제본이 사용자의 인터랙션을 따라갑니다." },
-    "c-events": { h3: "조작 이벤트 구독하기", p: "사용자가 집어서 끌 때 RealityKit이 보내는 " + C("ManipulationEvents") + " 3가지를 받아 각각 핸들러로 넘깁니다. 지금 핸들러는 구를 선택하기만 하고, 뒤 단계에서 내용이 늘어납니다." },
+    "c-events": { h3: "조작 이벤트 구독하기", p: "사용자가 집어서 끌 때 RealityKit이 보내는 " + C("ManipulationEvents") + " 3가지를 받아 각각 핸들러로 넘깁니다. 핸들러는 다음 단계에서 만듭니다." },
+    "c-handlers": { h3: "세 단계 처리하기", p: "시작, 업데이트, 종료입니다. 지금은 각 핸들러가 구를 선택하거나 겹침을 갱신하기만 하고, 뒤 단계에서 복제본·타깃·혼합 구 처리가 여기에 추가됩니다." },
     "c-wire": { h3: "Manager를 View에 연결하기", p: C("ImmersiveView") + "에 " + C("SphereInteractionManager") + "를 두고, 세 구를 고정 위치를 가진 원본으로 표시한 뒤 인터랙션을 켜고, Manager가 Scene의 조작 이벤트를 구독하게 합니다." },
     "c-clone": { h3: "이동 가능한 복제본 만들기", p: "원본 구는 고정 위치를 떠나지 않습니다. 사용자가 원본 구를 조작하기 시작하면 같은 색·글로우·인터랙션 Component를 가진 이동 가능한 <em>Clone</em>을 만듭니다. 복제본은 이동 가능한 구 컬렉션에 합류하며 — 실제로 겹치고 색을 혼합하는 것은 이 복제본들입니다." },
     "c-mix": { h3: "RGB 색 결합하기", p: C("mixed(with:)") + " 함수는 두 색의 RGB 성분을 더한 뒤 " + C("0...1") + " 범위로 정규화합니다." },
@@ -4374,8 +4752,10 @@ final class SphereInteractionManager: ObservableObject {
     "c-lightcomponent": { h3: "빛 세기 저장하기", p: C("SphereLightComponent") + "가 각 구의 밝기를 저장합니다. 범위는 " + C("0.0...2.4") + "이고 초기값은 " + C("1.2") + "입니다." },
     "c-applylight": { h3: "구에 밝기 적용하기", p: "저장된 빛 세기를 정규화한 다음 Material의 Base Color, 투명도, " + C("emissiveIntensity") + "를 갱신합니다. 글로우 불투명도는 별도로 변경해 구의 크기를 바꾸지 않고 밝기만 조절합니다." },
     "c-applyglow": { h3: "글로우도 함께 어둡게 하기", p: "이름으로 글로우를 찾아 같은 정규화 밝기로 불투명도를 조절합니다. 그래서 구의 크기는 그대로인 채 밝기만 바뀝니다. 그다음 새로 만드는 모든 구에 기본 밝기를 적용합니다." },
-    "c-wristroll": { h3: "손목 회전을 밝기로 변환하기", p: "오른손 Anchor만 처리합니다. 다섯 손가락이 모두 펼쳐졌을 때 손바닥 법선의 아래→위 방향을 " + C("0...1") + " 밝기로 바꾸고, 입력값과 적용값을 보간해 갑작스러운 변화를 줄입니다." },
-    "c-wristsample": { h3: "손목 회전 샘플링하기", p: "손 Skeleton에서 손목 Joint를 읽습니다. 위치, 손바닥이 향하는 방향, 다섯 손가락이 모두 펴졌는지를 구하고, 손바닥 법선을 " + C("0...1") + " 밝기 값으로 바꿉니다." },
+    "c-dialstate": { h3: "다이얼 Controller 만들기", p: "Controller는 클로저 2개를 받습니다. 손목 위치로 조절할 구를 고르는 클로저와, 그 구에 밝기를 적용하는 클로저입니다. 보간된 값 2개가 프레임 사이에 빛이 튀지 않게 합니다." },
+    "c-wristroll": { h3: "손목 회전을 밝기로 변환하기", p: "추적 중인 오른손 Anchor만 처리합니다. 샘플링한 밝기에 곡선을 적용하고 보간한 뒤 빛 세기 범위로 매핑해 대상 구에 적용합니다." },
+    "c-wristsample": { h3: "손목 회전 샘플링하기", p: "손 Skeleton에서 손목 Joint를 읽어 위치와 손바닥이 향하는 방향을 구하고, 손바닥 법선을 " + C("0...1") + " 밝기 값으로 바꿉니다. 손가락 검사는 다음 단계입니다." },
+    "c-fingers": { h3: "손을 폈는지 확인하기", p: "손가락 끝이 중간 관절보다 손목에서 더 멀면 편 것으로 봅니다. 다섯 손가락이 모두 펴져야 다이얼이 반응합니다." },
     "c-handtracking": { h3: "Hand Tracking 시작하기", p: C("ARKitSession") + "이 " + C("HandTrackingProvider") + "를 실행합니다. 사용자가 권한을 허용하면 손 Anchor 업데이트를 다이얼 Controller에 전달합니다." },
     "c-handanchors": { h3: "손 Anchor 전달하기", p: "Task 안에서 Provider의 Anchor 업데이트를 순회하며 추적 중인 Anchor를 다이얼 Controller에 넘깁니다." },
     "c-lightselect": { h3: "빛 선택 노출하기", p: "Manager는 이미 선택된 구를 추적합니다. 다이얼이 그 구를 읽고, 없으면 가장 가까운 이동 가능한 구로 대체하고, 밝기를 적용할 수 있도록 작은 메서드를 추가합니다." },
