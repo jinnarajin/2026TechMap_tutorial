@@ -131,6 +131,38 @@
     background: rgba(255,255,255,.3); border: none;
     border-radius: 12px; padding: .9rem 1.1rem; color: #fff; font-size: .9rem; }
 
+
+  /* ── concept quiz ── */
+  .quiz { max-width: 800px; margin: 4rem auto 0; padding: 0 1.4rem; }
+  .quiz .kicker { color: var(--muted); font-size: .85rem; margin-bottom: .4rem; }
+  .quiz h2 { font-size: clamp(1.5rem, 3vw, 2rem); letter-spacing: -.01em; margin: 0 0 .5rem; }
+  .quiz .intro { color: #d1d1d6; margin: 0 0 1.4rem; }
+  .quiz .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem 1.5rem; }
+  .quiz .progress { color: var(--muted); font-size: .8rem; margin-bottom: .6rem; }
+  .quiz .question { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem; }
+  .quiz .choices { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+  .quiz .choice { display: flex; align-items: center; gap: .75rem; padding: .8rem 1rem; border: 1px solid var(--border);
+    border-radius: 10px; background: var(--bg); cursor: pointer; color: var(--text); font: inherit; text-align: left; width: 100%; }
+  .quiz .choice::before { content: ""; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--muted); flex: none; }
+  .quiz .choice:hover { border-color: #4a4a4e; }
+  .quiz .choice.selected { border-color: var(--blue); }
+  .quiz .choice.selected::before { border-color: var(--blue); background: var(--blue); box-shadow: inset 0 0 0 3px var(--bg); }
+  .quiz .choice.correct { border-color: #30d158; }
+  .quiz .choice.correct::before { border-color: #30d158; background: #30d158; box-shadow: inset 0 0 0 3px var(--bg); }
+  .quiz .choice.wrong { border-color: #ff453a; }
+  .quiz .choice.wrong::before { border-color: #ff453a; background: #ff453a; box-shadow: inset 0 0 0 3px var(--bg); }
+  .quiz .choice:disabled { cursor: default; }
+  .quiz .feedback { margin: 1rem 0 0; padding: .9rem 1rem; border-radius: 10px; font-size: .95rem; display: none; }
+  .quiz .feedback.show { display: block; }
+  .quiz .feedback.ok { background: rgba(48,209,88,.12); border-left: 4px solid #30d158; }
+  .quiz .feedback.no { background: rgba(255,69,58,.12); border-left: 4px solid #ff453a; }
+  .quiz .actions { display: flex; gap: .6rem; margin-top: 1.1rem; }
+  .quiz .btn { font: inherit; font-size: .9rem; padding: .55rem 1.1rem; border-radius: 999px; border: 1px solid var(--blue); background: var(--blue); color: #fff; cursor: pointer; }
+  .quiz .btn.secondary { background: transparent; color: var(--blue); }
+  .quiz .btn:disabled { opacity: .4; cursor: default; }
+  .quiz .done { text-align: center; padding: 1rem 0; }
+  .quiz .done .score { font-size: 2.2rem; font-weight: 700; margin: .4rem 0; }
+
   footer { border-top: 1px solid var(--border); color: var(--muted); font-size: .85rem;
     text-align: center; padding: 2.2rem 1.4rem 3rem; margin-top: 3rem; }
 
@@ -706,6 +738,13 @@
     </div>
   </div></div>
 </div>
+
+<section class="quiz" id="quiz">
+  <div class="kicker i18n" data-en="Check Your Understanding" data-ko="개념 확인">Check Your Understanding</div>
+  <h2 class="i18n" data-en="Concept Quiz" data-ko="개념 퀴즈">Concept Quiz</h2>
+  <p class="intro i18n" data-en="Three quick questions about what you built. Pick an answer, then check it." data-ko="방금 만든 내용에 대한 짧은 질문 3개입니다. 답을 고른 뒤 확인해 보세요.">Three quick questions about what you built. Pick an answer, then check it.</p>
+  <div class="card" id="quizcard"></div>
+</section>
 
 <footer>
   RGB — a visionOS learning project · Apple Developer Academy ·
@@ -4837,6 +4876,103 @@ final class SphereInteractionManager: ObservableObject {
   var saved = null;
   try { saved = localStorage.getItem("rgb-lang"); } catch (e) {}
   if (saved === "ko") apply("ko");
+})();
+</script>
+
+<script>
+// Concept quiz — one question at a time, Apple tutorial style.
+(function () {
+  var Q = [
+    {
+      q: ["Which component lets a sphere receive the user's input?", "구가 사용자 입력을 받을 수 있게 하는 Component는 무엇인가요?"],
+      choices: [
+        ["CollisionComponent", "CollisionComponent"],
+        ["InputTargetComponent", "InputTargetComponent"],
+        ["BillboardComponent", "BillboardComponent"],
+        ["RGBColorComponent", "RGBColorComponent"]
+      ],
+      answer: 1,
+      why: ["InputTargetComponent makes an entity a target for input. CollisionComponent then defines the area that can be hit, and ManipulationComponent lets the user move it.",
+            "InputTargetComponent가 Entity를 입력 대상으로 만듭니다. CollisionComponent는 맞힐 수 있는 영역을 정의하고, ManipulationComponent는 사용자가 움직일 수 있게 합니다."]
+    },
+    {
+      q: ["A red clone and a green clone overlap. What color does mixed(with:) produce?", "빨강 복제본과 초록 복제본이 겹칩니다. mixed(with:)는 어떤 색을 만드나요?"],
+      choices: [
+        ["Magenta", "마젠타"],
+        ["Cyan", "시안"],
+        ["Yellow", "노랑"],
+        ["White", "흰색"]
+      ],
+      answer: 2,
+      why: ["Light mixes additively: (1, 0, 0) + (0, 1, 0) = (1, 1, 0), which is yellow. All three primaries together become white.",
+            "빛은 가산 혼합입니다. (1, 0, 0) + (0, 1, 0) = (1, 1, 0)이므로 노랑입니다. 삼원색이 모두 겹치면 흰색이 됩니다."]
+    },
+    {
+      q: ["The user starts manipulating one of the three original spheres. What moves?", "사용자가 원본 구 3개 중 하나를 조작하기 시작합니다. 무엇이 움직이나요?"],
+      choices: [
+        ["The original sphere itself", "원본 구 자체"],
+        ["A movable clone created at that moment", "그 순간 만들어진 이동 가능한 복제본"],
+        ["The head anchor", "Head Anchor"],
+        ["The overlap target", "겹침 타깃"]
+      ],
+      answer: 1,
+      why: ["Originals keep their fixed position. handleManipulationBegan creates a clone with the same color and glow, and the clone follows the gesture.",
+            "원본은 고정 위치를 지킵니다. handleManipulationBegan이 같은 색과 글로우를 가진 복제본을 만들고, 그 복제본이 제스처를 따라갑니다."]
+    }
+  ];
+  var card = document.getElementById("quizcard");
+  if (!card) return;
+  var index = 0, selected = -1, checked = false, score = 0;
+
+  function span(pair, tag) {
+    tag = tag || "span";
+    return "<" + tag + " class=\"i18n\" data-en=\"" + pair[0].replace(/"/g, "&quot;") + "\" data-ko=\"" + pair[1].replace(/"/g, "&quot;") + "\">" + pair[0] + "</" + tag + ">";
+  }
+  function ko() { return document.documentElement.lang === "ko"; }
+  function render() {
+    if (index >= Q.length) {
+      card.innerHTML = '<div class="done">' +
+        span(["You finished the quiz", "퀴즈를 마쳤습니다"], "div") +
+        '<div class="score">' + score + " / " + Q.length + "</div>" +
+        span(["Missed one? Scroll back to that section and try again.", "틀린 문제가 있다면 해당 Section으로 돌아가 다시 확인해 보세요."], "p") +
+        '<div class="actions" style="justify-content:center"><button class="btn secondary" id="quizrestart">' +
+        span(["Start over", "다시 풀기"]) + "</button></div></div>";
+      document.getElementById("quizrestart").onclick = function () { index = 0; score = 0; selected = -1; checked = false; render(); };
+      swap(); return;
+    }
+    var item = Q[index];
+    var html = '<div class="progress">' + span(["Question " + (index + 1) + " of " + Q.length, "질문 " + (index + 1) + " / " + Q.length]) + "</div>" +
+      '<p class="question">' + span(item.q) + "</p><ul class=\"choices\">";
+    item.choices.forEach(function (c, i) {
+      var cls = "choice";
+      if (checked) { if (i === item.answer) cls += " correct"; else if (i === selected) cls += " wrong"; }
+      else if (i === selected) cls += " selected";
+      html += '<li><button class="' + cls + '" data-i="' + i + '"' + (checked ? " disabled" : "") + ">" + span(c) + "</button></li>";
+    });
+    html += "</ul>";
+    var ok = selected === item.answer;
+    html += '<div class="feedback' + (checked ? " show " + (ok ? "ok" : "no") : "") + '">' +
+      (checked ? "<strong>" + span(ok ? ["Correct.", "정답입니다."] : ["Not quite.", "아쉽네요."]) + "</strong> " + span(item.why) : "") + "</div>";
+    html += '<div class="actions">' +
+      (checked
+        ? '<button class="btn" id="quiznext">' + span([index + 1 < Q.length ? "Next question" : "See result", index + 1 < Q.length ? "다음 질문" : "결과 보기"]) + "</button>"
+        : '<button class="btn" id="quizcheck"' + (selected < 0 ? " disabled" : "") + ">" + span(["Check answer", "정답 확인"]) + "</button>") +
+      "</div>";
+    card.innerHTML = html;
+    card.querySelectorAll(".choice").forEach(function (b) {
+      b.onclick = function () { if (checked) return; selected = +b.dataset.i; render(); };
+    });
+    var check = document.getElementById("quizcheck");
+    if (check) check.onclick = function () { checked = true; if (selected === item.answer) score++; render(); };
+    var next = document.getElementById("quiznext");
+    if (next) next.onclick = function () { index++; selected = -1; checked = false; render(); };
+    swap();
+  }
+  function swap() {
+    if (!ko()) return;
+    card.querySelectorAll(".i18n").forEach(function (el) { el.innerHTML = el.dataset.ko; });
+  }
+  render();
 })();
 </script>
 </body>
