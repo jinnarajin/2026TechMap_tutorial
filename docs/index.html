@@ -2124,8 +2124,28 @@ import ARKit
 import RealityKit
 import simd
 
+/// Turns a right-hand wrist roll (palm down → palm up) into a light intensity.
 @MainActor
 final class RightHandLightDialController {
+
+    typealias TargetProvider = (SIMD3&lt;Float&gt;) -&gt; ModelEntity?
+    typealias IntensityApplier = (ModelEntity, Float) -&gt; Void
+
+    private let targetProvider: TargetProvider
+    private let intensityApplier: IntensityApplier
+
+    // Smoothed values keep the light from jumping between frames.
+    private var smoothedNormalizedBrightness: Float = 0.5
+    private var smoothedIntensity: Float = SphereLightComponent.defaultIntensity
+
+    init(
+        targetProvider: @escaping TargetProvider,
+        intensityApplier: @escaping IntensityApplier
+    ) {
+        self.targetProvider = targetProvider
+        self.intensityApplier = intensityApplier
+    }
+
     func process(anchor: HandAnchor) {
         guard anchor.chirality == .right,
               anchor.isTracked,
@@ -2152,14 +2172,69 @@ final class RightHandLightDialController {
             (targetIntensity - smoothedIntensity) * 0.065
         intensityApplier(target, smoothedIntensity)
     }
+
+    /// Smoothstep: slow near the ends, faster in the middle.
+    private func brightnessCurve(_ value: Float) -&gt; Float {
+        value * value * (3 - 2 * value)
+    }
 }
 
-// palmNormal down(-1) → up(+1) becomes dark(0) → bright(1).
-let upAmount = simd_dot(
-    palmNormal,
-    SIMD3&lt;Float&gt;(0, 1, 0)
-).clamped(to: -1...1)
-let normalizedBrightness = ((upAmount + 1) * 0.5).clamped(to: 0...1)
+/// One frame of the right hand: where the wrist is, which way the palm faces,
+/// and whether the hand is open.
+struct RightHandWristRollSample {
+
+    let wristPosition: SIMD3&lt;Float&gt;
+    let areAllFingersExtended: Bool
+
+    /// 0 = palm down, 1 = palm up.
+    let normalizedBrightness: Float
+
+    init?(anchor: HandAnchor) {
+        guard let skeleton = anchor.handSkeleton else { return nil }
+
+        let wrist = skeleton.joint(.wrist)
+        guard wrist.isTracked else { return nil }
+
+        let wristTransform = anchor.originFromAnchorTransform
+            * wrist.anchorFromJointTransform
+        wristPosition = SIMD3&lt;Float&gt;(
+            wristTransform.columns.3.x,
+            wristTransform.columns.3.y,
+            wristTransform.columns.3.z
+        )
+
+        // The wrist joint's Y axis points out of the palm.
+        // Flip the sign if brightness feels inverted on device.
+        let palmNormal = simd_normalize(SIMD3&lt;Float&gt;(
+            wristTransform.columns.1.x,
+            wristTransform.columns.1.y,
+            wristTransform.columns.1.z
+        ))
+
+        // palmNormal down(-1) → up(+1) becomes dark(0) → bright(1).
+        let upAmount = min(max(simd_dot(palmNormal, SIMD3&lt;Float&gt;(0, 1, 0)), -1), 1)
+        normalizedBrightness = min(max((upAmount + 1) * 0.5, 0), 1)
+
+        // A finger is extended when its tip is farther from the wrist
+        // than its middle joint.
+        let fingers: [(HandSkeleton.JointName, HandSkeleton.JointName)] = [
+            (.thumbTip, .thumbIntermediateBase),
+            (.indexFingerTip, .indexFingerIntermediateBase),
+            (.middleFingerTip, .middleFingerIntermediateBase),
+            (.ringFingerTip, .ringFingerIntermediateBase),
+            (.littleFingerTip, .littleFingerIntermediateBase)
+        ]
+        areAllFingersExtended = fingers.allSatisfy { tip, middle in
+            let tipDistance = simd_length(
+                skeleton.joint(tip).anchorFromJointTransform.columns.3
+            )
+            let middleDistance = simd_length(
+                skeleton.joint(middle).anchorFromJointTransform.columns.3
+            )
+            return tipDistance &gt; middleDistance
+        }
+    }
+}
 </template>
 
 <template id="c-handtracking" data-name="HandTrackingManager.swift">
@@ -2866,7 +2941,7 @@ final class SphereInteractionManager: ObservableObject {
 (function () {
   // ── tiny Swift syntax highlighter ──
   var KEYWORDS = /\b(import|struct|class|enum|case|let|var|func|extension|return|guard|else|for|in|while|switch|default|break|continue|if|await|async|try|throws|private|static|final|some|self|nil|true|false|fallthrough|@main|@MainActor|@Observable|@State|@Environment|@unknown)\b/g;
-  var TYPES = /\b(AppModel|ImmersiveSpaceState|App|Scene|WindowGroup|ImmersiveSpace|ImmersiveView|ContentView|View|VStack|Button|Task|Text|ToggleImmersiveSpaceButton|ModelEntity|Entity|MeshResource|RGBColor|RGBColorComponent|OriginalSphereComponent|DraggableCloneComponent|OverlapVisualComponent|SphereLightComponent|RightHandLightDialController|RightHandWristRollSample|HandAnchor|HandTrackingManager|HandTrackingProvider|ARKitSession|RealityViewContent|ManipulationEvents|EventSubscription|InteractionState|ObservableObject|Component|PhysicallyBasedMaterial|UnlitMaterial|InputTargetComponent|CollisionComponent|ManipulationComponent|BillboardComponent|SphereOverlap|SphereOverlapSystem|SphereInteractionManager|SIMD3|Float|String|Codable|AnchorEntity|RealityView|CGSize|UIGraphicsImageRenderer|TextureResource|UIColor|CGFloat)\b/g;
+  var TYPES = /\b(AppModel|ImmersiveSpaceState|App|Scene|WindowGroup|ImmersiveSpace|ImmersiveView|ContentView|View|VStack|Button|Task|Text|ToggleImmersiveSpaceButton|ModelEntity|Entity|MeshResource|RGBColor|RGBColorComponent|OriginalSphereComponent|DraggableCloneComponent|OverlapVisualComponent|SphereLightComponent|RightHandLightDialController|RightHandWristRollSample|HandAnchor|HandSkeleton|UUID|HandTrackingManager|HandTrackingProvider|ARKitSession|RealityViewContent|ManipulationEvents|EventSubscription|InteractionState|ObservableObject|Component|PhysicallyBasedMaterial|UnlitMaterial|InputTargetComponent|CollisionComponent|ManipulationComponent|BillboardComponent|SphereOverlap|SphereOverlapSystem|SphereInteractionManager|SIMD3|Float|String|Codable|AnchorEntity|RealityView|CGSize|UIGraphicsImageRenderer|TextureResource|UIColor|CGFloat)\b/g;
 
   function esc(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
