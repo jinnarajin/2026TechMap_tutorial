@@ -922,6 +922,7 @@ func makeRGBSphere(
     sphere.components.set(
         RGBColorComponent(color: color)
     )
+
     return sphere
 }
 </template>
@@ -990,15 +991,16 @@ func makeRGBSphere(
     sphere.components.set(
         RGBColorComponent(color: color)
     )
+
     return sphere
 }
 
 +func makeSphereMaterial(
 +    color: RGBColor
 +) -&gt; PhysicallyBasedMaterial {
-
++
 +    var material = PhysicallyBasedMaterial()
-
++
 +    // Base color with transparency.
 +    material.baseColor = .init(
 +        tint: color.uiColor.withAlphaComponent(0.6)
@@ -1006,13 +1008,13 @@ func makeRGBSphere(
 +    material.blending = .transparent(
 +        opacity: .init(floatLiteral: 0.6)
 +    )
-
++
 +    // Emissive color makes the sphere luminous.
 +    material.emissiveColor = .init(
 +        color: color.uiColor
 +    )
 +    material.emissiveIntensity = 2.0
-
++
 +    return material
 +}
 </template>
@@ -1044,6 +1046,7 @@ func makeRGBSphere(
     sphere.components.set(
         RGBColorComponent(color: color)
     )
+
     return sphere
 }
 
@@ -1073,7 +1076,7 @@ func makeSphereMaterial(
 +func makeGlowMaterial(
 +    color: RGBColor
 +) -&gt; UnlitMaterial {
-
++
 +    // Unlit, so the glow is not affected by scene lighting.
 +    var material = UnlitMaterial(
 +        texture: makeRadialGlowTexture(color: color)
@@ -1081,7 +1084,7 @@ func makeSphereMaterial(
 +    material.blending = .transparent(
 +        opacity: .init(floatLiteral: 1.0)
 +    )
-
++
 +    return material
 +}
 </template>
@@ -1113,6 +1116,7 @@ func makeRGBSphere(
     sphere.components.set(
         RGBColorComponent(color: color)
     )
+
     return sphere
 }
 
@@ -1158,12 +1162,12 @@ func makeGlowMaterial(
 +func makeRadialGlowTexture(
 +    color: RGBColor
 +) -&gt; TextureResource {
-
++
 +    let size = 512
 +    let renderer = UIGraphicsImageRenderer(
 +        size: CGSize(width: size, height: size)
 +    )
-
++
 +    let image = renderer.image { context in
 +        let center = CGPoint(x: size / 2, y: size / 2)
 +        let colors = [
@@ -1175,7 +1179,7 @@ func makeGlowMaterial(
 +            colors: colors as CFArray,
 +            locations: [0.0, 1.0]
 +        )!
-
++
 +        context.cgContext.drawRadialGradient(
 +            gradient,
 +            startCenter: center,
@@ -1215,6 +1219,7 @@ func makeRGBSphere(
     sphere.components.set(
         RGBColorComponent(color: color)
     )
+
     return sphere
 }
 
@@ -1287,6 +1292,7 @@ func makeRadialGlowTexture(
             options: []
         )
     }
++
 +    // The gradient is generated in code, so this cannot fail.
 +    return try! TextureResource(
 +        image: image.cgImage!,
@@ -1324,6 +1330,7 @@ func makeRGBSphere(
     )
 +    // The soft glow around the sphere.
 +    addRadiatingGlow(to: sphere, color: color)
+
     return sphere
 }
 
@@ -1396,6 +1403,7 @@ func makeRadialGlowTexture(
             options: []
         )
     }
+
     // The gradient is generated in code, so this cannot fail.
     return try! TextureResource(
         image: image.cgImage!,
@@ -1412,24 +1420,24 @@ func makeRadialGlowTexture(
 +        width: 0.6,
 +        height: 0.6
 +    )
-
++
 +    let glowMaterial = makeGlowMaterial(
 +        color: color
 +    )
-
++
 +    let glow = ModelEntity(
 +        mesh: glowMesh,
 +        materials: [glowMaterial]
 +    )
-
++
 +    // Named so the light control can find it later.
 +    glow.name = "RadiatingGlow"
-
++
 +    // Always face the viewer.
 +    glow.components.set(
 +        BillboardComponent()
 +    )
-
++
 +    // Visual only — no interaction components.
 +    sphere.addChild(glow)
 +}
@@ -1590,7 +1598,7 @@ final class SphereInteractionManager: ObservableObject {
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
 +    // MARK: - Setup
-
++
 +    /// Routes RealityKit manipulation events to the handlers below.
 +    func subscribe(to content: RealityViewContent) {
 +        subscriptions = [
@@ -1667,7 +1675,7 @@ final class SphereInteractionManager: ObservableObject {
         ]
     }
 +    // MARK: - Manipulation
-
++
 +    func handleManipulationBegan(
 +        _ sphere: ModelEntity
 +    ) {
@@ -1675,7 +1683,7 @@ final class SphereInteractionManager: ObservableObject {
 +        // movable clone that follows the gesture.
 +        selectSphere(sphere)
 +    }
-
++
 +    func handleManipulationUpdated(
 +        _ sphere: ModelEntity
 +    ) {
@@ -1683,7 +1691,7 @@ final class SphereInteractionManager: ObservableObject {
 +        // overlap targets each frame.
 +        updateOverlaps()
 +    }
-
++
 +    func handleManipulationEnded(
 +        _ sphere: ModelEntity
 +    ) {
@@ -1730,6 +1738,7 @@ struct ImmersiveView: View {
             green.position = SIMD3&lt;Float&gt;(-0.3, -0.15, -1.5)
             blue.position = SIMD3&lt;Float&gt;(0.3, -0.15, -1.5)
 
++
 +            // Mark the originals and make them respond to input.
 +            for sphere in [red, green, blue] {
 +                let color = sphere.components[RGBColorComponent.self]?.color ?? .red
@@ -1788,13 +1797,13 @@ struct RGBColor: Codable {
 }
 
 +extension RGBColor {
-
++
 +    // MARK: - Mixing
-
++
 +    func mixed(
 +        with other: RGBColor
 +    ) -&gt; RGBColor {
-
++
 +        RGBColor(
 +            red: red + other.red,
 +            green: green + other.green,
@@ -1802,7 +1811,7 @@ struct RGBColor: Codable {
 +        )
 +        .normalized()
 +    }
-
++
 +    /// Keeps each component in the 0...1 range.
 +    func normalized() -&gt; RGBColor {
 +        RGBColor(
@@ -1866,20 +1875,21 @@ final class SphereInteractionManager: ObservableObject {
 +        // An original RGB sphere creates a movable clone.
 +        if let original = sphere.components[OriginalSphereComponent.self] {
 +            let clone = createClone(from: sphere)
-
++
 +            clone.position = sphere.position
 +            sphere.parent?.addChild(clone)
 +            movableSpheres.append(clone)
-
++
 +            state = .original(
 +                sphere: sphere,
 +                position: original.fixedPosition,
 +                clone: clone
 +            )
-
++
 +            selectSphere(clone)
 +            return
 +        }
++
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -1912,16 +1922,17 @@ final class SphereInteractionManager: ObservableObject {
     func updateOverlaps() {
         // Overlap targets are added in a later section.
     }
++
 +    private func createClone(
 +        from original: ModelEntity
 +    ) -&gt; ModelEntity {
 +        let color = original.components[RGBColorComponent.self]?.color ?? .red
-
++
 +        // Same look as an original sphere, but movable.
 +        let clone = makeRGBSphere(color: color)
 +        clone.name = "Clone"
 +        configureSphereForInteraction(clone)
-
++
 +        return clone
 +    }
 }
@@ -1988,20 +1999,20 @@ func createSphericalSelectionRim() -&gt; ModelEntity {
 +) -&gt; (positions: [SIMD3&lt;Float&gt;], normals: [SIMD3&lt;Float&gt;]) {
 +    var positions: [SIMD3&lt;Float&gt;] = []
 +    var normals: [SIMD3&lt;Float&gt;] = []
-
++
 +    for i in 0..&lt;segments {
 +        let angle = Float(i) / Float(segments) * .pi * 2
 +        let cosAngle = cos(angle)
 +        let sinAngle = sin(angle)
-
++
 +        positions.append(SIMD3(outerRadius * cosAngle, outerRadius * sinAngle, 0))
 +        positions.append(SIMD3(innerRadius * cosAngle, innerRadius * sinAngle, 0))
-
++
 +        // The ring is flat, so every normal points at the viewer.
 +        normals.append(SIMD3(0, 0, 1))
 +        normals.append(SIMD3(0, 0, 1))
 +    }
-
++
 +    return (positions, normals)
 +}
 </template>
@@ -2067,29 +2078,29 @@ private func makeRimVertices(
 +        innerRadius: outerRadius - thickness,
 +        segments: segments
 +    )
-
++
 +    // Two triangles per segment connect neighbouring vertex pairs.
 +    var indices: [UInt32] = []
-
++
 +    for i in 0..&lt;segments {
 +        let next = (i + 1) % segments
-
++
 +        let outerCurrent = UInt32(i * 2)
 +        let innerCurrent = UInt32(i * 2 + 1)
 +        let outerNext = UInt32(next * 2)
 +        let innerNext = UInt32(next * 2 + 1)
-
++
 +        indices += [
 +            outerCurrent, outerNext, innerNext,
 +            outerCurrent, innerNext, innerCurrent
 +        ]
 +    }
-
++
 +    var descriptor = MeshDescriptor()
 +    descriptor.positions = MeshBuffers.Positions(vertices.positions)
 +    descriptor.normals = MeshBuffers.Normals(vertices.normals)
 +    descriptor.primitives = .triangles(indices)
-
++
 +    return try! MeshResource.generate(from: [descriptor])
 +}
 </template>
@@ -2161,6 +2172,7 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(clone)
             return
         }
+
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -2188,6 +2200,7 @@ final class SphereInteractionManager: ObservableObject {
 +        guard selectedSphere !== sphere else { return }
 +        selectionRim?.removeFromParent()
         selectedSphere = sphere
++
 +        // One white ring, attached to the current sphere only.
 +        let rim = createSphericalSelectionRim()
 +        sphere.addChild(rim)
@@ -2199,6 +2212,7 @@ final class SphereInteractionManager: ObservableObject {
     func updateOverlaps() {
         // Overlap targets are added in a later section.
     }
+
     private func createClone(
         from original: ModelEntity
     ) -&gt; ModelEntity {
@@ -2285,7 +2299,7 @@ final class SphereOverlapSystem {
                 else { continue }
 +                let firstColor = first.components[RGBColorComponent.self]?.color ?? .red
 +                let secondColor = second.components[RGBColorComponent.self]?.color ?? .red
-
++
 +                overlaps.append(
 +                    SphereOverlap(
 +                        firstSphere: first,
@@ -2308,16 +2322,16 @@ final class SphereOverlapSystem {
 +/// Describes what is overlapping, where the
 +/// overlap occurs, and what color to produce.
 +struct SphereOverlap {
-
++
 +    let firstSphere: ModelEntity
 +    let secondSphere: ModelEntity
-
++
 +    /// Midpoint between the two spheres.
 +    let position: SIMD3&lt;Float&gt;
-
++
 +    /// The mixed RGB color.
 +    let color: RGBColor
-
++
 +    /// Unique key for this pair of spheres.
 +    let key: String
 +}
@@ -2390,6 +2404,7 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(clone)
             return
         }
+
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -2417,6 +2432,7 @@ final class SphereInteractionManager: ObservableObject {
         guard selectedSphere !== sphere else { return }
         selectionRim?.removeFromParent()
         selectedSphere = sphere
+
         // One white ring, attached to the current sphere only.
         let rim = createSphericalSelectionRim()
         sphere.addChild(rim)
@@ -2428,6 +2444,7 @@ final class SphereInteractionManager: ObservableObject {
     func updateOverlaps() {
         // Overlap targets are added in a later section.
     }
+
     private func createClone(
         from original: ModelEntity
     ) -&gt; ModelEntity {
@@ -2440,24 +2457,25 @@ final class SphereInteractionManager: ObservableObject {
 
         return clone
     }
++
 +    func makeOverlapTarget(
 +        for overlap: SphereOverlap
 +    ) -&gt; ModelEntity {
-
++
 +        // Invisible — no visible mesh needed.
 +        let target = ModelEntity()
-
++
 +        target.components.set(
 +            OverlapVisualComponent(
 +                overlapKey: overlap.key,
 +                mixedColor: overlap.color
 +            )
 +        )
-
++
 +        // Same input, collision, and manipulation setup as a sphere,
 +        // with a smaller hit area.
 +        configureSphereForInteraction(target, radius: 0.08)
-
++
 +        return target
 +    }
 }
@@ -2530,6 +2548,7 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(clone)
             return
         }
+
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -2557,6 +2576,7 @@ final class SphereInteractionManager: ObservableObject {
         guard selectedSphere !== sphere else { return }
         selectionRim?.removeFromParent()
         selectedSphere = sphere
+
         // One white ring, attached to the current sphere only.
         let rim = createSphericalSelectionRim()
         sphere.addChild(rim)
@@ -2568,7 +2588,7 @@ final class SphereInteractionManager: ObservableObject {
     func updateOverlaps() {
 +        let overlaps = overlapSystem.checkOverlap(spheres: movableSpheres)
 +        let currentKeys = Set(overlaps.map(\.key))
-
++
 +        // Remove targets whose spheres no longer overlap.
 +        overlapTargets.removeAll { target in
 +            let key = target.components[OverlapVisualComponent.self]?.overlapKey
@@ -2578,11 +2598,11 @@ final class SphereInteractionManager: ObservableObject {
 +            }
 +            return false
 +        }
-
++
 +        // Add a target for each new overlap, and keep it at the midpoint.
 +        for overlap in overlaps {
 +            guard let parent = overlap.firstSphere.parent else { continue }
-
++
 +            var target = overlapTargets.first {
 +                $0.components[OverlapVisualComponent.self]?.overlapKey == overlap.key
 +            }
@@ -2592,10 +2612,11 @@ final class SphereInteractionManager: ObservableObject {
 +                overlapTargets.append(newTarget)
 +                target = newTarget
 +            }
-
++
 +            target?.position = parent.convert(position: overlap.position, from: nil)
 +        }
     }
+
     private func createClone(
         from original: ModelEntity
     ) -&gt; ModelEntity {
@@ -2608,6 +2629,7 @@ final class SphereInteractionManager: ObservableObject {
 
         return clone
     }
+
     func makeOverlapTarget(
         for overlap: SphereOverlap
     ) -&gt; ModelEntity {
@@ -2713,6 +2735,7 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(clone)
             return
         }
+
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -2740,6 +2763,7 @@ final class SphereInteractionManager: ObservableObject {
         guard selectedSphere !== sphere else { return }
         selectionRim?.removeFromParent()
         selectedSphere = sphere
+
         // One white ring, attached to the current sphere only.
         let rim = createSphericalSelectionRim()
         sphere.addChild(rim)
@@ -2779,6 +2803,7 @@ final class SphereInteractionManager: ObservableObject {
             target?.position = parent.convert(position: overlap.position, from: nil)
         }
     }
+
     private func createClone(
         from original: ModelEntity
     ) -&gt; ModelEntity {
@@ -2791,6 +2816,7 @@ final class SphereInteractionManager: ObservableObject {
 
         return clone
     }
+
     func makeOverlapTarget(
         for overlap: SphereOverlap
     ) -&gt; ModelEntity {
@@ -2811,6 +2837,7 @@ final class SphereInteractionManager: ObservableObject {
 
         return target
     }
++
 +    func createMixedSphere(
 +        from overlap: SphereOverlap
 +    ) -&gt; ModelEntity {
@@ -2818,8 +2845,9 @@ final class SphereInteractionManager: ObservableObject {
 +        let mixed = makeRGBSphere(
 +            color: overlap.color
 +        )
++
 +        configureSphereForInteraction(mixed)
-
++
 +        // Joins the movable collection, so it can
 +        // participate in future overlaps.
 +        movableSpheres.append(mixed)
@@ -2827,7 +2855,7 @@ final class SphereInteractionManager: ObservableObject {
 +            parent.addChild(mixed)
 +            mixed.position = parent.convert(position: overlap.position, from: nil)
 +        }
-
++
 +        return mixed
 +    }
 }
@@ -2901,18 +2929,20 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(clone)
             return
         }
+
 +        // An overlap target creates a new mixed sphere.
 +        if let component = sphere.components[OverlapVisualComponent.self] {
 +            guard let overlap = overlapSystem
 +                .checkOverlap(spheres: movableSpheres)
 +                .first(where: { $0.key == component.overlapKey })
 +            else { return }
-
++
 +            let mixed = createMixedSphere(from: overlap)
 +            state = .overlap(target: sphere, mixed: mixed)
 +            selectSphere(mixed)
 +            return
 +        }
++
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -2925,6 +2955,7 @@ final class SphereInteractionManager: ObservableObject {
 +        if case .overlap(let target, let mixed) = state {
 +            mixed.position = target.position
 +        }
++
         // Track the sphere's position and update
         // overlap targets each frame.
         updateOverlaps()
@@ -2938,6 +2969,7 @@ final class SphereInteractionManager: ObservableObject {
 +            target.removeFromParent()
 +            overlapTargets.removeAll { $0 === target }
 +        }
++
         // Finalize the position and refresh
         // overlap targets.
         state = .idle
@@ -2949,6 +2981,7 @@ final class SphereInteractionManager: ObservableObject {
         guard selectedSphere !== sphere else { return }
         selectionRim?.removeFromParent()
         selectedSphere = sphere
+
         // One white ring, attached to the current sphere only.
         let rim = createSphericalSelectionRim()
         sphere.addChild(rim)
@@ -2960,6 +2993,7 @@ final class SphereInteractionManager: ObservableObject {
     func updateOverlaps() {
 +        // Keep the target set frozen while a mixed sphere is being pulled out.
 +        if case .overlap = state { return }
++
         let overlaps = overlapSystem.checkOverlap(spheres: movableSpheres)
         let currentKeys = Set(overlaps.map(\.key))
 
@@ -2990,6 +3024,7 @@ final class SphereInteractionManager: ObservableObject {
             target?.position = parent.convert(position: overlap.position, from: nil)
         }
     }
+
     private func createClone(
         from original: ModelEntity
     ) -&gt; ModelEntity {
@@ -3002,6 +3037,7 @@ final class SphereInteractionManager: ObservableObject {
 
         return clone
     }
+
     func makeOverlapTarget(
         for overlap: SphereOverlap
     ) -&gt; ModelEntity {
@@ -3022,6 +3058,7 @@ final class SphereInteractionManager: ObservableObject {
 
         return target
     }
+
     func createMixedSphere(
         from overlap: SphereOverlap
     ) -&gt; ModelEntity {
@@ -3029,6 +3066,7 @@ final class SphereInteractionManager: ObservableObject {
         let mixed = makeRGBSphere(
             color: overlap.color
         )
+
         configureSphereForInteraction(mixed)
 
         // Joins the movable collection, so it can
@@ -3061,7 +3099,7 @@ struct OriginalSphereComponent: Component {
 
 +struct SphereLightComponent: Component {
 +    var intensity: Float
-
++
 +    static let minimumIntensity: Float = 0.0
 +    static let maximumIntensity: Float = 2.4
 +    static let defaultIntensity: Float = 1.2
@@ -3097,6 +3135,7 @@ func makeRGBSphere(
     )
     // The soft glow around the sphere.
     addRadiatingGlow(to: sphere, color: color)
+
     return sphere
 }
 
@@ -3169,6 +3208,7 @@ func makeRadialGlowTexture(
             options: []
         )
     }
+
     // The gradient is generated in code, so this cannot fail.
     return try! TextureResource(
         image: image.cgImage!,
@@ -3215,18 +3255,18 @@ func addRadiatingGlow(
 +        max(intensity, SphereLightComponent.minimumIntensity),
 +        SphereLightComponent.maximumIntensity
 +    )
-
++
 +    sphere.components.set(
 +        SphereLightComponent(intensity: clampedIntensity)
 +    )
-
++
 +    let color = sphere.components[RGBColorComponent.self]?.color.uiColor
 +        ?? .white
 +    let normalized = clampedIntensity
 +        / SphereLightComponent.maximumIntensity
 +    let core = CGFloat(min(max(0.10 + normalized * 0.90, 0), 1))
 +    let emissiveIntensity = 0.08 + pow(normalized, 1.08) * 13.5
-
++
 +    if var material = sphere.model?.materials.first
 +        as? PhysicallyBasedMaterial {
 +        material.baseColor = .init(tint: color.withAlphaComponent(core))
@@ -3272,6 +3312,7 @@ func makeRGBSphere(
 +        SphereLightComponent.defaultIntensity,
 +        to: sphere
 +    )
+
     return sphere
 }
 
@@ -3344,6 +3385,7 @@ func makeRadialGlowTexture(
             options: []
         )
     }
+
     // The gradient is generated in code, so this cannot fail.
     return try! TextureResource(
         image: image.cgImage!,
@@ -3410,6 +3452,7 @@ func applySphereLightIntensity(
         material.emissiveIntensity = emissiveIntensity
         sphere.model?.materials = [material]
     }
++
 +    // The glow fades with the sphere instead of changing size.
 +    if let glow = sphere.findEntity(named: "RadiatingGlow") as? ModelEntity,
 +       var glowMaterial = glow.model?.materials.first as? UnlitMaterial {
@@ -3482,28 +3525,28 @@ final class RightHandLightDialController {
 +              anchor.isTracked,
 +              let sample = RightHandWristRollSample(anchor: anchor)
 +        else { return }
-
++
 +        let target = targetProvider(sample.wristPosition)
 +        let curvedBrightness = brightnessCurve(
 +            sample.normalizedBrightness
 +        )
-
++
 +        guard sample.areAllFingersExtended,
 +              let target else { return }
-
++
 +        smoothedNormalizedBrightness +=
 +            (curvedBrightness - smoothedNormalizedBrightness) * 0.055
-
++
 +        let targetIntensity = SphereLightComponent.minimumIntensity
 +            + smoothedNormalizedBrightness
 +            * (SphereLightComponent.maximumIntensity
 +                - SphereLightComponent.minimumIntensity)
-
++
 +        smoothedIntensity +=
 +            (targetIntensity - smoothedIntensity) * 0.065
 +        intensityApplier(target, smoothedIntensity)
 +    }
-
++
 +    /// Smoothstep: slow near the ends, faster in the middle.
 +    private func brightnessCurve(_ value: Float) -&gt; Float {
 +        value * value * (3 - 2 * value)
@@ -3574,19 +3617,19 @@ final class RightHandLightDialController {
 +/// One frame of the right hand: where the wrist is, which way the palm faces,
 +/// and whether the hand is open.
 +struct RightHandWristRollSample {
-
++
 +    let wristPosition: SIMD3&lt;Float&gt;
 +    let areAllFingersExtended: Bool
-
++
 +    /// 0 = palm down, 1 = palm up.
 +    let normalizedBrightness: Float
-
++
 +    init?(anchor: HandAnchor) {
 +        guard let skeleton = anchor.handSkeleton else { return nil }
-
++
 +        let wrist = skeleton.joint(.wrist)
 +        guard wrist.isTracked else { return nil }
-
++
 +        let wristTransform = anchor.originFromAnchorTransform
 +            * wrist.anchorFromJointTransform
 +        wristPosition = SIMD3&lt;Float&gt;(
@@ -3594,7 +3637,7 @@ final class RightHandLightDialController {
 +            wristTransform.columns.3.y,
 +            wristTransform.columns.3.z
 +        )
-
++
 +        // The wrist joint's Y axis points out of the palm.
 +        // Flip the sign if brightness feels inverted on device.
 +        let palmNormal = simd_normalize(SIMD3&lt;Float&gt;(
@@ -3602,7 +3645,7 @@ final class RightHandLightDialController {
 +            wristTransform.columns.1.y,
 +            wristTransform.columns.1.z
 +        ))
-
++
 +        // palmNormal down(-1) → up(+1) becomes dark(0) → bright(1).
 +        let upAmount = min(max(simd_dot(palmNormal, SIMD3&lt;Float&gt;(0, 1, 0)), -1), 1)
 +        normalizedBrightness = min(max((upAmount + 1) * 0.5, 0), 1)
@@ -3802,6 +3845,7 @@ final class HandTrackingManager: ObservableObject {
             print("Failed to start hand tracking: \(error)")
             return
         }
++
 +        // Forward every tracked hand anchor to the dial controller.
 +        anchorUpdatesTask = Task { [weak self] in
 +            guard let self else { return }
@@ -3888,6 +3932,7 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(clone)
             return
         }
+
         // An overlap target creates a new mixed sphere.
         if let component = sphere.components[OverlapVisualComponent.self] {
             guard let overlap = overlapSystem
@@ -3900,6 +3945,7 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(mixed)
             return
         }
+
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -3912,6 +3958,7 @@ final class SphereInteractionManager: ObservableObject {
         if case .overlap(let target, let mixed) = state {
             mixed.position = target.position
         }
+
         // Track the sphere's position and update
         // overlap targets each frame.
         updateOverlaps()
@@ -3925,6 +3972,7 @@ final class SphereInteractionManager: ObservableObject {
             target.removeFromParent()
             overlapTargets.removeAll { $0 === target }
         }
+
         // Finalize the position and refresh
         // overlap targets.
         state = .idle
@@ -3936,6 +3984,7 @@ final class SphereInteractionManager: ObservableObject {
         guard selectedSphere !== sphere else { return }
         selectionRim?.removeFromParent()
         selectedSphere = sphere
+
         // One white ring, attached to the current sphere only.
         let rim = createSphericalSelectionRim()
         sphere.addChild(rim)
@@ -3947,6 +3996,7 @@ final class SphereInteractionManager: ObservableObject {
     func updateOverlaps() {
         // Keep the target set frozen while a mixed sphere is being pulled out.
         if case .overlap = state { return }
+
         let overlaps = overlapSystem.checkOverlap(spheres: movableSpheres)
         let currentKeys = Set(overlaps.map(\.key))
 
@@ -3977,6 +4027,7 @@ final class SphereInteractionManager: ObservableObject {
             target?.position = parent.convert(position: overlap.position, from: nil)
         }
     }
+
     private func createClone(
         from original: ModelEntity
     ) -&gt; ModelEntity {
@@ -3989,6 +4040,7 @@ final class SphereInteractionManager: ObservableObject {
 
         return clone
     }
+
     func makeOverlapTarget(
         for overlap: SphereOverlap
     ) -&gt; ModelEntity {
@@ -4009,6 +4061,7 @@ final class SphereInteractionManager: ObservableObject {
 
         return target
     }
+
     func createMixedSphere(
         from overlap: SphereOverlap
     ) -&gt; ModelEntity {
@@ -4016,6 +4069,7 @@ final class SphereInteractionManager: ObservableObject {
         let mixed = makeRGBSphere(
             color: overlap.color
         )
+
         configureSphereForInteraction(mixed)
 
         // Joins the movable collection, so it can
@@ -4028,13 +4082,14 @@ final class SphereInteractionManager: ObservableObject {
 
         return mixed
     }
++
 +    // MARK: - Light Selection
-
++
 +    /// The sphere the user selected most recently, if any.
 +    func selectedLightSphere() -&gt; ModelEntity? {
 +        selectedSphere
 +    }
-
++
 +    /// The movable sphere nearest to a world position (the wrist).
 +    func closestLightSphere(
 +        to worldPosition: SIMD3&lt;Float&gt;
@@ -4044,11 +4099,11 @@ final class SphereInteractionManager: ObservableObject {
 +                &lt; distance(second.position(relativeTo: nil), worldPosition)
 +        }
 +    }
-
++
 +    func selectLightSphere(_ sphere: ModelEntity) {
 +        selectSphere(sphere)
 +    }
-
++
 +    func setLightIntensity(
 +        _ intensity: Float,
 +        for sphere: ModelEntity
@@ -4099,18 +4154,19 @@ struct ImmersiveView: View {
             headAnchor.addChild(green)
             headAnchor.addChild(blue)
 
++
 +            let lightDialController = RightHandLightDialController { worldPosition in
 +                // A sphere selected by the user takes priority.
 +                if let selectedSphere = interactionManager.selectedLightSphere() {
 +                    return selectedSphere
 +                }
-
++
 +                guard let sphere = interactionManager.closestLightSphere(
 +                    to: worldPosition
 +                ) else {
 +                    return nil
 +                }
-
++
 +                interactionManager.selectLightSphere(sphere)
 +                return sphere
 +            } intensityApplier: { sphere, intensity in
@@ -4119,7 +4175,7 @@ struct ImmersiveView: View {
 +                    for: sphere
 +                )
 +            }
-
++
 +            handTrackingManager.connectLightDialController(
 +                lightDialController
 +            )
@@ -4205,6 +4261,7 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(clone)
             return
         }
+
         // An overlap target creates a new mixed sphere.
         if let component = sphere.components[OverlapVisualComponent.self] {
             guard let overlap = overlapSystem
@@ -4217,6 +4274,7 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(mixed)
             return
         }
+
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -4229,6 +4287,7 @@ final class SphereInteractionManager: ObservableObject {
         if case .overlap(let target, let mixed) = state {
             mixed.position = target.position
         }
+
         // Track the sphere's position and update
         // overlap targets each frame.
         updateOverlaps()
@@ -4242,6 +4301,7 @@ final class SphereInteractionManager: ObservableObject {
             target.removeFromParent()
             overlapTargets.removeAll { $0 === target }
         }
+
         // Finalize the position and refresh
         // overlap targets.
         state = .idle
@@ -4253,6 +4313,7 @@ final class SphereInteractionManager: ObservableObject {
         guard selectedSphere !== sphere else { return }
         selectionRim?.removeFromParent()
         selectedSphere = sphere
+
         // One white ring, attached to the current sphere only.
         let rim = createSphericalSelectionRim()
         sphere.addChild(rim)
@@ -4264,6 +4325,7 @@ final class SphereInteractionManager: ObservableObject {
     func updateOverlaps() {
         // Keep the target set frozen while a mixed sphere is being pulled out.
         if case .overlap = state { return }
+
         let overlaps = overlapSystem.checkOverlap(spheres: movableSpheres)
         let currentKeys = Set(overlaps.map(\.key))
 
@@ -4294,6 +4356,7 @@ final class SphereInteractionManager: ObservableObject {
             target?.position = parent.convert(position: overlap.position, from: nil)
         }
     }
+
     private func createClone(
         from original: ModelEntity
     ) -&gt; ModelEntity {
@@ -4306,6 +4369,7 @@ final class SphereInteractionManager: ObservableObject {
 
         return clone
     }
+
     func makeOverlapTarget(
         for overlap: SphereOverlap
     ) -&gt; ModelEntity {
@@ -4326,6 +4390,7 @@ final class SphereInteractionManager: ObservableObject {
 
         return target
     }
+
     func createMixedSphere(
         from overlap: SphereOverlap
     ) -&gt; ModelEntity {
@@ -4333,6 +4398,7 @@ final class SphereInteractionManager: ObservableObject {
         let mixed = makeRGBSphere(
             color: overlap.color
         )
++
 +        // Start at the average of the two source intensities.
 +        let mixedIntensity = (
 +            (overlap.firstSphere.components[SphereLightComponent.self]?.intensity
@@ -4340,11 +4406,13 @@ final class SphereInteractionManager: ObservableObject {
 +            + (overlap.secondSphere.components[SphereLightComponent.self]?.intensity
 +                ?? SphereLightComponent.defaultIntensity)
 +        ) / 2.0
-
++
 +        applySphereLightIntensity(
 +            mixedIntensity,
 +            to: mixed
 +        )
++
+
         configureSphereForInteraction(mixed)
 
         // Joins the movable collection, so it can
@@ -4357,6 +4425,7 @@ final class SphereInteractionManager: ObservableObject {
 
         return mixed
     }
+
     // MARK: - Light Selection
 
     /// The sphere the user selected most recently, if any.
