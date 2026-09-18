@@ -397,6 +397,15 @@
       to the scene's manipulation events.</p>
       <div class="mobilecode"></div>
     </div>
+    <div class="step" data-code="c-clone">
+      <div class="steplabel">Step 6</div>
+      <h3>Create a Movable Clone</h3>
+      <p>Original spheres never leave their fixed positions. When the user starts
+      manipulating an original sphere, create a movable <em>clone</em> with the same color,
+      glow, and interaction components. The clone joins the movable sphere collection —
+      these clones are what overlap and mix colors.</p>
+      <div class="mobilecode"></div>
+    </div>
   </div>
   <div class="panel"><div class="panel-sticky">
     <div class="codewindow">
@@ -422,17 +431,8 @@
 
 <div class="steps-layout">
   <div class="steps">
-    <div class="step" data-code="c-clone">
-      <div class="steplabel">Step 1</div>
-      <h3>Create a Movable Clone</h3>
-      <p>Original spheres never leave their fixed positions. When the user starts
-      manipulating an original sphere, create a movable <em>clone</em> with the same color,
-      glow, and interaction components. The clone joins the movable sphere collection —
-      these clones are what overlap and mix colors.</p>
-      <div class="mobilecode"></div>
-    </div>
     <div class="step" data-code="c-mix">
-      <div class="steplabel">Step 2</div>
+      <div class="steplabel">Step 1</div>
       <h3>Combine RGB Colors</h3>
       <p>The <code class="inline">mixed(with:)</code> function adds the RGB components of
       two colors together and normalizes the result to the
@@ -445,7 +445,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-overlapsys">
-      <div class="steplabel">Step 3</div>
+      <div class="steplabel">Step 2</div>
       <h3>Detect Overlapping Spheres</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereOverlapSystem.swift</code></div>
       <p>The <code class="inline">SphereOverlapSystem</code> compares the world-space
@@ -455,7 +455,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-overlapval">
-      <div class="steplabel">Step 4</div>
+      <div class="steplabel">Step 3</div>
       <h3>Describe the Overlap</h3>
       <p>Each overlap is described by a <code class="inline">SphereOverlap</code> value —
       the two spheres, the midpoint position, the mixed color, and a unique key that
