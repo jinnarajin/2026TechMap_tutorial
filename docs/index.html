@@ -3213,13 +3213,106 @@ final class SphereInteractionManager: ObservableObject {
       .replace(TYPES, '<span class="t">$1</span>')
       .replace(/\b(\d+\.?\d*)\b/g, '<span class="n">$1</span>');
   }
+  var KO_COMMENTS = {
+    "0 = palm down, 1 = palm up.": "0 = 손바닥 아래, 1 = 손바닥 위.",
+    "A finger is extended when its tip is farther from the wrist": "손가락 끝이 중간 관절보다 손목에서 더 멀면",
+    "than its middle joint.": "손가락을 편 것으로 봅니다.",
+    "A flat ring built from triangles, so nothing shows through the sphere.": "삼각형으로 만든 평면 고리라 구 너머로 아무것도 비치지 않습니다.",
+    "A radial gradient texture on a flat plane.": "평면 위에 방사형 그라데이션 Texture를 올립니다.",
+    "A sphere selected by the user takes priority.": "사용자가 선택한 구가 우선입니다.",
+    "Add a target for each new overlap, and keep it at the midpoint.": "새 겹침마다 타깃을 추가하고 중간점에 유지합니다.",
+    "Adds the three components every interactive entity needs.": "인터랙티브한 Entity에 필요한 Component 3개를 추가합니다.",
+    "Allow the entity to receive input.": "Entity가 입력을 받을 수 있게 합니다.",
+    "Always face the viewer, like the glow.": "글로우처럼 항상 사용자를 향합니다.",
+    "Always face the viewer.": "항상 사용자를 향합니다.",
+    "An original RGB sphere creates a movable clone.": "원본 RGB 구는 이동 가능한 복제본을 만듭니다.",
+    "An overlap target creates a new mixed sphere.": "겹침 타깃은 새 혼합 구를 만듭니다.",
+    "Base color with transparency.": "투명도가 있는 기본 색.",
+    "Build a sphere with the mixed color.": "혼합색으로 구를 만듭니다.",
+    "Build the SphereOverlap value in the next step.": "다음 단계에서 SphereOverlap 값을 만듭니다.",
+    "Clones and mixed spheres — the ones that can move.": "복제본과 혼합 구 — 움직일 수 있는 구들입니다.",
+    "Create the luminous material.": "빛나는 Material을 만듭니다.",
+    "Create the spherical mesh.": "구 Mesh를 만듭니다.",
+    "Creates the white selection ring shown around the active sphere.": "선택된 구 주위에 표시되는 흰색 선택 링을 만듭니다.",
+    "Define the area that can be targeted.": "타깃이 될 수 있는 영역을 정의합니다.",
+    "Describes what is overlapping, where the": "무엇이 겹치는지, 어디에서 겹치는지,",
+    "overlap occurs, and what color to produce.": "어떤 색을 만들지 설명합니다.",
+    "Draws a circle that fades from the color to clear.": "색에서 투명으로 옅어지는 원을 그립니다.",
+    "Emissive color makes the sphere luminous.": "발광 색이 구를 빛나게 합니다.",
+    "Enable the user to move the sphere.": "사용자가 구를 움직일 수 있게 합니다.",
+    "Finalize the position and refresh": "위치를 확정하고",
+    "overlap targets.": "겹침 타깃을 갱신합니다.",
+    "Flip the sign if brightness feels inverted on device.": "기기에서 밝기가 거꾸로 느껴지면 부호를 뒤집으세요.",
+    "Identifies one of the three original RGB spheres": "원본 RGB 구 3개 중 하나임을 나타내고",
+    "and stores its fixed position.": "고정 위치를 저장합니다.",
+    "Identifies which pair of spheres": "어떤 구 쌍이 이 타깃을",
+    "produced this target.": "만들었는지 나타냅니다.",
+    "Invisible — no visible mesh needed.": "보이지 않음 — 화면에 그릴 Mesh가 필요 없습니다.",
+    "Joins the movable collection, so it can": "이동 가능한 구 컬렉션에 합류해",
+    "participate in future overlaps.": "이후 겹침에 참여할 수 있습니다.",
+    "Keep the target set frozen while a mixed sphere is being pulled out.": "혼합 구를 꺼내는 동안에는 타깃 목록을 바꾸지 않습니다.",
+    "Keeps each component in the 0...1 range.": "각 성분을 0...1 범위로 유지합니다.",
+    "Maintains app-wide state": "앱 전체 상태를 관리합니다",
+    "Mark the originals and make them respond to input.": "원본으로 표시하고 입력에 반응하게 합니다.",
+    "Midpoint between the two spheres.": "두 구 사이의 중간점.",
+    "Named so the light control can find it later.": "나중에 빛 조절에서 찾을 수 있도록 이름을 붙입니다.",
+    "One frame of the right hand: where the wrist is, which way the palm faces,": "오른손의 한 프레임: 손목 위치, 손바닥 방향,",
+    "and whether the hand is open.": "손을 폈는지 여부.",
+    "One white ring, attached to the current sphere only.": "흰색 링 하나를 현재 구에만 붙입니다.",
+    "Original spheres stay fixed — create a": "원본 구는 고정 — 제스처를 따라가는",
+    "movable clone that follows the gesture.": "이동 가능한 복제본을 만듭니다.",
+    "Overlap targets are added in a later section.": "겹침 타깃은 뒤의 Section에서 추가합니다.",
+    "Register custom components before using them.": "커스텀 Component는 사용하기 전에 등록합니다.",
+    "Remove targets whose spheres no longer overlap.": "더 이상 겹치지 않는 구의 타깃을 제거합니다.",
+    "Requests permission, then streams hand anchors to the controller.": "권한을 요청한 뒤 손 Anchor를 Controller로 전달합니다.",
+    "Routes RealityKit manipulation events to the handlers below.": "RealityKit 조작 이벤트를 아래 핸들러로 연결합니다.",
+    "Same input, collision, and manipulation setup as a sphere,": "구와 같은 입력·충돌·조작 설정을 쓰되",
+    "with a smaller hit area.": "충돌 영역만 더 작게 잡습니다.",
+    "Same look as an original sphere, but movable.": "원본 구와 같은 모습이지만 움직일 수 있습니다.",
+    "Smoothed values keep the light from jumping between frames.": "값을 보간해 프레임 사이에 빛이 튀지 않게 합니다.",
+    "Smoothstep: slow near the ends, faster in the middle.": "Smoothstep: 양 끝은 느리게, 중간은 빠르게.",
+    "Start at the average of the two source intensities.": "두 원본 빛 세기의 평균에서 시작합니다.",
+    "Start at the default brightness.": "기본 밝기에서 시작합니다.",
+    "Store the sphere's RGB color.": "구의 RGB 색을 저장합니다.",
+    "Stores the RGB color associated with a sphere.": "구에 연결된 RGB 색을 저장합니다.",
+    "The UIKit color used by materials.": "Material에서 쓰는 UIKit 색.",
+    "The gradient is generated in code, so this cannot fail.": "그라데이션은 코드로 생성하므로 실패하지 않습니다.",
+    "The mixed RGB color.": "혼합된 RGB 색.",
+    "The mixed sphere follows the dragged target.": "혼합 구는 드래그 중인 타깃을 따라갑니다.",
+    "The movable sphere nearest to a world position (the wrist).": "World 좌표(손목)에서 가장 가까운 이동 가능한 구.",
+    "The soft glow around the sphere.": "구 주위의 부드러운 글로우.",
+    "The sphere the user selected most recently, if any.": "사용자가 가장 최근에 선택한 구 (없을 수 있음).",
+    "The target has done its job once the mixed sphere exists.": "혼합 구가 생기면 타깃의 역할은 끝납니다.",
+    "The three original spheres stay fixed.": "원본 구 3개는 고정되어 있습니다.",
+    "The wrist joint's Y axis points out of the palm.": "손목 Joint의 Y축은 손바닥 바깥쪽을 가리킵니다.",
+    "Track the sphere's position and update": "구의 위치를 추적하고 매 프레임",
+    "overlap targets each frame.": "겹침 타깃을 갱신합니다.",
+    "Turns a right-hand wrist roll (palm down → palm up) into a light intensity.": "오른손 손목 회전(손바닥 아래 → 위)을 빛 세기로 바꿉니다.",
+    "Two triangles per segment connect neighbouring vertex pairs.": "세그먼트마다 삼각형 2개가 이웃한 정점 쌍을 잇습니다.",
+    "Two vertices per segment: one on the outer edge, one on the inner edge.": "세그먼트마다 정점 2개: 바깥 가장자리 하나, 안쪽 가장자리 하나.",
+    "Unique key for this pair of spheres.": "이 구 쌍의 고유 키.",
+    "Unlit, so the glow is not affected by scene lighting.": "Unlit이라 글로우가 Scene 조명의 영향을 받지 않습니다.",
+    "Used when the user interacts with the": "사용자가 타깃을 조작해 혼합 구를",
+    "target to create the mixed sphere.": "만들 때 사용합니다.",
+    "Visual only — no interaction components.": "시각 요소일 뿐 — 인터랙션 Component는 없습니다.",
+    "`radius` sets the hit area; spheres use their own radius by default.": "`radius`가 충돌 영역을 정합니다. 구는 기본값으로 자기 반지름을 씁니다.",
+    "palmNormal down(-1) → up(+1) becomes dark(0) → bright(1).": "palmNormal 아래(-1) → 위(+1)가 어두움(0) → 밝음(1)이 됩니다."
+};
+  // In Korean, swap each comment line for its translation (MARK lines stay).
+  function localizeComment(c) {
+    if (document.documentElement.lang !== "ko") return c;
+    var m = /^(\/\/\/?\s*)(.*)$/.exec(c);
+    if (!m) return c;
+    var t = KO_COMMENTS[m[2].trim()];
+    return t ? m[1] + t : c;
+  }
   function highlight(src) {
     // tokenize comments and strings first, highlight the rest
     var out = "", re = /(\/\/[^\n]*)|("(?:[^"\\\n]|\\.)*")/g, last = 0, m;
     while ((m = re.exec(src)) !== null) {
       out += highlightPlain(src.slice(last, m.index));
       out += m[1] !== undefined
-        ? '<span class="c">' + esc(m[1]) + "</span>"
+        ? '<span class="c">' + esc(localizeComment(m[1])) + "</span>"
         : '<span class="s">' + esc(m[2]) + "</span>";
       last = re.lastIndex;
     }
@@ -3240,7 +3333,7 @@ final class SphereInteractionManager: ObservableObject {
 
   var cache = {};
   function codeHTML(id, highlightChanges) {
-    var cacheKey = id + (highlightChanges ? ":changed" : ":plain");
+    var cacheKey = id + (highlightChanges ? ":changed" : ":plain") + ":" + document.documentElement.lang;
     if (!cache[cacheKey]) {
       var tpl = document.getElementById(id);
       if (!tpl) return { name: "", html: "" };
@@ -3269,6 +3362,7 @@ final class SphereInteractionManager: ObservableObject {
   }
 
   // fill mobile inline code
+  function fillMobileCode() {
   document.querySelectorAll(".step").forEach(function (step) {
     var isNewFile = !!step.querySelector(".newfile");
     var c = codeHTML(step.dataset.code, !isNewFile);
@@ -3278,6 +3372,15 @@ final class SphereInteractionManager: ObservableObject {
       if (c.hasChanges) m.dataset.changeLabel = "Highlighted: added or changed";
     }
   });
+  }
+  fillMobileCode();
+
+  var rerenderActive = [];
+  window.rerenderCode = function () {
+    cache = {};
+    fillMobileCode();
+    rerenderActive.forEach(function (fn) { fn(); });
+  };
 
   // scroll-driven sticky panel per section
   document.querySelectorAll(".steps-layout").forEach(function (layout) {
@@ -3306,6 +3409,11 @@ final class SphereInteractionManager: ObservableObject {
     }
 
     activate(steps[0]);
+    rerenderActive.push(function () {
+      var keep = bodyEl ? bodyEl.scrollTop : 0;
+      activate(layout.querySelector(".step.active") || steps[0]);
+      if (bodyEl) bodyEl.scrollTop = keep;
+    });
 
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
@@ -3430,6 +3538,7 @@ final class SphereInteractionManager: ObservableObject {
     btn.textContent = ko ? "English" : "한국어";
     document.documentElement.lang = ko ? "ko" : "en";
     try { localStorage.setItem("rgb-lang", lang); } catch (e) {}
+    if (window.rerenderCode) window.rerenderCode();
   }
 
   document.getElementById("langtoggle").addEventListener("click", function (e) {
