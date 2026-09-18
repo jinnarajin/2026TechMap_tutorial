@@ -326,25 +326,30 @@
       <div class="steplabel">Step 2</div>
       <h3>Create a Sphere</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RGBSphere.swift</code></div>
-      <p>A <code class="inline">ModelEntity</code> combines a mesh and materials to create
-      a visible object. The <code class="inline">makeRGBSphere</code> function creates a
-      sphere with a radius of <code class="inline">0.15</code> meters and stores its color
-      using <code class="inline">RGBColorComponent</code>.</p>
+      <p>A <code class="inline">ModelEntity</code> combines a mesh and a material into a visible object. <code class="inline">makeRGBSphere</code> builds a sphere with a radius of 0.15 meters and a luminous material.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-storecolor">
+      <div class="steplabel">Step 3</div>
+      <h3>Store the Color on the Sphere</h3>
+      <p>Attach an <code class="inline">RGBColorComponent</code> so the sphere carries its own RGB value. Later steps read it back when cloning and mixing.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rgbcolor">
-      <div class="steplabel">Step 3</div>
+      <div class="steplabel">Step 4</div>
       <h3>Create the RGB Colors</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RGBColor.swift</code></div>
-      <p>The <code class="inline">RGBColor</code> structure stores red, green, and blue
-      values separately — Red <code class="inline">(1, 0, 0)</code>, Green
-      <code class="inline">(0, 1, 0)</code>, Blue <code class="inline">(0, 0, 1)</code>.
-      Keeping RGB values separate from the visual color makes it possible to combine them
-      later.</p>
+      <p>The <code class="inline">RGBColor</code> struct stores red, green, and blue separately — Red (1, 0, 0), Green (0, 1, 0), Blue (0, 0, 1). Keeping the values apart from the visual color makes mixing possible later.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-uicolor">
+      <div class="steplabel">Step 5</div>
+      <h3>Convert to a UIKit Color</h3>
+      <p>Materials need a <code class="inline">UIColor</code>. A computed property converts the three floats whenever a material asks for it.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-material">
-      <div class="steplabel">Step 4</div>
+      <div class="steplabel">Step 6</div>
       <h3>Create the Sphere Material</h3>
       <p>The sphere uses a <code class="inline">PhysicallyBasedMaterial</code> that combines
       its base color with transparency and emissive color to create a luminous
@@ -352,38 +357,51 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-glowmat">
-      <div class="steplabel">Step 5</div>
+      <div class="steplabel">Step 7</div>
       <h3>Create the Glow Material</h3>
       <p>An <code class="inline">UnlitMaterial</code> shows a texture as-is, unaffected by scene lighting, so the glow keeps its color. Transparent blending lets the faded edge disappear.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-glowtex">
-      <div class="steplabel">Step 6</div>
-      <h3>Draw the Glow Texture</h3>
-      <p>Draw a radial gradient with <code class="inline">UIGraphicsImageRenderer</code>: strongest at the center, fading to clear at the edge. The function is not complete yet — the next step returns the result.</p>
+      <div class="steplabel">Step 8</div>
+      <h3>Set Up the Texture Drawing</h3>
+      <p>Create a <code class="inline">UIGraphicsImageRenderer</code> and pick the two gradient colors: the sphere color at the center and clear at the edge. The next step draws the gradient.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-glowgrad">
+      <div class="steplabel">Step 9</div>
+      <h3>Draw the Gradient</h3>
+      <p>Build a <code class="inline">CGGradient</code> from the two colors and draw it radially from the center to the edge of the image.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-glowtexret">
-      <div class="steplabel">Step 7</div>
+      <div class="steplabel">Step 10</div>
       <h3>Turn the Image into a Texture</h3>
       <p>Convert the rendered image into a <code class="inline">TextureResource</code> and return it. The gradient is generated in code, so the conversion cannot fail.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-glow">
-      <div class="steplabel">Step 8</div>
+      <div class="steplabel">Step 11</div>
       <h3>Add a Radiating Glow</h3>
-      <p>A second visual layer creates the soft glow around each sphere: a radial gradient
-      texture applied to a plane, kept facing the viewer by a
-      <code class="inline">BillboardComponent</code>. The glow is visual only.</p>
+      <p>Create a flat plane with the glow material and add it as a child of the sphere. The next step names it and turns it toward the viewer.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-glowname">
+      <div class="steplabel">Step 12</div>
+      <h3>Name the Glow and Attach It</h3>
+      <p>Give the glow a name so later code can find it, keep it facing the viewer with a <code class="inline">BillboardComponent</code>, and call <code class="inline">addRadiatingGlow</code> from <code class="inline">makeRGBSphere</code> so every sphere gets one.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-place">
-      <div class="steplabel">Step 9</div>
+      <div class="steplabel">Step 13</div>
       <h3>Place the RGB Spheres</h3>
-      <p>Create the three spheres in <code class="inline">ImmersiveView</code>'s
-      <code class="inline">RealityView</code>, position them in front of the user, and add
-      them to a head anchor. At this point the spheres are visible in the immersive space,
-      but they cannot be manipulated yet.</p>
+      <p>Create the three spheres in <code class="inline">ImmersiveView</code>'s <code class="inline">RealityView</code> and add them to a head anchor. The spheres are visible in the immersive space but not yet positioned or movable.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-position">
+      <div class="steplabel">Step 14</div>
+      <h3>Position the Spheres</h3>
+      <p>Place the spheres in a triangle about 1.5 meters in front of the head anchor: red above, green to the left, blue to the right.</p>
       <div class="mobilecode"></div>
     </div>
   </div>
@@ -421,38 +439,48 @@
       <div class="steplabel">Step 2</div>
       <h3>Prepare a Sphere for Interaction</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereInteraction.swift</code></div>
-      <p>The <code class="inline">configureSphereForInteraction</code> function adds an
-      <code class="inline">InputTargetComponent</code> so the sphere can receive input, a
-      <code class="inline">CollisionComponent</code> that defines the collision and
-      interaction area, and a <code class="inline">ManipulationComponent</code> that lets
-      the user move the sphere directly. The hit radius is a <code class="inline">radius</code>
-      parameter, so the same function can be reused later on entities of other sizes.</p>
+      <p>The <code class="inline">configureSphereForInteraction</code> function adds an <code class="inline">InputTargetComponent</code> so the sphere can receive input and a <code class="inline">CollisionComponent</code> that defines the hit area. The radius is a parameter, so the function can be reused on entities of other sizes.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-manipulate">
+      <div class="steplabel">Step 3</div>
+      <h3>Let the User Move It</h3>
+      <p>A <code class="inline">ManipulationComponent</code> turns a pinch-and-drag into movement. With <code class="inline">releaseBehavior</code> set to stay, the entity remains where the user lets go.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-manip">
-      <div class="steplabel">Step 3</div>
-      <h3>Handle Manipulation Events</h3>
+      <div class="steplabel">Step 4</div>
+      <h3>Create the Interaction Manager</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereInteractionManager.swift</code></div>
-      <p>The <code class="inline">SphereInteractionManager</code> responds to manipulation
-      events in three stages: beginning a manipulation, updating the sphere's position, and
-      releasing it. Original spheres remain fixed while movable clones follow the user's
-      interaction.</p>
+      <p>The <code class="inline">SphereInteractionManager</code> owns everything that happens when the user grabs a sphere. Start with the class and an <code class="inline">InteractionState</code> that says what is being manipulated.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-manipprops">
+      <div class="steplabel">Step 5</div>
+      <h3>Add the Manager's State</h3>
+      <p>Store the current state, the movable spheres, the overlap targets, and the selected sphere. <code class="inline">selectSphere</code> records the selection; <code class="inline">updateOverlaps</code> is a placeholder until Section 5.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-events">
-      <div class="steplabel">Step 4</div>
+      <div class="steplabel">Step 6</div>
       <h3>Subscribe to Manipulation Events</h3>
       <p>Listen for the three <code class="inline">ManipulationEvents</code> RealityKit sends while the user pinches and drags, and forward each one to a handler. The handlers come in the next step.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-handlers">
-      <div class="steplabel">Step 5</div>
-      <h3>Handle the Three Phases</h3>
-      <p>Begin, update, and end. For now each handler only selects the sphere or refreshes overlaps; later steps add clones, targets, and mixed spheres here.</p>
+      <div class="steplabel">Step 7</div>
+      <h3>Handle the Beginning</h3>
+      <p>When a manipulation begins, select the sphere. Later steps add clones and mixed spheres here.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-handlersend">
+      <div class="steplabel">Step 8</div>
+      <h3>Handle Update and End</h3>
+      <p>While the sphere moves, refresh the overlaps every frame. When the gesture ends, return to the idle state and refresh once more.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-wire">
-      <div class="steplabel">Step 6</div>
+      <div class="steplabel">Step 9</div>
       <h3>Wire the Manager into the View</h3>
       <p>Give <code class="inline">ImmersiveView</code> a
       <code class="inline">SphereInteractionManager</code>, mark the three spheres as
@@ -461,16 +489,19 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-clone">
-      <div class="steplabel">Step 7</div>
-      <h3>Create a Movable Clone</h3>
-      <p>Original spheres never leave their fixed positions. When the user starts
-      manipulating an original sphere, create a movable <em>clone</em> with the same color,
-      glow, and interaction components. The clone joins the movable sphere collection —
-      these clones are what overlap and mix colors.</p>
+      <div class="steplabel">Step 10</div>
+      <h3>Build a Movable Clone</h3>
+      <p>Original spheres never leave their fixed positions, so <code class="inline">createClone</code> builds a movable copy with the same color and glow and makes it interactive.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-cloneuse">
+      <div class="steplabel">Step 11</div>
+      <h3>Clone When an Original Is Grabbed</h3>
+      <p>If the grabbed sphere carries an <code class="inline">OriginalSphereComponent</code>, create the clone at the same position, add it to the movable collection, remember the state, and select the clone instead.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rim">
-      <div class="steplabel">Step 8</div>
+      <div class="steplabel">Step 12</div>
       <h3>Create the Selection Ring</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphericalSelectionRim.swift</code></div>
       <p>Create a custom white ring so the selected sphere is easy to spot. A
@@ -479,7 +510,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rimverts">
-      <div class="steplabel">Step 9</div>
+      <div class="steplabel">Step 13</div>
       <h3>Place the Ring Vertices</h3>
       <p>Walk around the circle once per segment and add two vertices each time, one on
       the outer edge and one on the inner edge. The ring is flat, so every normal points
@@ -487,15 +518,25 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rimmesh">
-      <div class="steplabel">Step 10</div>
-      <h3>Connect the Vertices into a Mesh</h3>
-      <p>Join neighbouring vertex pairs with two triangles per segment, then hand the
-      positions, normals, and triangle indices to a <code class="inline">MeshDescriptor</code>,
-      which produces the <code class="inline">MeshResource</code>.</p>
+      <div class="steplabel">Step 14</div>
+      <h3>Start the Ring Mesh</h3>
+      <p>Build the vertices with the helper and prepare an empty index list. The next two steps fill the triangles and produce the mesh.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-rimtriangles">
+      <div class="steplabel">Step 15</div>
+      <h3>Connect the Vertices</h3>
+      <p>Join neighbouring vertex pairs with two triangles per segment, listing the vertex indices of each triangle.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-rimdesc">
+      <div class="steplabel">Step 16</div>
+      <h3>Describe the Mesh</h3>
+      <p>Hand the positions, normals, and triangle indices to a <code class="inline">MeshDescriptor</code>, which produces the <code class="inline">MeshResource</code>.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-attachrim">
-      <div class="steplabel">Step 11</div>
+      <div class="steplabel">Step 17</div>
       <h3>Show the Ring on the Selected Sphere</h3>
       <p>Keep a single ring. When the selection changes, remove it from the previous sphere
       and attach it to the new one.</p>
@@ -529,9 +570,7 @@
     <div class="step" data-code="c-mix">
       <div class="steplabel">Step 1</div>
       <h3>Combine RGB Colors</h3>
-      <p>The <code class="inline">mixed(with:)</code> function adds the RGB components of
-      two colors together and normalizes the result to the
-      <code class="inline">0...1</code> range.</p>
+      <p>Light mixes additively: <code class="inline">mixed(with:)</code> adds each channel of the two colors. Red and green make yellow.</p>
       <ul>
         <li>Red + Green → Yellow</li>
         <li>Red + Blue → Magenta</li>
@@ -539,22 +578,35 @@
       </ul>
       <div class="mobilecode"></div>
     </div>
-    <div class="step" data-code="c-overlapsys">
+    <div class="step" data-code="c-normalize">
       <div class="steplabel">Step 2</div>
+      <h3>Keep Values in Range</h3>
+      <p>Adding two lights can push a channel above 1. <code class="inline">normalized</code> clamps each channel so the color stays valid.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-overlapsys">
+      <div class="steplabel">Step 3</div>
       <h3>Detect Overlapping Spheres</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereOverlapSystem.swift</code></div>
-      <p>The <code class="inline">SphereOverlapSystem</code> compares the world-space
-      positions of every pair of movable spheres. If the distance between two centers is
-      smaller than the overlap distance, the spheres overlap and the midpoint becomes the
-      location of the color-mixing interaction.</p>
+      <p>The <code class="inline">SphereOverlapSystem</code> compares movable spheres and reports each overlapping pair. Start with the class, the overlap distance, and the result array.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-overlaploop">
+      <div class="steplabel">Step 4</div>
+      <h3>Compare Every Pair</h3>
+      <p>Loop over every pair of spheres once and measure the distance between their world positions. Pairs closer than the overlap distance continue to the next step.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-overlapval">
-      <div class="steplabel">Step 3</div>
+      <div class="steplabel">Step 5</div>
+      <h3>Build the Overlap Value</h3>
+      <p>For each overlapping pair, read both colors, mix them, and append a <code class="inline">SphereOverlap</code> with the midpoint and a key.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-overlapstruct">
+      <div class="steplabel">Step 6</div>
       <h3>Describe the Overlap</h3>
-      <p>Each overlap is described by a <code class="inline">SphereOverlap</code> value —
-      the two spheres, the midpoint position, the mixed color, and a unique key that
-      prevents duplicate interaction targets for the same pair.</p>
+      <p>A <code class="inline">SphereOverlap</code> value carries the two spheres, the midpoint, the mixed color, and a key that identifies the pair.</p>
       <div class="mobilecode"></div>
     </div>
   </div>
@@ -602,12 +654,18 @@
     </div>
     <div class="step" data-code="c-synctargets">
       <div class="steplabel">Step 3</div>
-      <h3>Keep Targets in Sync</h3>
-      <p>Each time a sphere moves, compare the current overlaps with the existing targets: remove targets whose pair no longer overlaps, add one for each new pair, and move every target to its midpoint.</p>
+      <h3>Remove Stale Targets</h3>
+      <p>Each time a sphere moves, compute the current overlaps and drop any target whose pair no longer overlaps.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-synctargetsadd">
+      <div class="steplabel">Step 4</div>
+      <h3>Add and Move Targets</h3>
+      <p>For each current overlap, reuse the existing target or create one, then move it to the midpoint in the parent's coordinate space.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-mixedsphere">
-      <div class="steplabel">Step 4</div>
+      <div class="steplabel">Step 5</div>
       <h3>Create the Mixed Sphere</h3>
       <p>When the user starts manipulating an overlap target, build a sphere with the mixed
       color at the target's position and let it follow the drag. Once the gesture ends, the
@@ -615,9 +673,15 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-pullmixed">
-      <div class="steplabel">Step 5</div>
-      <h3>Pull the Mixed Sphere Out</h3>
-      <p>Add an <code class="inline">overlap</code> state. When a manipulation starts on a target, create the mixed sphere and let it follow the drag; when the gesture ends, remove the target.</p>
+      <div class="steplabel">Step 6</div>
+      <h3>Create a Mixed Sphere from a Target</h3>
+      <p>Add an <code class="inline">overlap</code> state. When a manipulation starts on a target, find its overlap, create the mixed sphere, and select it.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-pullfollow">
+      <div class="steplabel">Step 7</div>
+      <h3>Follow the Drag, Then Clean Up</h3>
+      <p>While the target is dragged, keep the mixed sphere at its position. When the gesture ends, remove the target. Targets are not rebuilt during the pull.</p>
       <div class="mobilecode"></div>
     </div>
   </div>
@@ -655,75 +719,109 @@
     <div class="step" data-code="c-applylight">
       <div class="steplabel">Step 2</div>
       <h3>Apply Brightness to the Sphere</h3>
-      <p>Normalize the stored intensity, then update the material's base color,
-      transparency, and <code class="inline">emissiveIntensity</code>. Update the glow's
-      opacity separately, so brightness changes without changing the sphere's size.</p>
+      <p>Clamp the intensity, store it in the <code class="inline">SphereLightComponent</code>, and derive the base opacity and emissive intensity from the normalized value.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-applymaterial">
+      <div class="steplabel">Step 3</div>
+      <h3>Update the Material</h3>
+      <p>Rebuild the sphere's <code class="inline">PhysicallyBasedMaterial</code> with the new base color, transparency, and emissive intensity, then assign it back.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-applyglow">
-      <div class="steplabel">Step 3</div>
+      <div class="steplabel">Step 4</div>
       <h3>Fade the Glow with the Sphere</h3>
       <p>Find the glow by name and scale its opacity with the same normalized intensity, so brightness changes without changing the sphere's size. Then give every new sphere the default intensity.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-dialstate">
-      <div class="steplabel">Step 4</div>
+      <div class="steplabel">Step 5</div>
       <h3>Create the Dial Controller</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RightHandLightDialController.swift</code></div>
-      <p>The controller receives two closures: one that picks the sphere to control from the wrist position, and one that applies an intensity to it. Two smoothed values keep the light from jumping between frames.</p>
+      <p>The controller needs two closures: one that picks the sphere to control from the wrist position, and one that applies an intensity to it. Two smoothed values keep the light from jumping between frames.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-dialinit">
+      <div class="steplabel">Step 6</div>
+      <h3>Receive the Closures</h3>
+      <p>The initializer stores the two closures. The view provides them in a later step.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-wristroll">
-      <div class="steplabel">Step 5</div>
-      <h3>Convert Wrist Rotation to Brightness</h3>
-      <p>Process only tracked right-hand anchors. Curve the sampled brightness, smooth it, map it onto the light intensity range, and apply it to the target sphere.</p>
+      <div class="steplabel">Step 7</div>
+      <h3>Process the Right Hand</h3>
+      <p>Process only tracked right-hand anchors. Sample the wrist, curve the brightness, and continue only when all five fingers are extended and a target exists.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-wristapply">
+      <div class="steplabel">Step 8</div>
+      <h3>Smooth and Apply the Intensity</h3>
+      <p>Ease the brightness toward the new sample, map it onto the intensity range, ease again, and apply the result to the target sphere.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-wristsample">
-      <div class="steplabel">Step 6</div>
-      <h3>Sample the Wrist Roll</h3>
-      <p>Read the wrist joint from the hand skeleton: its position and the direction the palm faces. The palm normal maps to a <code class="inline">0...1</code> brightness value. The finger check comes next.</p>
+      <div class="steplabel">Step 9</div>
+      <h3>Sample the Wrist Position</h3>
+      <p>Read the wrist joint from the hand skeleton and convert its transform to a world position. The palm direction and the finger check come next.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-palmnormal">
+      <div class="steplabel">Step 10</div>
+      <h3>Read the Palm Direction</h3>
+      <p>The wrist joint's Y axis points out of the palm. Its dot product with the up vector maps palm-down to 0 and palm-up to 1.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-fingers">
-      <div class="steplabel">Step 7</div>
+      <div class="steplabel">Step 11</div>
       <h3>Check That the Hand Is Open</h3>
       <p>A finger counts as extended when its tip is farther from the wrist than its middle joint. All five must be extended for the dial to respond.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-handtracking">
-      <div class="steplabel">Step 8</div>
-      <h3>Start Hand Tracking</h3>
+      <div class="steplabel">Step 12</div>
+      <h3>Create the Hand Tracking Manager</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>HandTrackingManager.swift</code></div>
-      <p>An <code class="inline">ARKitSession</code> runs a
-      <code class="inline">HandTrackingProvider</code>. After the user grants permission,
-      each hand anchor update is forwarded to the dial controller.</p>
+      <p>An <code class="inline">ARKitSession</code> runs a <code class="inline">HandTrackingProvider</code>. The manager keeps both, plus the dial controller it will feed.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-handstart">
+      <div class="steplabel">Step 13</div>
+      <h3>Start the Session</h3>
+      <p>Check that hand tracking is supported, ask the user for permission, then run the provider in the <code class="inline">ARKitSession</code>. <code class="inline">stop</code> tears it down.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-handanchors">
-      <div class="steplabel">Step 9</div>
+      <div class="steplabel">Step 14</div>
       <h3>Forward Hand Anchors</h3>
       <p>Iterate the provider's anchor updates in a task and pass each tracked anchor to the dial controller.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-lightselect">
-      <div class="steplabel">Step 10</div>
-      <h3>Expose Light Selection</h3>
-      <p>The manager already tracks the selected sphere. Add small methods so the dial can
-      read it, fall back to the nearest movable sphere, and apply an intensity.</p>
+      <div class="steplabel">Step 15</div>
+      <h3>Expose the Selected Sphere</h3>
+      <p>The manager already tracks the selected sphere. Expose it, and add a fallback that finds the movable sphere nearest to the wrist.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-lightapply">
+      <div class="steplabel">Step 16</div>
+      <h3>Select and Apply</h3>
+      <p>Two small wrappers let the dial select a sphere and apply an intensity through the manager.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-connectdial">
-      <div class="steplabel">Step 11</div>
-      <h3>Connect Tracking to the Selected Sphere</h3>
-      <p>Create the controller in <code class="inline">ImmersiveView</code>. A selected
-      sphere takes priority; otherwise, use the closest light sphere to the wrist. The
-      controller applies each smoothed intensity value through
-      <code class="inline">applySphereLightIntensity</code>.</p>
+      <div class="steplabel">Step 17</div>
+      <h3>Choose the Sphere to Control</h3>
+      <p>Give the view a <code class="inline">HandTrackingManager</code> and create the controller. The first closure prefers the selected sphere and falls back to the one closest to the wrist.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-connectlifecycle">
+      <div class="steplabel">Step 18</div>
+      <h3>Apply Intensity and Start Tracking</h3>
+      <p>The second closure applies each intensity through the manager. Connect the controller, start hand tracking when the view appears, and stop it when the view disappears.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-mixedlight">
-      <div class="steplabel">Step 12</div>
+      <div class="steplabel">Step 19</div>
       <h3>Give Mixed Spheres an Initial Brightness</h3>
       <p>When two spheres create a mixed sphere, initialize its intensity with the average
       of the two source values. This is a snapshot: later changes to either source do not
@@ -896,6 +994,33 @@ struct ContentView: View {
 </template>
 
 <template id="c-makesphere" data-name="RGBSphere.swift">
++import RealityKit
++import UIKit
++
++func makeRGBSphere(
++    color: RGBColor
++) -&gt; ModelEntity {
++
++    // Create the spherical mesh.
++    let mesh = MeshResource.generateSphere(
++        radius: 0.15
++    )
++
++    // Create the luminous material.
++    let material = makeSphereMaterial(
++        color: color
++    )
++
++    let sphere = ModelEntity(
++        mesh: mesh,
++        materials: [material]
++    )
++
++    return sphere
++}
+</template>
+
+<template id="c-storecolor" data-name="RGBSphere.swift">
 import RealityKit
 import UIKit
 
@@ -917,18 +1042,42 @@ func makeRGBSphere(
         mesh: mesh,
         materials: [material]
     )
-
-    // Store the sphere's RGB color.
-    sphere.components.set(
-        RGBColorComponent(color: color)
-    )
++
++    // Store the sphere's RGB color.
++    sphere.components.set(
++        RGBColorComponent(color: color)
++    )
 
     return sphere
 }
 </template>
 
 <template id="c-rgbcolor" data-name="RGBColor.swift">
++import UIKit
++
++struct RGBColor: Codable {
++
++    let red: Float
++    let green: Float
++    let blue: Float
++
++    // MARK: - Primary Colors
++
++    static let red = RGBColor(
++        red: 1.0, green: 0.0, blue: 0.0
++    )
++
++    static let green = RGBColor(
++        red: 0.0, green: 1.0, blue: 0.0
++    )
++
++    static let blue = RGBColor(
++        red: 0.0, green: 0.0, blue: 1.0
++    )
++}
+</template>
 
+<template id="c-uicolor" data-name="RGBColor.swift">
 import UIKit
 
 struct RGBColor: Codable {
@@ -950,18 +1099,17 @@ struct RGBColor: Codable {
     static let blue = RGBColor(
         red: 0.0, green: 0.0, blue: 1.0
     )
-
-    /// The UIKit color used by materials.
-    var uiColor: UIColor {
-        UIColor(
-            red: CGFloat(red),
-            green: CGFloat(green),
-            blue: CGFloat(blue),
-            alpha: 1.0
-        )
-    }
++
++    /// The UIKit color used by materials.
++    var uiColor: UIColor {
++        UIColor(
++            red: CGFloat(red),
++            green: CGFloat(green),
++            blue: CGFloat(blue),
++            alpha: 1.0
++        )
++    }
 }
-
 </template>
 
 <template id="c-material" data-name="RGBSphere.swift">
@@ -994,7 +1142,7 @@ func makeRGBSphere(
 
     return sphere
 }
-
++
 +func makeSphereMaterial(
 +    color: RGBColor
 +) -&gt; PhysicallyBasedMaterial {
@@ -1072,7 +1220,7 @@ func makeSphereMaterial(
 
     return material
 }
-
++
 +func makeGlowMaterial(
 +    color: RGBColor
 +) -&gt; UnlitMaterial {
@@ -1157,7 +1305,7 @@ func makeGlowMaterial(
 
     return material
 }
-
++
 +/// Draws a circle that fades from the color to clear.
 +func makeRadialGlowTexture(
 +    color: RGBColor
@@ -1174,6 +1322,95 @@ func makeGlowMaterial(
 +            color.uiColor.withAlphaComponent(0.6).cgColor,
 +            color.uiColor.withAlphaComponent(0.0).cgColor
 +        ]
++    }
++}
+</template>
+
+<template id="c-glowgrad" data-name="RGBSphere.swift">
+import RealityKit
+import UIKit
+
+func makeRGBSphere(
+    color: RGBColor
+) -&gt; ModelEntity {
+
+    // Create the spherical mesh.
+    let mesh = MeshResource.generateSphere(
+        radius: 0.15
+    )
+
+    // Create the luminous material.
+    let material = makeSphereMaterial(
+        color: color
+    )
+
+    let sphere = ModelEntity(
+        mesh: mesh,
+        materials: [material]
+    )
+
+    // Store the sphere's RGB color.
+    sphere.components.set(
+        RGBColorComponent(color: color)
+    )
+
+    return sphere
+}
+
+func makeSphereMaterial(
+    color: RGBColor
+) -&gt; PhysicallyBasedMaterial {
+
+    var material = PhysicallyBasedMaterial()
+
+    // Base color with transparency.
+    material.baseColor = .init(
+        tint: color.uiColor.withAlphaComponent(0.6)
+    )
+    material.blending = .transparent(
+        opacity: .init(floatLiteral: 0.6)
+    )
+
+    // Emissive color makes the sphere luminous.
+    material.emissiveColor = .init(
+        color: color.uiColor
+    )
+    material.emissiveIntensity = 2.0
+
+    return material
+}
+
+func makeGlowMaterial(
+    color: RGBColor
+) -&gt; UnlitMaterial {
+
+    // Unlit, so the glow is not affected by scene lighting.
+    var material = UnlitMaterial(
+        texture: makeRadialGlowTexture(color: color)
+    )
+    material.blending = .transparent(
+        opacity: .init(floatLiteral: 1.0)
+    )
+
+    return material
+}
+
+/// Draws a circle that fades from the color to clear.
+func makeRadialGlowTexture(
+    color: RGBColor
+) -&gt; TextureResource {
+
+    let size = 512
+    let renderer = UIGraphicsImageRenderer(
+        size: CGSize(width: size, height: size)
+    )
+
+    let image = renderer.image { context in
+        let center = CGPoint(x: size / 2, y: size / 2)
+        let colors = [
+            color.uiColor.withAlphaComponent(0.6).cgColor,
+            color.uiColor.withAlphaComponent(0.0).cgColor
+        ]
 +        let gradient = CGGradient(
 +            colorsSpace: CGColorSpaceCreateDeviceRGB(),
 +            colors: colors as CFArray,
@@ -1188,8 +1425,8 @@ func makeGlowMaterial(
 +            endRadius: CGFloat(size) / 2,
 +            options: []
 +        )
-+    }
-+}
+    }
+}
 </template>
 
 <template id="c-glowtexret" data-name="RGBSphere.swift">
@@ -1328,6 +1565,139 @@ func makeRGBSphere(
     sphere.components.set(
         RGBColorComponent(color: color)
     )
+
+    return sphere
+}
+
+func makeSphereMaterial(
+    color: RGBColor
+) -&gt; PhysicallyBasedMaterial {
+
+    var material = PhysicallyBasedMaterial()
+
+    // Base color with transparency.
+    material.baseColor = .init(
+        tint: color.uiColor.withAlphaComponent(0.6)
+    )
+    material.blending = .transparent(
+        opacity: .init(floatLiteral: 0.6)
+    )
+
+    // Emissive color makes the sphere luminous.
+    material.emissiveColor = .init(
+        color: color.uiColor
+    )
+    material.emissiveIntensity = 2.0
+
+    return material
+}
+
+func makeGlowMaterial(
+    color: RGBColor
+) -&gt; UnlitMaterial {
+
+    // Unlit, so the glow is not affected by scene lighting.
+    var material = UnlitMaterial(
+        texture: makeRadialGlowTexture(color: color)
+    )
+    material.blending = .transparent(
+        opacity: .init(floatLiteral: 1.0)
+    )
+
+    return material
+}
+
+/// Draws a circle that fades from the color to clear.
+func makeRadialGlowTexture(
+    color: RGBColor
+) -&gt; TextureResource {
+
+    let size = 512
+    let renderer = UIGraphicsImageRenderer(
+        size: CGSize(width: size, height: size)
+    )
+
+    let image = renderer.image { context in
+        let center = CGPoint(x: size / 2, y: size / 2)
+        let colors = [
+            color.uiColor.withAlphaComponent(0.6).cgColor,
+            color.uiColor.withAlphaComponent(0.0).cgColor
+        ]
+        let gradient = CGGradient(
+            colorsSpace: CGColorSpaceCreateDeviceRGB(),
+            colors: colors as CFArray,
+            locations: [0.0, 1.0]
+        )!
+
+        context.cgContext.drawRadialGradient(
+            gradient,
+            startCenter: center,
+            startRadius: 0,
+            endCenter: center,
+            endRadius: CGFloat(size) / 2,
+            options: []
+        )
+    }
+
+    // The gradient is generated in code, so this cannot fail.
+    return try! TextureResource(
+        image: image.cgImage!,
+        options: .init(semantic: .color)
+    )
+}
++
++func addRadiatingGlow(
++    to sphere: ModelEntity,
++    color: RGBColor
++) {
++    // A radial gradient texture on a flat plane.
++    let glowMesh = MeshResource.generatePlane(
++        width: 0.6,
++        height: 0.6
++    )
++
++    let glowMaterial = makeGlowMaterial(
++        color: color
++    )
++
++    let glow = ModelEntity(
++        mesh: glowMesh,
++        materials: [glowMaterial]
++    )
++
++    // Visual only — no interaction components.
++    sphere.addChild(glow)
++}
+</template>
+
+<template id="c-glowname" data-name="RGBSphere.swift">
+import RealityKit
+import UIKit
+
+func makeRGBSphere(
+    color: RGBColor
+) -&gt; ModelEntity {
+
+    // Create the spherical mesh.
+    let mesh = MeshResource.generateSphere(
+        radius: 0.15
+    )
+
+    // Create the luminous material.
+    let material = makeSphereMaterial(
+        color: color
+    )
+
+    let sphere = ModelEntity(
+        mesh: mesh,
+        materials: [material]
+    )
+
+    // Store the sphere's RGB color.
+    sphere.components.set(
+        RGBColorComponent(color: color)
+    )
++
 +    // The soft glow around the sphere.
 +    addRadiatingGlow(to: sphere, color: color)
 
@@ -1411,24 +1781,24 @@ func makeRadialGlowTexture(
     )
 }
 
-+func addRadiatingGlow(
-+    to sphere: ModelEntity,
-+    color: RGBColor
-+) {
-+    // A radial gradient texture on a flat plane.
-+    let glowMesh = MeshResource.generatePlane(
-+        width: 0.6,
-+        height: 0.6
-+    )
-+
-+    let glowMaterial = makeGlowMaterial(
-+        color: color
-+    )
-+
-+    let glow = ModelEntity(
-+        mesh: glowMesh,
-+        materials: [glowMaterial]
-+    )
+func addRadiatingGlow(
+    to sphere: ModelEntity,
+    color: RGBColor
+) {
+    // A radial gradient texture on a flat plane.
+    let glowMesh = MeshResource.generatePlane(
+        width: 0.6,
+        height: 0.6
+    )
+
+    let glowMaterial = makeGlowMaterial(
+        color: color
+    )
+
+    let glow = ModelEntity(
+        mesh: glowMesh,
+        materials: [glowMaterial]
+    )
 +
 +    // Named so the light control can find it later.
 +    glow.name = "RadiatingGlow"
@@ -1437,13 +1807,41 @@ func makeRadialGlowTexture(
 +    glow.components.set(
 +        BillboardComponent()
 +    )
-+
-+    // Visual only — no interaction components.
-+    sphere.addChild(glow)
-+}
+
+    // Visual only — no interaction components.
+    sphere.addChild(glow)
+}
 </template>
 
 <template id="c-place" data-name="ImmersiveView.swift">
++import SwiftUI
++import RealityKit
++
++struct ImmersiveView: View {
++
++    var body: some View {
++        RealityView { content in
++            // Register custom components before using them.
++            RGBColorComponent.registerComponent()
++
++            let headAnchor = AnchorEntity(.head)
++
++            // The three original spheres stay fixed.
++            let red = makeRGBSphere(color: .red)
++            let green = makeRGBSphere(color: .green)
++            let blue = makeRGBSphere(color: .blue)
++
++            headAnchor.addChild(red)
++            headAnchor.addChild(green)
++            headAnchor.addChild(blue)
++
++            content.add(headAnchor)
++        }
++    }
++}
+</template>
+
+<template id="c-position" data-name="ImmersiveView.swift">
 import SwiftUI
 import RealityKit
 
@@ -1460,10 +1858,10 @@ struct ImmersiveView: View {
             let red = makeRGBSphere(color: .red)
             let green = makeRGBSphere(color: .green)
             let blue = makeRGBSphere(color: .blue)
-
-            red.position = SIMD3&lt;Float&gt;(0.0, 0.25, -1.5)
-            green.position = SIMD3&lt;Float&gt;(-0.3, -0.15, -1.5)
-            blue.position = SIMD3&lt;Float&gt;(0.3, -0.15, -1.5)
++
++            red.position = SIMD3&lt;Float&gt;(0.0, 0.25, -1.5)
++            green.position = SIMD3&lt;Float&gt;(-0.3, -0.15, -1.5)
++            blue.position = SIMD3&lt;Float&gt;(0.3, -0.15, -1.5)
 
             headAnchor.addChild(red)
             headAnchor.addChild(green)
@@ -1476,14 +1874,12 @@ struct ImmersiveView: View {
 </template>
 
 <template id="c-colorcomp" data-name="SphereComponents.swift">
-
-import RealityKit
-
-/// Stores the RGB color associated with a sphere.
-struct RGBColorComponent: Component {
-    let color: RGBColor
-}
-
++import RealityKit
++
++/// Stores the RGB color associated with a sphere.
++struct RGBColorComponent: Component {
++    let color: RGBColor
++}
 </template>
 
 <template id="c-origcomp" data-name="SphereComponents.swift">
@@ -1493,7 +1889,7 @@ import RealityKit
 struct RGBColorComponent: Component {
     let color: RGBColor
 }
-
++
 +/// Identifies one of the three original RGB spheres
 +/// and stores its fixed position.
 +struct OriginalSphereComponent: Component {
@@ -1503,6 +1899,31 @@ struct RGBColorComponent: Component {
 </template>
 
 <template id="c-interaction" data-name="SphereInteraction.swift">
++import RealityKit
++
++/// Adds the three components every interactive entity needs.
++/// `radius` sets the hit area; spheres use their own radius by default.
++func configureSphereForInteraction(
++    _ sphere: ModelEntity,
++    radius: Float = 0.15
++) {
++    // Allow the entity to receive input.
++    sphere.components.set(
++        InputTargetComponent()
++    )
++
++    // Define the area that can be targeted.
++    sphere.components.set(
++        CollisionComponent(
++            shapes: [
++                .generateSphere(radius: radius)
++            ]
++        )
++    )
++}
+</template>
+
+<template id="c-manipulate" data-name="SphereInteraction.swift">
 import RealityKit
 
 /// Adds the three components every interactive entity needs.
@@ -1524,16 +1945,34 @@ func configureSphereForInteraction(
             ]
         )
     )
-
-    // Enable the user to move the sphere.
-    var manipulation = ManipulationComponent()
-    manipulation.releaseBehavior = .stay
-
-    sphere.components.set(manipulation)
++
++    // Enable the user to move the sphere.
++    var manipulation = ManipulationComponent()
++    manipulation.releaseBehavior = .stay
++
++    sphere.components.set(manipulation)
 }
 </template>
 
 <template id="c-manip" data-name="SphereInteractionManager.swift">
++import RealityKit
++
++@MainActor
++final class SphereInteractionManager: ObservableObject {
++
++    enum InteractionState {
++        case idle
++        case original(
++            sphere: ModelEntity,
++            position: SIMD3&lt;Float&gt;,
++            clone: ModelEntity
++        )
++        case movable(sphere: ModelEntity)
++    }
++}
+</template>
+
+<template id="c-manipprops" data-name="SphereInteractionManager.swift">
 import RealityKit
 
 @MainActor
@@ -1548,27 +1987,27 @@ final class SphereInteractionManager: ObservableObject {
         )
         case movable(sphere: ModelEntity)
     }
-
-    var state: InteractionState = .idle
-
-    /// Clones and mixed spheres — the ones that can move.
-    var movableSpheres: [ModelEntity] = []
-    var overlapTargets: [ModelEntity] = []
-
-    private var selectedSphere: ModelEntity?
-    private var subscriptions: [EventSubscription] = []
-    let overlapSystem = SphereOverlapSystem()
-    // MARK: - Selection
-
-    func selectSphere(_ sphere: ModelEntity) {
-        selectedSphere = sphere
-    }
-
-    // MARK: - Overlaps
-
-    func updateOverlaps() {
-        // Overlap targets are added in a later section.
-    }
++
++    var state: InteractionState = .idle
++
++    /// Clones and mixed spheres — the ones that can move.
++    var movableSpheres: [ModelEntity] = []
++    var overlapTargets: [ModelEntity] = []
++
++    private var selectedSphere: ModelEntity?
++    private var subscriptions: [EventSubscription] = []
++    let overlapSystem = SphereOverlapSystem()
++
++    // MARK: - Selection
++
++    func selectSphere(_ sphere: ModelEntity) {
++        selectedSphere = sphere
++    }
++
++    // MARK: - Overlaps
++
++    func updateOverlaps() {
++    }
 }
 </template>
 
@@ -1597,6 +2036,7 @@ final class SphereInteractionManager: ObservableObject {
     private var selectedSphere: ModelEntity?
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
++
 +    // MARK: - Setup
 +
 +    /// Routes RealityKit manipulation events to the handlers below.
@@ -1616,6 +2056,7 @@ final class SphereInteractionManager: ObservableObject {
 +            }
 +        ]
 +    }
+
     // MARK: - Selection
 
     func selectSphere(_ sphere: ModelEntity) {
@@ -1625,7 +2066,6 @@ final class SphereInteractionManager: ObservableObject {
     // MARK: - Overlaps
 
     func updateOverlaps() {
-        // Overlap targets are added in a later section.
     }
 }
 </template>
@@ -1655,6 +2095,7 @@ final class SphereInteractionManager: ObservableObject {
     private var selectedSphere: ModelEntity?
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
+
     // MARK: - Setup
 
     /// Routes RealityKit manipulation events to the handlers below.
@@ -1674,6 +2115,7 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
++
 +    // MARK: - Manipulation
 +
 +    func handleManipulationBegan(
@@ -1683,6 +2125,75 @@ final class SphereInteractionManager: ObservableObject {
 +        // movable clone that follows the gesture.
 +        selectSphere(sphere)
 +    }
+
+    // MARK: - Selection
+
+    func selectSphere(_ sphere: ModelEntity) {
+        selectedSphere = sphere
+    }
+
+    // MARK: - Overlaps
+
+    func updateOverlaps() {
+    }
+}
+</template>
+
+<template id="c-handlersend" data-name="SphereInteractionManager.swift">
+import RealityKit
+
+@MainActor
+final class SphereInteractionManager: ObservableObject {
+
+    enum InteractionState {
+        case idle
+        case original(
+            sphere: ModelEntity,
+            position: SIMD3&lt;Float&gt;,
+            clone: ModelEntity
+        )
+        case movable(sphere: ModelEntity)
+    }
+
+    var state: InteractionState = .idle
+
+    /// Clones and mixed spheres — the ones that can move.
+    var movableSpheres: [ModelEntity] = []
+    var overlapTargets: [ModelEntity] = []
+
+    private var selectedSphere: ModelEntity?
+    private var subscriptions: [EventSubscription] = []
+    let overlapSystem = SphereOverlapSystem()
+
+    // MARK: - Setup
+
+    /// Routes RealityKit manipulation events to the handlers below.
+    func subscribe(to content: RealityViewContent) {
+        subscriptions = [
+            content.subscribe(to: ManipulationEvents.WillBegin.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationBegan(sphere)
+            },
+            content.subscribe(to: ManipulationEvents.DidUpdateTransform.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationUpdated(sphere)
+            },
+            content.subscribe(to: ManipulationEvents.WillRelease.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationEnded(sphere)
+            }
+        ]
+    }
+
+    // MARK: - Manipulation
+
+    func handleManipulationBegan(
+        _ sphere: ModelEntity
+    ) {
+        // Original spheres stay fixed — create a
+        // movable clone that follows the gesture.
+        selectSphere(sphere)
+    }
 +
 +    func handleManipulationUpdated(
 +        _ sphere: ModelEntity
@@ -1700,6 +2211,7 @@ final class SphereInteractionManager: ObservableObject {
 +        state = .idle
 +        updateOverlaps()
 +    }
+
     // MARK: - Selection
 
     func selectSphere(_ sphere: ModelEntity) {
@@ -1709,7 +2221,6 @@ final class SphereInteractionManager: ObservableObject {
     // MARK: - Overlaps
 
     func updateOverlaps() {
-        // Overlap targets are added in a later section.
     }
 }
 </template>
@@ -1737,7 +2248,6 @@ struct ImmersiveView: View {
             red.position = SIMD3&lt;Float&gt;(0.0, 0.25, -1.5)
             green.position = SIMD3&lt;Float&gt;(-0.3, -0.15, -1.5)
             blue.position = SIMD3&lt;Float&gt;(0.3, -0.15, -1.5)
-
 +
 +            // Mark the originals and make them respond to input.
 +            for sphere in [red, green, blue] {
@@ -1795,7 +2305,7 @@ struct RGBColor: Codable {
         )
     }
 }
-
++
 +extension RGBColor {
 +
 +    // MARK: - Mixing
@@ -1811,6 +2321,58 @@ struct RGBColor: Codable {
 +        )
 +        .normalized()
 +    }
++}
+</template>
+
+<template id="c-normalize" data-name="RGBColor.swift">
+import UIKit
+
+struct RGBColor: Codable {
+
+    let red: Float
+    let green: Float
+    let blue: Float
+
+    // MARK: - Primary Colors
+
+    static let red = RGBColor(
+        red: 1.0, green: 0.0, blue: 0.0
+    )
+
+    static let green = RGBColor(
+        red: 0.0, green: 1.0, blue: 0.0
+    )
+
+    static let blue = RGBColor(
+        red: 0.0, green: 0.0, blue: 1.0
+    )
+
+    /// The UIKit color used by materials.
+    var uiColor: UIColor {
+        UIColor(
+            red: CGFloat(red),
+            green: CGFloat(green),
+            blue: CGFloat(blue),
+            alpha: 1.0
+        )
+    }
+}
+
+extension RGBColor {
+
+    // MARK: - Mixing
+
+    func mixed(
+        with other: RGBColor
+    ) -&gt; RGBColor {
+
+        RGBColor(
+            red: red + other.red,
+            green: green + other.green,
+            blue: blue + other.blue
+        )
+        .normalized()
+    }
 +
 +    /// Keeps each component in the 0...1 range.
 +    func normalized() -&gt; RGBColor {
@@ -1820,7 +2382,7 @@ struct RGBColor: Codable {
 +            blue: min(blue, 1.0)
 +        )
 +    }
-+}
+}
 </template>
 
 <template id="c-clone" data-name="SphereInteractionManager.swift">
@@ -1848,6 +2410,7 @@ final class SphereInteractionManager: ObservableObject {
     private var selectedSphere: ModelEntity?
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
+
     // MARK: - Setup
 
     /// Routes RealityKit manipulation events to the handlers below.
@@ -1867,6 +2430,106 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
+
+    // MARK: - Manipulation
+
+    func handleManipulationBegan(
+        _ sphere: ModelEntity
+    ) {
+        // Original spheres stay fixed — create a
+        // movable clone that follows the gesture.
+        selectSphere(sphere)
+    }
+
+    func handleManipulationUpdated(
+        _ sphere: ModelEntity
+    ) {
+        // Track the sphere's position and update
+        // overlap targets each frame.
+        updateOverlaps()
+    }
+
+    func handleManipulationEnded(
+        _ sphere: ModelEntity
+    ) {
+        // Finalize the position and refresh
+        // overlap targets.
+        state = .idle
+        updateOverlaps()
+    }
+
+    // MARK: - Selection
+
+    func selectSphere(_ sphere: ModelEntity) {
+        selectedSphere = sphere
+    }
+
+    // MARK: - Overlaps
+
+    func updateOverlaps() {
+    }
++
++    private func createClone(
++        from original: ModelEntity
++    ) -&gt; ModelEntity {
++        let color = original.components[RGBColorComponent.self]?.color ?? .red
++
++        // Same look as an original sphere, but movable.
++        let clone = makeRGBSphere(color: color)
++        clone.name = "Clone"
++        configureSphereForInteraction(clone)
++
++        return clone
++    }
+}
+</template>
+
+<template id="c-cloneuse" data-name="SphereInteractionManager.swift">
+import RealityKit
+
+@MainActor
+final class SphereInteractionManager: ObservableObject {
+
+    enum InteractionState {
+        case idle
+        case original(
+            sphere: ModelEntity,
+            position: SIMD3&lt;Float&gt;,
+            clone: ModelEntity
+        )
+        case movable(sphere: ModelEntity)
+    }
+
+    var state: InteractionState = .idle
+
+    /// Clones and mixed spheres — the ones that can move.
+    var movableSpheres: [ModelEntity] = []
+    var overlapTargets: [ModelEntity] = []
+
+    private var selectedSphere: ModelEntity?
+    private var subscriptions: [EventSubscription] = []
+    let overlapSystem = SphereOverlapSystem()
+
+    // MARK: - Setup
+
+    /// Routes RealityKit manipulation events to the handlers below.
+    func subscribe(to content: RealityViewContent) {
+        subscriptions = [
+            content.subscribe(to: ManipulationEvents.WillBegin.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationBegan(sphere)
+            },
+            content.subscribe(to: ManipulationEvents.DidUpdateTransform.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationUpdated(sphere)
+            },
+            content.subscribe(to: ManipulationEvents.WillRelease.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationEnded(sphere)
+            }
+        ]
+    }
+
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -1911,6 +2574,7 @@ final class SphereInteractionManager: ObservableObject {
         state = .idle
         updateOverlaps()
     }
+
     // MARK: - Selection
 
     func selectSphere(_ sphere: ModelEntity) {
@@ -1920,50 +2584,47 @@ final class SphereInteractionManager: ObservableObject {
     // MARK: - Overlaps
 
     func updateOverlaps() {
-        // Overlap targets are added in a later section.
     }
-+
-+    private func createClone(
-+        from original: ModelEntity
-+    ) -&gt; ModelEntity {
-+        let color = original.components[RGBColorComponent.self]?.color ?? .red
-+
-+        // Same look as an original sphere, but movable.
-+        let clone = makeRGBSphere(color: color)
-+        clone.name = "Clone"
-+        configureSphereForInteraction(clone)
-+
-+        return clone
-+    }
+
+    private func createClone(
+        from original: ModelEntity
+    ) -&gt; ModelEntity {
+        let color = original.components[RGBColorComponent.self]?.color ?? .red
+
+        // Same look as an original sphere, but movable.
+        let clone = makeRGBSphere(color: color)
+        clone.name = "Clone"
+        configureSphereForInteraction(clone)
+
+        return clone
+    }
 }
 </template>
 
 <template id="c-rim" data-name="SphericalSelectionRim.swift">
-
-import RealityKit
-import UIKit
-
-/// Creates the white selection ring shown around the active sphere.
-func createSphericalSelectionRim() -&gt; ModelEntity {
-    let mesh = makeSphericalRimMesh(
-        outerRadius: 0.153,
-        thickness: 0.002,
-        segments: 96
-    )
-
-    let rim = ModelEntity(
-        mesh: mesh,
-        materials: [UnlitMaterial(color: .white)]
-    )
-
-    rim.name = "SelectionRim"
-
-    // Always face the viewer, like the glow.
-    rim.components.set(BillboardComponent())
-
-    return rim
-}
-
++import RealityKit
++import UIKit
++
++/// Creates the white selection ring shown around the active sphere.
++func createSphericalSelectionRim() -&gt; ModelEntity {
++    let mesh = makeSphericalRimMesh(
++        outerRadius: 0.153,
++        thickness: 0.002,
++        segments: 96
++    )
++
++    let rim = ModelEntity(
++        mesh: mesh,
++        materials: [UnlitMaterial(color: .white)]
++    )
++
++    rim.name = "SelectionRim"
++
++    // Always face the viewer, like the glow.
++    rim.components.set(BillboardComponent())
++
++    return rim
++}
 </template>
 
 <template id="c-rimverts" data-name="SphericalSelectionRim.swift">
@@ -1990,7 +2651,7 @@ func createSphericalSelectionRim() -&gt; ModelEntity {
 
     return rim
 }
-
++
 +/// Two vertices per segment: one on the outer edge, one on the inner edge.
 +private func makeRimVertices(
 +    outerRadius: Float,
@@ -2066,7 +2727,7 @@ private func makeRimVertices(
 
     return (positions, normals)
 }
-
++
 +/// A flat ring built from triangles, so nothing shows through the sphere.
 +private func makeSphericalRimMesh(
 +    outerRadius: Float,
@@ -2081,6 +2742,73 @@ private func makeRimVertices(
 +
 +    // Two triangles per segment connect neighbouring vertex pairs.
 +    var indices: [UInt32] = []
++}
+</template>
+
+<template id="c-rimtriangles" data-name="SphericalSelectionRim.swift">
+import RealityKit
+import UIKit
+
+/// Creates the white selection ring shown around the active sphere.
+func createSphericalSelectionRim() -&gt; ModelEntity {
+    let mesh = makeSphericalRimMesh(
+        outerRadius: 0.153,
+        thickness: 0.002,
+        segments: 96
+    )
+
+    let rim = ModelEntity(
+        mesh: mesh,
+        materials: [UnlitMaterial(color: .white)]
+    )
+
+    rim.name = "SelectionRim"
+
+    // Always face the viewer, like the glow.
+    rim.components.set(BillboardComponent())
+
+    return rim
+}
+
+/// Two vertices per segment: one on the outer edge, one on the inner edge.
+private func makeRimVertices(
+    outerRadius: Float,
+    innerRadius: Float,
+    segments: Int
+) -&gt; (positions: [SIMD3&lt;Float&gt;], normals: [SIMD3&lt;Float&gt;]) {
+    var positions: [SIMD3&lt;Float&gt;] = []
+    var normals: [SIMD3&lt;Float&gt;] = []
+
+    for i in 0..&lt;segments {
+        let angle = Float(i) / Float(segments) * .pi * 2
+        let cosAngle = cos(angle)
+        let sinAngle = sin(angle)
+
+        positions.append(SIMD3(outerRadius * cosAngle, outerRadius * sinAngle, 0))
+        positions.append(SIMD3(innerRadius * cosAngle, innerRadius * sinAngle, 0))
+
+        // The ring is flat, so every normal points at the viewer.
+        normals.append(SIMD3(0, 0, 1))
+        normals.append(SIMD3(0, 0, 1))
+    }
+
+    return (positions, normals)
+}
+
+/// A flat ring built from triangles, so nothing shows through the sphere.
+private func makeSphericalRimMesh(
+    outerRadius: Float,
+    thickness: Float,
+    segments: Int
+) -&gt; MeshResource {
+    let vertices = makeRimVertices(
+        outerRadius: outerRadius,
+        innerRadius: outerRadius - thickness,
+        segments: segments
+    )
+
+    // Two triangles per segment connect neighbouring vertex pairs.
+    var indices: [UInt32] = []
 +
 +    for i in 0..&lt;segments {
 +        let next = (i + 1) % segments
@@ -2095,6 +2823,87 @@ private func makeRimVertices(
 +            outerCurrent, innerNext, innerCurrent
 +        ]
 +    }
+}
+</template>
+
+<template id="c-rimdesc" data-name="SphericalSelectionRim.swift">
+import RealityKit
+import UIKit
+
+/// Creates the white selection ring shown around the active sphere.
+func createSphericalSelectionRim() -&gt; ModelEntity {
+    let mesh = makeSphericalRimMesh(
+        outerRadius: 0.153,
+        thickness: 0.002,
+        segments: 96
+    )
+
+    let rim = ModelEntity(
+        mesh: mesh,
+        materials: [UnlitMaterial(color: .white)]
+    )
+
+    rim.name = "SelectionRim"
+
+    // Always face the viewer, like the glow.
+    rim.components.set(BillboardComponent())
+
+    return rim
+}
+
+/// Two vertices per segment: one on the outer edge, one on the inner edge.
+private func makeRimVertices(
+    outerRadius: Float,
+    innerRadius: Float,
+    segments: Int
+) -&gt; (positions: [SIMD3&lt;Float&gt;], normals: [SIMD3&lt;Float&gt;]) {
+    var positions: [SIMD3&lt;Float&gt;] = []
+    var normals: [SIMD3&lt;Float&gt;] = []
+
+    for i in 0..&lt;segments {
+        let angle = Float(i) / Float(segments) * .pi * 2
+        let cosAngle = cos(angle)
+        let sinAngle = sin(angle)
+
+        positions.append(SIMD3(outerRadius * cosAngle, outerRadius * sinAngle, 0))
+        positions.append(SIMD3(innerRadius * cosAngle, innerRadius * sinAngle, 0))
+
+        // The ring is flat, so every normal points at the viewer.
+        normals.append(SIMD3(0, 0, 1))
+        normals.append(SIMD3(0, 0, 1))
+    }
+
+    return (positions, normals)
+}
+
+/// A flat ring built from triangles, so nothing shows through the sphere.
+private func makeSphericalRimMesh(
+    outerRadius: Float,
+    thickness: Float,
+    segments: Int
+) -&gt; MeshResource {
+    let vertices = makeRimVertices(
+        outerRadius: outerRadius,
+        innerRadius: outerRadius - thickness,
+        segments: segments
+    )
+
+    // Two triangles per segment connect neighbouring vertex pairs.
+    var indices: [UInt32] = []
+
+    for i in 0..&lt;segments {
+        let next = (i + 1) % segments
+
+        let outerCurrent = UInt32(i * 2)
+        let innerCurrent = UInt32(i * 2 + 1)
+        let outerNext = UInt32(next * 2)
+        let innerNext = UInt32(next * 2 + 1)
+
+        indices += [
+            outerCurrent, outerNext, innerNext,
+            outerCurrent, innerNext, innerCurrent
+        ]
+    }
 +
 +    var descriptor = MeshDescriptor()
 +    descriptor.positions = MeshBuffers.Positions(vertices.positions)
@@ -2102,7 +2911,7 @@ private func makeRimVertices(
 +    descriptor.primitives = .triangles(indices)
 +
 +    return try! MeshResource.generate(from: [descriptor])
-+}
+}
 </template>
 
 <template id="c-attachrim" data-name="SphereInteractionManager.swift">
@@ -2131,6 +2940,7 @@ final class SphereInteractionManager: ObservableObject {
 +    private var selectionRim: ModelEntity?
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
+
     // MARK: - Setup
 
     /// Routes RealityKit manipulation events to the handlers below.
@@ -2150,6 +2960,7 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
+
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -2194,6 +3005,7 @@ final class SphereInteractionManager: ObservableObject {
         state = .idle
         updateOverlaps()
     }
+
     // MARK: - Selection
 
     func selectSphere(_ sphere: ModelEntity) {
@@ -2210,7 +3022,6 @@ final class SphereInteractionManager: ObservableObject {
     // MARK: - Overlaps
 
     func updateOverlaps() {
-        // Overlap targets are added in a later section.
     }
 
     private func createClone(
@@ -2229,6 +3040,27 @@ final class SphereInteractionManager: ObservableObject {
 </template>
 
 <template id="c-overlapsys" data-name="SphereOverlapSystem.swift">
++import RealityKit
++import simd
++
++final class SphereOverlapSystem {
++
++    private let overlapDistance: Float = 0.30
++
++    func checkOverlap(
++        spheres: [ModelEntity]
++    ) -&gt; [SphereOverlap] {
++
++        guard spheres.count &gt;= 2 else { return [] }
++
++        var overlaps: [SphereOverlap] = []
++
++        return overlaps
++    }
++}
+</template>
+
+<template id="c-overlaploop" data-name="SphereOverlapSystem.swift">
 import RealityKit
 import simd
 
@@ -2243,24 +3075,23 @@ final class SphereOverlapSystem {
         guard spheres.count &gt;= 2 else { return [] }
 
         var overlaps: [SphereOverlap] = []
-
-        for firstIndex in 0..&lt;(spheres.count - 1) {
-            for secondIndex in
-                (firstIndex + 1)..&lt;spheres.count {
-
-                let first = spheres[firstIndex]
-                let second = spheres[secondIndex]
-
-                let distance = simd_distance(
-                    first.position(relativeTo: nil),
-                    second.position(relativeTo: nil)
-                )
-
-                guard distance &lt; overlapDistance
-                else { continue }
-                // Build the SphereOverlap value in the next step.
-            }
-        }
++
++        for firstIndex in 0..&lt;(spheres.count - 1) {
++            for secondIndex in
++                (firstIndex + 1)..&lt;spheres.count {
++
++                let first = spheres[firstIndex]
++                let second = spheres[secondIndex]
++
++                let distance = simd_distance(
++                    first.position(relativeTo: nil),
++                    second.position(relativeTo: nil)
++                )
++
++                guard distance &lt; overlapDistance
++                else { continue }
++            }
++        }
 
         return overlaps
     }
@@ -2297,6 +3128,7 @@ final class SphereOverlapSystem {
 
                 guard distance &lt; overlapDistance
                 else { continue }
++
 +                let firstColor = first.components[RGBColorComponent.self]?.color ?? .red
 +                let secondColor = second.components[RGBColorComponent.self]?.color ?? .red
 +
@@ -2318,7 +3150,61 @@ final class SphereOverlapSystem {
         return overlaps
     }
 }
+</template>
 
+<template id="c-overlapstruct" data-name="SphereOverlapSystem.swift">
+import RealityKit
+import simd
+
+final class SphereOverlapSystem {
+
+    private let overlapDistance: Float = 0.30
+
+    func checkOverlap(
+        spheres: [ModelEntity]
+    ) -&gt; [SphereOverlap] {
+
+        guard spheres.count &gt;= 2 else { return [] }
+
+        var overlaps: [SphereOverlap] = []
+
+        for firstIndex in 0..&lt;(spheres.count - 1) {
+            for secondIndex in
+                (firstIndex + 1)..&lt;spheres.count {
+
+                let first = spheres[firstIndex]
+                let second = spheres[secondIndex]
+
+                let distance = simd_distance(
+                    first.position(relativeTo: nil),
+                    second.position(relativeTo: nil)
+                )
+
+                guard distance &lt; overlapDistance
+                else { continue }
+
+                let firstColor = first.components[RGBColorComponent.self]?.color ?? .red
+                let secondColor = second.components[RGBColorComponent.self]?.color ?? .red
+
+                overlaps.append(
+                    SphereOverlap(
+                        firstSphere: first,
+                        secondSphere: second,
+                        position: (
+                            first.position(relativeTo: nil)
+                            + second.position(relativeTo: nil)
+                        ) / 2.0,
+                        color: firstColor.mixed(with: secondColor),
+                        key: "\(first.id)-\(second.id)"
+                    )
+                )
+            }
+        }
+
+        return overlaps
+    }
+}
++
 +/// Describes what is overlapping, where the
 +/// overlap occurs, and what color to produce.
 +struct SphereOverlap {
@@ -2363,6 +3249,7 @@ final class SphereInteractionManager: ObservableObject {
     private var selectionRim: ModelEntity?
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
+
     // MARK: - Setup
 
     /// Routes RealityKit manipulation events to the handlers below.
@@ -2382,6 +3269,7 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
+
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -2426,6 +3314,7 @@ final class SphereInteractionManager: ObservableObject {
         state = .idle
         updateOverlaps()
     }
+
     // MARK: - Selection
 
     func selectSphere(_ sphere: ModelEntity) {
@@ -2442,7 +3331,6 @@ final class SphereInteractionManager: ObservableObject {
     // MARK: - Overlaps
 
     func updateOverlaps() {
-        // Overlap targets are added in a later section.
     }
 
     private func createClone(
@@ -2507,6 +3395,7 @@ final class SphereInteractionManager: ObservableObject {
     private var selectionRim: ModelEntity?
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
+
     // MARK: - Setup
 
     /// Routes RealityKit manipulation events to the handlers below.
@@ -2526,6 +3415,7 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
+
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -2570,6 +3460,7 @@ final class SphereInteractionManager: ObservableObject {
         state = .idle
         updateOverlaps()
     }
+
     // MARK: - Selection
 
     func selectSphere(_ sphere: ModelEntity) {
@@ -2598,6 +3489,164 @@ final class SphereInteractionManager: ObservableObject {
 +            }
 +            return false
 +        }
+    }
+
+    private func createClone(
+        from original: ModelEntity
+    ) -&gt; ModelEntity {
+        let color = original.components[RGBColorComponent.self]?.color ?? .red
+
+        // Same look as an original sphere, but movable.
+        let clone = makeRGBSphere(color: color)
+        clone.name = "Clone"
+        configureSphereForInteraction(clone)
+
+        return clone
+    }
+
+    func makeOverlapTarget(
+        for overlap: SphereOverlap
+    ) -&gt; ModelEntity {
+
+        // Invisible — no visible mesh needed.
+        let target = ModelEntity()
+
+        target.components.set(
+            OverlapVisualComponent(
+                overlapKey: overlap.key,
+                mixedColor: overlap.color
+            )
+        )
+
+        // Same input, collision, and manipulation setup as a sphere,
+        // with a smaller hit area.
+        configureSphereForInteraction(target, radius: 0.08)
+
+        return target
+    }
+}
+</template>
+
+<template id="c-synctargetsadd" data-name="SphereInteractionManager.swift">
+import RealityKit
+
+@MainActor
+final class SphereInteractionManager: ObservableObject {
+
+    enum InteractionState {
+        case idle
+        case original(
+            sphere: ModelEntity,
+            position: SIMD3&lt;Float&gt;,
+            clone: ModelEntity
+        )
+        case movable(sphere: ModelEntity)
+    }
+
+    var state: InteractionState = .idle
+
+    /// Clones and mixed spheres — the ones that can move.
+    var movableSpheres: [ModelEntity] = []
+    var overlapTargets: [ModelEntity] = []
+
+    private var selectedSphere: ModelEntity?
+    private var selectionRim: ModelEntity?
+    private var subscriptions: [EventSubscription] = []
+    let overlapSystem = SphereOverlapSystem()
+
+    // MARK: - Setup
+
+    /// Routes RealityKit manipulation events to the handlers below.
+    func subscribe(to content: RealityViewContent) {
+        subscriptions = [
+            content.subscribe(to: ManipulationEvents.WillBegin.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationBegan(sphere)
+            },
+            content.subscribe(to: ManipulationEvents.DidUpdateTransform.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationUpdated(sphere)
+            },
+            content.subscribe(to: ManipulationEvents.WillRelease.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationEnded(sphere)
+            }
+        ]
+    }
+
+    // MARK: - Manipulation
+
+    func handleManipulationBegan(
+        _ sphere: ModelEntity
+    ) {
+        // An original RGB sphere creates a movable clone.
+        if let original = sphere.components[OriginalSphereComponent.self] {
+            let clone = createClone(from: sphere)
+
+            clone.position = sphere.position
+            sphere.parent?.addChild(clone)
+            movableSpheres.append(clone)
+
+            state = .original(
+                sphere: sphere,
+                position: original.fixedPosition,
+                clone: clone
+            )
+
+            selectSphere(clone)
+            return
+        }
+
+        // Original spheres stay fixed — create a
+        // movable clone that follows the gesture.
+        selectSphere(sphere)
+    }
+
+    func handleManipulationUpdated(
+        _ sphere: ModelEntity
+    ) {
+        // Track the sphere's position and update
+        // overlap targets each frame.
+        updateOverlaps()
+    }
+
+    func handleManipulationEnded(
+        _ sphere: ModelEntity
+    ) {
+        // Finalize the position and refresh
+        // overlap targets.
+        state = .idle
+        updateOverlaps()
+    }
+
+    // MARK: - Selection
+
+    func selectSphere(_ sphere: ModelEntity) {
+        guard selectedSphere !== sphere else { return }
+        selectionRim?.removeFromParent()
+        selectedSphere = sphere
+
+        // One white ring, attached to the current sphere only.
+        let rim = createSphericalSelectionRim()
+        sphere.addChild(rim)
+        selectionRim = rim
+    }
+
+    // MARK: - Overlaps
+
+    func updateOverlaps() {
+        let overlaps = overlapSystem.checkOverlap(spheres: movableSpheres)
+        let currentKeys = Set(overlaps.map(\.key))
+
+        // Remove targets whose spheres no longer overlap.
+        overlapTargets.removeAll { target in
+            let key = target.components[OverlapVisualComponent.self]?.overlapKey
+            guard let key, currentKeys.contains(key) else {
+                target.removeFromParent()
+                return true
+            }
+            return false
+        }
 +
 +        // Add a target for each new overlap, and keep it at the midpoint.
 +        for overlap in overlaps {
@@ -2654,18 +3703,18 @@ final class SphereInteractionManager: ObservableObject {
 </template>
 
 <template id="c-overlapcomp" data-name="OverlapVisualComponent.swift">
-import RealityKit
-
-struct OverlapVisualComponent: Component {
-
-    /// Identifies which pair of spheres
-    /// produced this target.
-    let overlapKey: String
-
-    /// Used when the user interacts with the
-    /// target to create the mixed sphere.
-    let mixedColor: RGBColor
-}
++import RealityKit
++
++struct OverlapVisualComponent: Component {
++
++    /// Identifies which pair of spheres
++    /// produced this target.
++    let overlapKey: String
++
++    /// Used when the user interacts with the
++    /// target to create the mixed sphere.
++    let mixedColor: RGBColor
++}
 </template>
 
 <template id="c-mixedsphere" data-name="SphereInteractionManager.swift">
@@ -2694,6 +3743,7 @@ final class SphereInteractionManager: ObservableObject {
     private var selectionRim: ModelEntity?
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
+
     // MARK: - Setup
 
     /// Routes RealityKit manipulation events to the handlers below.
@@ -2713,6 +3763,7 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
+
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -2757,6 +3808,7 @@ final class SphereInteractionManager: ObservableObject {
         state = .idle
         updateOverlaps()
     }
+
     // MARK: - Selection
 
     func selectSphere(_ sphere: ModelEntity) {
@@ -2888,6 +3940,7 @@ final class SphereInteractionManager: ObservableObject {
     private var selectionRim: ModelEntity?
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
+
     // MARK: - Setup
 
     /// Routes RealityKit manipulation events to the handlers below.
@@ -2907,6 +3960,7 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
+
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -2951,6 +4005,216 @@ final class SphereInteractionManager: ObservableObject {
     func handleManipulationUpdated(
         _ sphere: ModelEntity
     ) {
+        // Track the sphere's position and update
+        // overlap targets each frame.
+        updateOverlaps()
+    }
+
+    func handleManipulationEnded(
+        _ sphere: ModelEntity
+    ) {
+        // Finalize the position and refresh
+        // overlap targets.
+        state = .idle
+        updateOverlaps()
+    }
+
+    // MARK: - Selection
+
+    func selectSphere(_ sphere: ModelEntity) {
+        guard selectedSphere !== sphere else { return }
+        selectionRim?.removeFromParent()
+        selectedSphere = sphere
+
+        // One white ring, attached to the current sphere only.
+        let rim = createSphericalSelectionRim()
+        sphere.addChild(rim)
+        selectionRim = rim
+    }
+
+    // MARK: - Overlaps
+
+    func updateOverlaps() {
+        let overlaps = overlapSystem.checkOverlap(spheres: movableSpheres)
+        let currentKeys = Set(overlaps.map(\.key))
+
+        // Remove targets whose spheres no longer overlap.
+        overlapTargets.removeAll { target in
+            let key = target.components[OverlapVisualComponent.self]?.overlapKey
+            guard let key, currentKeys.contains(key) else {
+                target.removeFromParent()
+                return true
+            }
+            return false
+        }
+
+        // Add a target for each new overlap, and keep it at the midpoint.
+        for overlap in overlaps {
+            guard let parent = overlap.firstSphere.parent else { continue }
+
+            var target = overlapTargets.first {
+                $0.components[OverlapVisualComponent.self]?.overlapKey == overlap.key
+            }
+            if target == nil {
+                let newTarget = makeOverlapTarget(for: overlap)
+                parent.addChild(newTarget)
+                overlapTargets.append(newTarget)
+                target = newTarget
+            }
+
+            target?.position = parent.convert(position: overlap.position, from: nil)
+        }
+    }
+
+    private func createClone(
+        from original: ModelEntity
+    ) -&gt; ModelEntity {
+        let color = original.components[RGBColorComponent.self]?.color ?? .red
+
+        // Same look as an original sphere, but movable.
+        let clone = makeRGBSphere(color: color)
+        clone.name = "Clone"
+        configureSphereForInteraction(clone)
+
+        return clone
+    }
+
+    func makeOverlapTarget(
+        for overlap: SphereOverlap
+    ) -&gt; ModelEntity {
+
+        // Invisible — no visible mesh needed.
+        let target = ModelEntity()
+
+        target.components.set(
+            OverlapVisualComponent(
+                overlapKey: overlap.key,
+                mixedColor: overlap.color
+            )
+        )
+
+        // Same input, collision, and manipulation setup as a sphere,
+        // with a smaller hit area.
+        configureSphereForInteraction(target, radius: 0.08)
+
+        return target
+    }
+
+    func createMixedSphere(
+        from overlap: SphereOverlap
+    ) -&gt; ModelEntity {
+        // Build a sphere with the mixed color.
+        let mixed = makeRGBSphere(
+            color: overlap.color
+        )
+
+        configureSphereForInteraction(mixed)
+
+        // Joins the movable collection, so it can
+        // participate in future overlaps.
+        movableSpheres.append(mixed)
+        if let parent = overlap.firstSphere.parent {
+            parent.addChild(mixed)
+            mixed.position = parent.convert(position: overlap.position, from: nil)
+        }
+
+        return mixed
+    }
+}
+</template>
+
+<template id="c-pullfollow" data-name="SphereInteractionManager.swift">
+import RealityKit
+
+@MainActor
+final class SphereInteractionManager: ObservableObject {
+
+    enum InteractionState {
+        case idle
+        case original(
+            sphere: ModelEntity,
+            position: SIMD3&lt;Float&gt;,
+            clone: ModelEntity
+        )
+        case movable(sphere: ModelEntity)
+        case overlap(target: ModelEntity, mixed: ModelEntity)
+    }
+
+    var state: InteractionState = .idle
+
+    /// Clones and mixed spheres — the ones that can move.
+    var movableSpheres: [ModelEntity] = []
+    var overlapTargets: [ModelEntity] = []
+
+    private var selectedSphere: ModelEntity?
+    private var selectionRim: ModelEntity?
+    private var subscriptions: [EventSubscription] = []
+    let overlapSystem = SphereOverlapSystem()
+
+    // MARK: - Setup
+
+    /// Routes RealityKit manipulation events to the handlers below.
+    func subscribe(to content: RealityViewContent) {
+        subscriptions = [
+            content.subscribe(to: ManipulationEvents.WillBegin.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationBegan(sphere)
+            },
+            content.subscribe(to: ManipulationEvents.DidUpdateTransform.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationUpdated(sphere)
+            },
+            content.subscribe(to: ManipulationEvents.WillRelease.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationEnded(sphere)
+            }
+        ]
+    }
+
+    // MARK: - Manipulation
+
+    func handleManipulationBegan(
+        _ sphere: ModelEntity
+    ) {
+        // An original RGB sphere creates a movable clone.
+        if let original = sphere.components[OriginalSphereComponent.self] {
+            let clone = createClone(from: sphere)
+
+            clone.position = sphere.position
+            sphere.parent?.addChild(clone)
+            movableSpheres.append(clone)
+
+            state = .original(
+                sphere: sphere,
+                position: original.fixedPosition,
+                clone: clone
+            )
+
+            selectSphere(clone)
+            return
+        }
+
+        // An overlap target creates a new mixed sphere.
+        if let component = sphere.components[OverlapVisualComponent.self] {
+            guard let overlap = overlapSystem
+                .checkOverlap(spheres: movableSpheres)
+                .first(where: { $0.key == component.overlapKey })
+            else { return }
+
+            let mixed = createMixedSphere(from: overlap)
+            state = .overlap(target: sphere, mixed: mixed)
+            selectSphere(mixed)
+            return
+        }
+
+        // Original spheres stay fixed — create a
+        // movable clone that follows the gesture.
+        selectSphere(sphere)
+    }
+
+    func handleManipulationUpdated(
+        _ sphere: ModelEntity
+    ) {
 +        // The mixed sphere follows the dragged target.
 +        if case .overlap(let target, let mixed) = state {
 +            mixed.position = target.position
@@ -2975,6 +4239,7 @@ final class SphereInteractionManager: ObservableObject {
         state = .idle
         updateOverlaps()
     }
+
     // MARK: - Selection
 
     func selectSphere(_ sphere: ModelEntity) {
@@ -3096,7 +4361,7 @@ struct OriginalSphereComponent: Component {
     let color: RGBColor
     let fixedPosition: SIMD3&lt;Float&gt;
 }
-
++
 +struct SphereLightComponent: Component {
 +    var intensity: Float
 +
@@ -3133,6 +4398,171 @@ func makeRGBSphere(
     sphere.components.set(
         RGBColorComponent(color: color)
     )
+
+    // The soft glow around the sphere.
+    addRadiatingGlow(to: sphere, color: color)
+
+    return sphere
+}
+
+func makeSphereMaterial(
+    color: RGBColor
+) -&gt; PhysicallyBasedMaterial {
+
+    var material = PhysicallyBasedMaterial()
+
+    // Base color with transparency.
+    material.baseColor = .init(
+        tint: color.uiColor.withAlphaComponent(0.6)
+    )
+    material.blending = .transparent(
+        opacity: .init(floatLiteral: 0.6)
+    )
+
+    // Emissive color makes the sphere luminous.
+    material.emissiveColor = .init(
+        color: color.uiColor
+    )
+    material.emissiveIntensity = 2.0
+
+    return material
+}
+
+func makeGlowMaterial(
+    color: RGBColor
+) -&gt; UnlitMaterial {
+
+    // Unlit, so the glow is not affected by scene lighting.
+    var material = UnlitMaterial(
+        texture: makeRadialGlowTexture(color: color)
+    )
+    material.blending = .transparent(
+        opacity: .init(floatLiteral: 1.0)
+    )
+
+    return material
+}
+
+/// Draws a circle that fades from the color to clear.
+func makeRadialGlowTexture(
+    color: RGBColor
+) -&gt; TextureResource {
+
+    let size = 512
+    let renderer = UIGraphicsImageRenderer(
+        size: CGSize(width: size, height: size)
+    )
+
+    let image = renderer.image { context in
+        let center = CGPoint(x: size / 2, y: size / 2)
+        let colors = [
+            color.uiColor.withAlphaComponent(0.6).cgColor,
+            color.uiColor.withAlphaComponent(0.0).cgColor
+        ]
+        let gradient = CGGradient(
+            colorsSpace: CGColorSpaceCreateDeviceRGB(),
+            colors: colors as CFArray,
+            locations: [0.0, 1.0]
+        )!
+
+        context.cgContext.drawRadialGradient(
+            gradient,
+            startCenter: center,
+            startRadius: 0,
+            endCenter: center,
+            endRadius: CGFloat(size) / 2,
+            options: []
+        )
+    }
+
+    // The gradient is generated in code, so this cannot fail.
+    return try! TextureResource(
+        image: image.cgImage!,
+        options: .init(semantic: .color)
+    )
+}
+
+func addRadiatingGlow(
+    to sphere: ModelEntity,
+    color: RGBColor
+) {
+    // A radial gradient texture on a flat plane.
+    let glowMesh = MeshResource.generatePlane(
+        width: 0.6,
+        height: 0.6
+    )
+
+    let glowMaterial = makeGlowMaterial(
+        color: color
+    )
+
+    let glow = ModelEntity(
+        mesh: glowMesh,
+        materials: [glowMaterial]
+    )
+
+    // Named so the light control can find it later.
+    glow.name = "RadiatingGlow"
+
+    // Always face the viewer.
+    glow.components.set(
+        BillboardComponent()
+    )
+
+    // Visual only — no interaction components.
+    sphere.addChild(glow)
+}
++
++func applySphereLightIntensity(
++    _ intensity: Float,
++    to sphere: ModelEntity
++) {
++    let clampedIntensity = min(
++        max(intensity, SphereLightComponent.minimumIntensity),
++        SphereLightComponent.maximumIntensity
++    )
++
++    sphere.components.set(
++        SphereLightComponent(intensity: clampedIntensity)
++    )
++
++    let color = sphere.components[RGBColorComponent.self]?.color.uiColor
++        ?? .white
++    let normalized = clampedIntensity
++        / SphereLightComponent.maximumIntensity
++    let core = CGFloat(min(max(0.10 + normalized * 0.90, 0), 1))
++    let emissiveIntensity = 0.08 + pow(normalized, 1.08) * 13.5
++}
+</template>
+
+<template id="c-applymaterial" data-name="RGBSphere.swift">
+import RealityKit
+import UIKit
+
+func makeRGBSphere(
+    color: RGBColor
+) -&gt; ModelEntity {
+
+    // Create the spherical mesh.
+    let mesh = MeshResource.generateSphere(
+        radius: 0.15
+    )
+
+    // Create the luminous material.
+    let material = makeSphereMaterial(
+        color: color
+    )
+
+    let sphere = ModelEntity(
+        mesh: mesh,
+        materials: [material]
+    )
+
+    // Store the sphere's RGB color.
+    sphere.components.set(
+        RGBColorComponent(color: color)
+    )
+
     // The soft glow around the sphere.
     addRadiatingGlow(to: sphere, color: color)
 
@@ -3247,25 +4677,25 @@ func addRadiatingGlow(
     sphere.addChild(glow)
 }
 
-+func applySphereLightIntensity(
-+    _ intensity: Float,
-+    to sphere: ModelEntity
-+) {
-+    let clampedIntensity = min(
-+        max(intensity, SphereLightComponent.minimumIntensity),
-+        SphereLightComponent.maximumIntensity
-+    )
-+
-+    sphere.components.set(
-+        SphereLightComponent(intensity: clampedIntensity)
-+    )
-+
-+    let color = sphere.components[RGBColorComponent.self]?.color.uiColor
-+        ?? .white
-+    let normalized = clampedIntensity
-+        / SphereLightComponent.maximumIntensity
-+    let core = CGFloat(min(max(0.10 + normalized * 0.90, 0), 1))
-+    let emissiveIntensity = 0.08 + pow(normalized, 1.08) * 13.5
+func applySphereLightIntensity(
+    _ intensity: Float,
+    to sphere: ModelEntity
+) {
+    let clampedIntensity = min(
+        max(intensity, SphereLightComponent.minimumIntensity),
+        SphereLightComponent.maximumIntensity
+    )
+
+    sphere.components.set(
+        SphereLightComponent(intensity: clampedIntensity)
+    )
+
+    let color = sphere.components[RGBColorComponent.self]?.color.uiColor
+        ?? .white
+    let normalized = clampedIntensity
+        / SphereLightComponent.maximumIntensity
+    let core = CGFloat(min(max(0.10 + normalized * 0.90, 0), 1))
+    let emissiveIntensity = 0.08 + pow(normalized, 1.08) * 13.5
 +
 +    if var material = sphere.model?.materials.first
 +        as? PhysicallyBasedMaterial {
@@ -3275,7 +4705,7 @@ func addRadiatingGlow(
 +        material.emissiveIntensity = emissiveIntensity
 +        sphere.model?.materials = [material]
 +    }
-+}
+}
 </template>
 
 <template id="c-applyglow" data-name="RGBSphere.swift">
@@ -3305,8 +4735,10 @@ func makeRGBSphere(
     sphere.components.set(
         RGBColorComponent(color: color)
     )
+
     // The soft glow around the sphere.
     addRadiatingGlow(to: sphere, color: color)
++
 +    // Start at the default brightness.
 +    applySphereLightIntensity(
 +        SphereLightComponent.defaultIntensity,
@@ -3465,6 +4897,27 @@ func applySphereLightIntensity(
 </template>
 
 <template id="c-dialstate" data-name="RightHandLightDialController.swift">
++import ARKit
++import RealityKit
++import simd
++
++/// Turns a right-hand wrist roll (palm down → palm up) into a light intensity.
++@MainActor
++final class RightHandLightDialController {
++
++    typealias TargetProvider = (SIMD3&lt;Float&gt;) -&gt; ModelEntity?
++    typealias IntensityApplier = (ModelEntity, Float) -&gt; Void
++
++    private let targetProvider: TargetProvider
++    private let intensityApplier: IntensityApplier
++
++    // Smoothed values keep the light from jumping between frames.
++    private var smoothedNormalizedBrightness: Float = 0.5
++    private var smoothedIntensity: Float = SphereLightComponent.defaultIntensity
++}
+</template>
+
+<template id="c-dialinit" data-name="RightHandLightDialController.swift">
 import ARKit
 import RealityKit
 import simd
@@ -3482,14 +4935,14 @@ final class RightHandLightDialController {
     // Smoothed values keep the light from jumping between frames.
     private var smoothedNormalizedBrightness: Float = 0.5
     private var smoothedIntensity: Float = SphereLightComponent.defaultIntensity
-
-    init(
-        targetProvider: @escaping TargetProvider,
-        intensityApplier: @escaping IntensityApplier
-    ) {
-        self.targetProvider = targetProvider
-        self.intensityApplier = intensityApplier
-    }
++
++    init(
++        targetProvider: @escaping TargetProvider,
++        intensityApplier: @escaping IntensityApplier
++    ) {
++        self.targetProvider = targetProvider
++        self.intensityApplier = intensityApplier
++    }
 }
 </template>
 
@@ -3519,7 +4972,7 @@ final class RightHandLightDialController {
         self.targetProvider = targetProvider
         self.intensityApplier = intensityApplier
     }
-
++
 +    func process(anchor: HandAnchor) {
 +        guard anchor.chirality == .right,
 +              anchor.isTracked,
@@ -3533,6 +4986,55 @@ final class RightHandLightDialController {
 +
 +        guard sample.areAllFingersExtended,
 +              let target else { return }
++    }
++
++    /// Smoothstep: slow near the ends, faster in the middle.
++    private func brightnessCurve(_ value: Float) -&gt; Float {
++        value * value * (3 - 2 * value)
++    }
+}
+</template>
+
+<template id="c-wristapply" data-name="RightHandLightDialController.swift">
+import ARKit
+import RealityKit
+import simd
+
+/// Turns a right-hand wrist roll (palm down → palm up) into a light intensity.
+@MainActor
+final class RightHandLightDialController {
+
+    typealias TargetProvider = (SIMD3&lt;Float&gt;) -&gt; ModelEntity?
+    typealias IntensityApplier = (ModelEntity, Float) -&gt; Void
+
+    private let targetProvider: TargetProvider
+    private let intensityApplier: IntensityApplier
+
+    // Smoothed values keep the light from jumping between frames.
+    private var smoothedNormalizedBrightness: Float = 0.5
+    private var smoothedIntensity: Float = SphereLightComponent.defaultIntensity
+
+    init(
+        targetProvider: @escaping TargetProvider,
+        intensityApplier: @escaping IntensityApplier
+    ) {
+        self.targetProvider = targetProvider
+        self.intensityApplier = intensityApplier
+    }
+
+    func process(anchor: HandAnchor) {
+        guard anchor.chirality == .right,
+              anchor.isTracked,
+              let sample = RightHandWristRollSample(anchor: anchor)
+        else { return }
+
+        let target = targetProvider(sample.wristPosition)
+        let curvedBrightness = brightnessCurve(
+            sample.normalizedBrightness
+        )
+
+        guard sample.areAllFingersExtended,
+              let target else { return }
 +
 +        smoothedNormalizedBrightness +=
 +            (curvedBrightness - smoothedNormalizedBrightness) * 0.055
@@ -3545,12 +5047,12 @@ final class RightHandLightDialController {
 +        smoothedIntensity +=
 +            (targetIntensity - smoothedIntensity) * 0.065
 +        intensityApplier(target, smoothedIntensity)
-+    }
-+
-+    /// Smoothstep: slow near the ends, faster in the middle.
-+    private func brightnessCurve(_ value: Float) -&gt; Float {
-+        value * value * (3 - 2 * value)
-+    }
+    }
+
+    /// Smoothstep: slow near the ends, faster in the middle.
+    private func brightnessCurve(_ value: Float) -&gt; Float {
+        value * value * (3 - 2 * value)
+    }
 }
 </template>
 
@@ -3613,7 +5115,7 @@ final class RightHandLightDialController {
         value * value * (3 - 2 * value)
     }
 }
-
++
 +/// One frame of the right hand: where the wrist is, which way the palm faces,
 +/// and whether the hand is open.
 +struct RightHandWristRollSample {
@@ -3637,6 +5139,93 @@ final class RightHandLightDialController {
 +            wristTransform.columns.3.y,
 +            wristTransform.columns.3.z
 +        )
++    }
++}
+</template>
+
+<template id="c-palmnormal" data-name="RightHandLightDialController.swift">
+import ARKit
+import RealityKit
+import simd
+
+/// Turns a right-hand wrist roll (palm down → palm up) into a light intensity.
+@MainActor
+final class RightHandLightDialController {
+
+    typealias TargetProvider = (SIMD3&lt;Float&gt;) -&gt; ModelEntity?
+    typealias IntensityApplier = (ModelEntity, Float) -&gt; Void
+
+    private let targetProvider: TargetProvider
+    private let intensityApplier: IntensityApplier
+
+    // Smoothed values keep the light from jumping between frames.
+    private var smoothedNormalizedBrightness: Float = 0.5
+    private var smoothedIntensity: Float = SphereLightComponent.defaultIntensity
+
+    init(
+        targetProvider: @escaping TargetProvider,
+        intensityApplier: @escaping IntensityApplier
+    ) {
+        self.targetProvider = targetProvider
+        self.intensityApplier = intensityApplier
+    }
+
+    func process(anchor: HandAnchor) {
+        guard anchor.chirality == .right,
+              anchor.isTracked,
+              let sample = RightHandWristRollSample(anchor: anchor)
+        else { return }
+
+        let target = targetProvider(sample.wristPosition)
+        let curvedBrightness = brightnessCurve(
+            sample.normalizedBrightness
+        )
+
+        guard sample.areAllFingersExtended,
+              let target else { return }
+
+        smoothedNormalizedBrightness +=
+            (curvedBrightness - smoothedNormalizedBrightness) * 0.055
+
+        let targetIntensity = SphereLightComponent.minimumIntensity
+            + smoothedNormalizedBrightness
+            * (SphereLightComponent.maximumIntensity
+                - SphereLightComponent.minimumIntensity)
+
+        smoothedIntensity +=
+            (targetIntensity - smoothedIntensity) * 0.065
+        intensityApplier(target, smoothedIntensity)
+    }
+
+    /// Smoothstep: slow near the ends, faster in the middle.
+    private func brightnessCurve(_ value: Float) -&gt; Float {
+        value * value * (3 - 2 * value)
+    }
+}
+
+/// One frame of the right hand: where the wrist is, which way the palm faces,
+/// and whether the hand is open.
+struct RightHandWristRollSample {
+
+    let wristPosition: SIMD3&lt;Float&gt;
+    let areAllFingersExtended: Bool
+
+    /// 0 = palm down, 1 = palm up.
+    let normalizedBrightness: Float
+
+    init?(anchor: HandAnchor) {
+        guard let skeleton = anchor.handSkeleton else { return nil }
+
+        let wrist = skeleton.joint(.wrist)
+        guard wrist.isTracked else { return nil }
+
+        let wristTransform = anchor.originFromAnchorTransform
+            * wrist.anchorFromJointTransform
+        wristPosition = SIMD3&lt;Float&gt;(
+            wristTransform.columns.3.x,
+            wristTransform.columns.3.y,
+            wristTransform.columns.3.z
+        )
 +
 +        // The wrist joint's Y axis points out of the palm.
 +        // Flip the sign if brightness feels inverted on device.
@@ -3649,8 +5238,8 @@ final class RightHandLightDialController {
 +        // palmNormal down(-1) → up(+1) becomes dark(0) → bright(1).
 +        let upAmount = min(max(simd_dot(palmNormal, SIMD3&lt;Float&gt;(0, 1, 0)), -1), 1)
 +        normalizedBrightness = min(max((upAmount + 1) * 0.5, 0), 1)
-+    }
-+}
+    }
+}
 </template>
 
 <template id="c-fingers" data-name="RightHandLightDialController.swift">
@@ -3748,7 +5337,7 @@ struct RightHandWristRollSample {
         // palmNormal down(-1) → up(+1) becomes dark(0) → bright(1).
         let upAmount = min(max(simd_dot(palmNormal, SIMD3&lt;Float&gt;(0, 1, 0)), -1), 1)
         normalizedBrightness = min(max((upAmount + 1) * 0.5, 0), 1)
-
++
 +        // A finger is extended when its tip is farther from the wrist
 +        // than its middle joint.
 +        let fingers: [(HandSkeleton.JointName, HandSkeleton.JointName)] = [
@@ -3772,6 +5361,27 @@ struct RightHandWristRollSample {
 </template>
 
 <template id="c-handtracking" data-name="HandTrackingManager.swift">
++import ARKit
++import SwiftUI
++
++@MainActor
++final class HandTrackingManager: ObservableObject {
++
++    private let session = ARKitSession()
++    private let handTrackingProvider = HandTrackingProvider()
++
++    private var anchorUpdatesTask: Task&lt;Void, Never&gt;?
++    private var lightDialController: RightHandLightDialController?
++
++    func connectLightDialController(
++        _ controller: RightHandLightDialController
++    ) {
++        lightDialController = controller
++    }
++}
+</template>
+
+<template id="c-handstart" data-name="HandTrackingManager.swift">
 import ARKit
 import SwiftUI
 
@@ -3789,27 +5399,27 @@ final class HandTrackingManager: ObservableObject {
     ) {
         lightDialController = controller
     }
-
-    /// Requests permission, then streams hand anchors to the controller.
-    func start() async {
-        guard HandTrackingProvider.isSupported else { return }
-
-        let results = await session.requestAuthorization(for: [.handTracking])
-        guard results[.handTracking] == .allowed else { return }
-
-        do {
-            try await session.run([handTrackingProvider])
-        } catch {
-            print("Failed to start hand tracking: \(error)")
-            return
-        }
-    }
-
-    func stop() {
-        anchorUpdatesTask?.cancel()
-        anchorUpdatesTask = nil
-        session.stop()
-    }
++
++    /// Requests permission, then streams hand anchors to the controller.
++    func start() async {
++        guard HandTrackingProvider.isSupported else { return }
++
++        let results = await session.requestAuthorization(for: [.handTracking])
++        guard results[.handTracking] == .allowed else { return }
++
++        do {
++            try await session.run([handTrackingProvider])
++        } catch {
++            print("Failed to start hand tracking: \(error)")
++            return
++        }
++    }
++
++    func stop() {
++        anchorUpdatesTask?.cancel()
++        anchorUpdatesTask = nil
++        session.stop()
++    }
 }
 </template>
 
@@ -3891,6 +5501,7 @@ final class SphereInteractionManager: ObservableObject {
     private var selectionRim: ModelEntity?
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
+
     // MARK: - Setup
 
     /// Routes RealityKit manipulation events to the handlers below.
@@ -3910,6 +5521,7 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
+
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -3978,6 +5590,7 @@ final class SphereInteractionManager: ObservableObject {
         state = .idle
         updateOverlaps()
     }
+
     // MARK: - Selection
 
     func selectSphere(_ sphere: ModelEntity) {
@@ -4099,101 +5712,10 @@ final class SphereInteractionManager: ObservableObject {
 +                &lt; distance(second.position(relativeTo: nil), worldPosition)
 +        }
 +    }
-+
-+    func selectLightSphere(_ sphere: ModelEntity) {
-+        selectSphere(sphere)
-+    }
-+
-+    func setLightIntensity(
-+        _ intensity: Float,
-+        for sphere: ModelEntity
-+    ) {
-+        applySphereLightIntensity(intensity, to: sphere)
-+    }
 }
 </template>
 
-<template id="c-connectdial" data-name="ImmersiveView.swift">
-import SwiftUI
-import RealityKit
-
-struct ImmersiveView: View {
-    @StateObject private var interactionManager = SphereInteractionManager()
-+    @StateObject private var handTrackingManager = HandTrackingManager()
-
-    var body: some View {
-        RealityView { content in
-            // Register custom components before using them.
-            RGBColorComponent.registerComponent()
-            OriginalSphereComponent.registerComponent()
-
-            let headAnchor = AnchorEntity(.head)
-
-            // The three original spheres stay fixed.
-            let red = makeRGBSphere(color: .red)
-            let green = makeRGBSphere(color: .green)
-            let blue = makeRGBSphere(color: .blue)
-
-            red.position = SIMD3&lt;Float&gt;(0.0, 0.25, -1.5)
-            green.position = SIMD3&lt;Float&gt;(-0.3, -0.15, -1.5)
-            blue.position = SIMD3&lt;Float&gt;(0.3, -0.15, -1.5)
-
-            // Mark the originals and make them respond to input.
-            for sphere in [red, green, blue] {
-                let color = sphere.components[RGBColorComponent.self]?.color ?? .red
-                sphere.components.set(
-                    OriginalSphereComponent(
-                        color: color,
-                        fixedPosition: sphere.position
-                    )
-                )
-                configureSphereForInteraction(sphere)
-            }
-
-            headAnchor.addChild(red)
-            headAnchor.addChild(green)
-            headAnchor.addChild(blue)
-
-+
-+            let lightDialController = RightHandLightDialController { worldPosition in
-+                // A sphere selected by the user takes priority.
-+                if let selectedSphere = interactionManager.selectedLightSphere() {
-+                    return selectedSphere
-+                }
-+
-+                guard let sphere = interactionManager.closestLightSphere(
-+                    to: worldPosition
-+                ) else {
-+                    return nil
-+                }
-+
-+                interactionManager.selectLightSphere(sphere)
-+                return sphere
-+            } intensityApplier: { sphere, intensity in
-+                interactionManager.setLightIntensity(
-+                    intensity,
-+                    for: sphere
-+                )
-+            }
-+
-+            handTrackingManager.connectLightDialController(
-+                lightDialController
-+            )
-
-            content.add(headAnchor)
-            interactionManager.subscribe(to: content)
-        }
-+        .task {
-+            await handTrackingManager.start()
-+        }
-+        .onDisappear {
-+            handTrackingManager.stop()
-+        }
-    }
-}
-</template>
-
-<template id="c-mixedlight" data-name="SphereInteractionManager.swift">
+<template id="c-lightapply" data-name="SphereInteractionManager.swift">
 import RealityKit
 
 @MainActor
@@ -4220,6 +5742,7 @@ final class SphereInteractionManager: ObservableObject {
     private var selectionRim: ModelEntity?
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
+
     // MARK: - Setup
 
     /// Routes RealityKit manipulation events to the handlers below.
@@ -4239,6 +5762,7 @@ final class SphereInteractionManager: ObservableObject {
             }
         ]
     }
+
     // MARK: - Manipulation
 
     func handleManipulationBegan(
@@ -4307,6 +5831,401 @@ final class SphereInteractionManager: ObservableObject {
         state = .idle
         updateOverlaps()
     }
+
+    // MARK: - Selection
+
+    func selectSphere(_ sphere: ModelEntity) {
+        guard selectedSphere !== sphere else { return }
+        selectionRim?.removeFromParent()
+        selectedSphere = sphere
+
+        // One white ring, attached to the current sphere only.
+        let rim = createSphericalSelectionRim()
+        sphere.addChild(rim)
+        selectionRim = rim
+    }
+
+    // MARK: - Overlaps
+
+    func updateOverlaps() {
+        // Keep the target set frozen while a mixed sphere is being pulled out.
+        if case .overlap = state { return }
+
+        let overlaps = overlapSystem.checkOverlap(spheres: movableSpheres)
+        let currentKeys = Set(overlaps.map(\.key))
+
+        // Remove targets whose spheres no longer overlap.
+        overlapTargets.removeAll { target in
+            let key = target.components[OverlapVisualComponent.self]?.overlapKey
+            guard let key, currentKeys.contains(key) else {
+                target.removeFromParent()
+                return true
+            }
+            return false
+        }
+
+        // Add a target for each new overlap, and keep it at the midpoint.
+        for overlap in overlaps {
+            guard let parent = overlap.firstSphere.parent else { continue }
+
+            var target = overlapTargets.first {
+                $0.components[OverlapVisualComponent.self]?.overlapKey == overlap.key
+            }
+            if target == nil {
+                let newTarget = makeOverlapTarget(for: overlap)
+                parent.addChild(newTarget)
+                overlapTargets.append(newTarget)
+                target = newTarget
+            }
+
+            target?.position = parent.convert(position: overlap.position, from: nil)
+        }
+    }
+
+    private func createClone(
+        from original: ModelEntity
+    ) -&gt; ModelEntity {
+        let color = original.components[RGBColorComponent.self]?.color ?? .red
+
+        // Same look as an original sphere, but movable.
+        let clone = makeRGBSphere(color: color)
+        clone.name = "Clone"
+        configureSphereForInteraction(clone)
+
+        return clone
+    }
+
+    func makeOverlapTarget(
+        for overlap: SphereOverlap
+    ) -&gt; ModelEntity {
+
+        // Invisible — no visible mesh needed.
+        let target = ModelEntity()
+
+        target.components.set(
+            OverlapVisualComponent(
+                overlapKey: overlap.key,
+                mixedColor: overlap.color
+            )
+        )
+
+        // Same input, collision, and manipulation setup as a sphere,
+        // with a smaller hit area.
+        configureSphereForInteraction(target, radius: 0.08)
+
+        return target
+    }
+
+    func createMixedSphere(
+        from overlap: SphereOverlap
+    ) -&gt; ModelEntity {
+        // Build a sphere with the mixed color.
+        let mixed = makeRGBSphere(
+            color: overlap.color
+        )
+
+        configureSphereForInteraction(mixed)
+
+        // Joins the movable collection, so it can
+        // participate in future overlaps.
+        movableSpheres.append(mixed)
+        if let parent = overlap.firstSphere.parent {
+            parent.addChild(mixed)
+            mixed.position = parent.convert(position: overlap.position, from: nil)
+        }
+
+        return mixed
+    }
+
+    // MARK: - Light Selection
+
+    /// The sphere the user selected most recently, if any.
+    func selectedLightSphere() -&gt; ModelEntity? {
+        selectedSphere
+    }
+
+    /// The movable sphere nearest to a world position (the wrist).
+    func closestLightSphere(
+        to worldPosition: SIMD3&lt;Float&gt;
+    ) -&gt; ModelEntity? {
+        movableSpheres.min { first, second in
+            distance(first.position(relativeTo: nil), worldPosition)
+                &lt; distance(second.position(relativeTo: nil), worldPosition)
+        }
+    }
++
++    func selectLightSphere(_ sphere: ModelEntity) {
++        selectSphere(sphere)
++    }
++
++    func setLightIntensity(
++        _ intensity: Float,
++        for sphere: ModelEntity
++    ) {
++        applySphereLightIntensity(intensity, to: sphere)
++    }
+}
+</template>
+
+<template id="c-connectdial" data-name="ImmersiveView.swift">
+import SwiftUI
+import RealityKit
+
+struct ImmersiveView: View {
+    @StateObject private var interactionManager = SphereInteractionManager()
++    @StateObject private var handTrackingManager = HandTrackingManager()
+
+    var body: some View {
+        RealityView { content in
+            // Register custom components before using them.
+            RGBColorComponent.registerComponent()
+            OriginalSphereComponent.registerComponent()
+
+            let headAnchor = AnchorEntity(.head)
+
+            // The three original spheres stay fixed.
+            let red = makeRGBSphere(color: .red)
+            let green = makeRGBSphere(color: .green)
+            let blue = makeRGBSphere(color: .blue)
+
+            red.position = SIMD3&lt;Float&gt;(0.0, 0.25, -1.5)
+            green.position = SIMD3&lt;Float&gt;(-0.3, -0.15, -1.5)
+            blue.position = SIMD3&lt;Float&gt;(0.3, -0.15, -1.5)
+
+            // Mark the originals and make them respond to input.
+            for sphere in [red, green, blue] {
+                let color = sphere.components[RGBColorComponent.self]?.color ?? .red
+                sphere.components.set(
+                    OriginalSphereComponent(
+                        color: color,
+                        fixedPosition: sphere.position
+                    )
+                )
+                configureSphereForInteraction(sphere)
+            }
+
+            headAnchor.addChild(red)
+            headAnchor.addChild(green)
+            headAnchor.addChild(blue)
++
++            let lightDialController = RightHandLightDialController { worldPosition in
++                // A sphere selected by the user takes priority.
++                if let selectedSphere = interactionManager.selectedLightSphere() {
++                    return selectedSphere
++                }
++
++                guard let sphere = interactionManager.closestLightSphere(
++                    to: worldPosition
++                ) else {
++                    return nil
++                }
++
++                interactionManager.selectLightSphere(sphere)
++                return sphere
+
+            content.add(headAnchor)
+            interactionManager.subscribe(to: content)
+        }
+    }
+}
+</template>
+
+<template id="c-connectlifecycle" data-name="ImmersiveView.swift">
+import SwiftUI
+import RealityKit
+
+struct ImmersiveView: View {
+    @StateObject private var interactionManager = SphereInteractionManager()
+    @StateObject private var handTrackingManager = HandTrackingManager()
+
+    var body: some View {
+        RealityView { content in
+            // Register custom components before using them.
+            RGBColorComponent.registerComponent()
+            OriginalSphereComponent.registerComponent()
+
+            let headAnchor = AnchorEntity(.head)
+
+            // The three original spheres stay fixed.
+            let red = makeRGBSphere(color: .red)
+            let green = makeRGBSphere(color: .green)
+            let blue = makeRGBSphere(color: .blue)
+
+            red.position = SIMD3&lt;Float&gt;(0.0, 0.25, -1.5)
+            green.position = SIMD3&lt;Float&gt;(-0.3, -0.15, -1.5)
+            blue.position = SIMD3&lt;Float&gt;(0.3, -0.15, -1.5)
+
+            // Mark the originals and make them respond to input.
+            for sphere in [red, green, blue] {
+                let color = sphere.components[RGBColorComponent.self]?.color ?? .red
+                sphere.components.set(
+                    OriginalSphereComponent(
+                        color: color,
+                        fixedPosition: sphere.position
+                    )
+                )
+                configureSphereForInteraction(sphere)
+            }
+
+            headAnchor.addChild(red)
+            headAnchor.addChild(green)
+            headAnchor.addChild(blue)
+
+            let lightDialController = RightHandLightDialController { worldPosition in
+                // A sphere selected by the user takes priority.
+                if let selectedSphere = interactionManager.selectedLightSphere() {
+                    return selectedSphere
+                }
+
+                guard let sphere = interactionManager.closestLightSphere(
+                    to: worldPosition
+                ) else {
+                    return nil
+                }
+
+                interactionManager.selectLightSphere(sphere)
+                return sphere
++            } intensityApplier: { sphere, intensity in
++                interactionManager.setLightIntensity(
++                    intensity,
++                    for: sphere
++                )
++            }
++
++            handTrackingManager.connectLightDialController(
++                lightDialController
++            )
+
+            content.add(headAnchor)
+            interactionManager.subscribe(to: content)
+        }
++        .task {
++            await handTrackingManager.start()
++        }
++        .onDisappear {
++            handTrackingManager.stop()
++        }
+    }
+}
+</template>
+
+<template id="c-mixedlight" data-name="SphereInteractionManager.swift">
+import RealityKit
+
+@MainActor
+final class SphereInteractionManager: ObservableObject {
+
+    enum InteractionState {
+        case idle
+        case original(
+            sphere: ModelEntity,
+            position: SIMD3&lt;Float&gt;,
+            clone: ModelEntity
+        )
+        case movable(sphere: ModelEntity)
+        case overlap(target: ModelEntity, mixed: ModelEntity)
+    }
+
+    var state: InteractionState = .idle
+
+    /// Clones and mixed spheres — the ones that can move.
+    var movableSpheres: [ModelEntity] = []
+    var overlapTargets: [ModelEntity] = []
+
+    private var selectedSphere: ModelEntity?
+    private var selectionRim: ModelEntity?
+    private var subscriptions: [EventSubscription] = []
+    let overlapSystem = SphereOverlapSystem()
+
+    // MARK: - Setup
+
+    /// Routes RealityKit manipulation events to the handlers below.
+    func subscribe(to content: RealityViewContent) {
+        subscriptions = [
+            content.subscribe(to: ManipulationEvents.WillBegin.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationBegan(sphere)
+            },
+            content.subscribe(to: ManipulationEvents.DidUpdateTransform.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationUpdated(sphere)
+            },
+            content.subscribe(to: ManipulationEvents.WillRelease.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationEnded(sphere)
+            }
+        ]
+    }
+
+    // MARK: - Manipulation
+
+    func handleManipulationBegan(
+        _ sphere: ModelEntity
+    ) {
+        // An original RGB sphere creates a movable clone.
+        if let original = sphere.components[OriginalSphereComponent.self] {
+            let clone = createClone(from: sphere)
+
+            clone.position = sphere.position
+            sphere.parent?.addChild(clone)
+            movableSpheres.append(clone)
+
+            state = .original(
+                sphere: sphere,
+                position: original.fixedPosition,
+                clone: clone
+            )
+
+            selectSphere(clone)
+            return
+        }
+
+        // An overlap target creates a new mixed sphere.
+        if let component = sphere.components[OverlapVisualComponent.self] {
+            guard let overlap = overlapSystem
+                .checkOverlap(spheres: movableSpheres)
+                .first(where: { $0.key == component.overlapKey })
+            else { return }
+
+            let mixed = createMixedSphere(from: overlap)
+            state = .overlap(target: sphere, mixed: mixed)
+            selectSphere(mixed)
+            return
+        }
+
+        // Original spheres stay fixed — create a
+        // movable clone that follows the gesture.
+        selectSphere(sphere)
+    }
+
+    func handleManipulationUpdated(
+        _ sphere: ModelEntity
+    ) {
+        // The mixed sphere follows the dragged target.
+        if case .overlap(let target, let mixed) = state {
+            mixed.position = target.position
+        }
+
+        // Track the sphere's position and update
+        // overlap targets each frame.
+        updateOverlaps()
+    }
+
+    func handleManipulationEnded(
+        _ sphere: ModelEntity
+    ) {
+        // The target has done its job once the mixed sphere exists.
+        if case .overlap(let target, _) = state {
+            target.removeFromParent()
+            overlapTargets.removeAll { $0 === target }
+        }
+
+        // Finalize the position and refresh
+        // overlap targets.
+        state = .idle
+        updateOverlaps()
+    }
+
     // MARK: - Selection
 
     func selectSphere(_ sphere: ModelEntity) {
@@ -4411,7 +6330,6 @@ final class SphereInteractionManager: ObservableObject {
 +            mixedIntensity,
 +            to: mixed
 +        )
-+
 
         configureSphereForInteraction(mixed)
 
@@ -4506,44 +6424,67 @@ final class SphereInteractionManager: ObservableObject {
     "c-toggle": ["ToggleImmersiveSpaceButton.swift — replace the generated file contents", "ToggleImmersiveSpaceButton.swift — 생성된 파일 전체를 교체합니다"],
     "c-content": ["ContentView.swift — replace the body content", "ContentView.swift — body 내용을 교체합니다"],
     "c-makesphere": ["RGBSphere.swift — add as a new Swift file", "RGBSphere.swift — 새 Swift 파일로 추가합니다"],
+    "c-storecolor": ["RGBSphere.swift — add the marked lines before return sphere", "RGBSphere.swift — return sphere 앞에 표시된 줄을 추가합니다"],
     "c-rgbcolor": ["RGBColor.swift — add as a new Swift file", "RGBColor.swift — 새 Swift 파일로 추가합니다"],
+    "c-uicolor": ["RGBColor.swift — add inside RGBColor, below the primary colors", "RGBColor.swift — RGBColor 안, 삼원색 아래에 추가합니다"],
     "c-material": ["RGBSphere.swift — add below makeRGBSphere(color:)", "RGBSphere.swift — makeRGBSphere(color:) 아래에 추가합니다"],
     "c-glowmat": ["RGBSphere.swift — add below makeSphereMaterial(color:)", "RGBSphere.swift — makeSphereMaterial(color:) 아래에 추가합니다"],
     "c-glowtex": ["RGBSphere.swift — add below makeGlowMaterial(color:)", "RGBSphere.swift — makeGlowMaterial(color:) 아래에 추가합니다"],
+    "c-glowgrad": ["RGBSphere.swift — add the marked lines inside the renderer.image closure", "RGBSphere.swift — renderer.image 클로저 안에 표시된 줄을 추가합니다"],
     "c-glowtexret": ["RGBSphere.swift — add the marked lines at the end of makeRadialGlowTexture(color:)", "RGBSphere.swift — makeRadialGlowTexture(color:) 끝에 표시된 줄을 추가합니다"],
-    "c-glow": ["RGBSphere.swift — add addRadiatingGlow(to:color:) below makeRadialGlowTexture(color:) and call it from makeRGBSphere(color:)", "RGBSphere.swift — makeRadialGlowTexture(color:) 아래에 addRadiatingGlow(to:color:)를 추가하고 makeRGBSphere(color:)에서 호출합니다"],
+    "c-glow": ["RGBSphere.swift — add below makeRadialGlowTexture(color:)", "RGBSphere.swift — makeRadialGlowTexture(color:) 아래에 추가합니다"],
+    "c-glowname": ["RGBSphere.swift — add the marked lines in addRadiatingGlow(to:color:) and makeRGBSphere(color:)", "RGBSphere.swift — addRadiatingGlow(to:color:)와 makeRGBSphere(color:)에 표시된 줄을 추가합니다"],
     "c-place": ["ImmersiveView.swift — inside the RealityView content closure", "ImmersiveView.swift — RealityView의 Content Closure 내부에 작성합니다"],
+    "c-position": ["ImmersiveView.swift — add the marked lines after the three makeRGBSphere calls", "ImmersiveView.swift — makeRGBSphere 호출 3개 뒤에 표시된 줄을 추가합니다"],
     "c-colorcomp": ["SphereComponents.swift — add as a new Swift file", "SphereComponents.swift — 새 Swift 파일로 추가합니다"],
     "c-origcomp": ["SphereComponents.swift — below RGBColorComponent", "SphereComponents.swift — RGBColorComponent 아래에 작성합니다"],
     "c-interaction": ["SphereInteraction.swift — add as a new Swift file", "SphereInteraction.swift — 새 Swift 파일로 추가합니다"],
+    "c-manipulate": ["SphereInteraction.swift — add the marked lines at the end of configureSphereForInteraction", "SphereInteraction.swift — configureSphereForInteraction 끝에 표시된 줄을 추가합니다"],
     "c-manip": ["SphereInteractionManager.swift — add as a new Swift file", "SphereInteractionManager.swift — 새 Swift 파일로 추가합니다"],
+    "c-manipprops": ["SphereInteractionManager.swift — add the properties below InteractionState, and the two methods below them", "SphereInteractionManager.swift — InteractionState 아래에 Property를, 그 아래에 메서드 2개를 추가합니다"],
     "c-events": ["SphereInteractionManager.swift — add subscribe(to:) below the properties", "SphereInteractionManager.swift — Property 아래에 subscribe(to:)를 추가합니다"],
-    "c-handlers": ["SphereInteractionManager.swift — add the three handlers below subscribe(to:)", "SphereInteractionManager.swift — subscribe(to:) 아래에 핸들러 3개를 추가합니다"],
+    "c-handlers": ["SphereInteractionManager.swift — add below subscribe(to:)", "SphereInteractionManager.swift — subscribe(to:) 아래에 추가합니다"],
+    "c-handlersend": ["SphereInteractionManager.swift — add below handleManipulationBegan(_:)", "SphereInteractionManager.swift — handleManipulationBegan(_:) 아래에 추가합니다"],
     "c-wire": ["ImmersiveView.swift — add the manager Property, register OriginalSphereComponent, then the marked lines inside RealityView", "ImmersiveView.swift — Manager Property를 추가하고 OriginalSphereComponent를 등록한 뒤 RealityView 안의 표시된 줄을 작성합니다"],
-    "c-clone": ["SphereInteractionManager.swift — inside handleManipulationBegan(_:), plus createClone(from:) below", "SphereInteractionManager.swift — handleManipulationBegan(_:) 내부와 그 아래 createClone(from:)에 추가합니다"],
+    "c-clone": ["SphereInteractionManager.swift — add below updateOverlaps()", "SphereInteractionManager.swift — updateOverlaps() 아래에 추가합니다"],
+    "c-cloneuse": ["SphereInteractionManager.swift — add the marked lines at the start of handleManipulationBegan(_:)", "SphereInteractionManager.swift — handleManipulationBegan(_:) 시작 부분에 표시된 줄을 추가합니다"],
     "c-rim": ["SphericalSelectionRim.swift — add as a new Swift file", "SphericalSelectionRim.swift — 새 Swift 파일로 추가합니다"],
     "c-rimverts": ["SphericalSelectionRim.swift — add below createSphericalSelectionRim()", "SphericalSelectionRim.swift — createSphericalSelectionRim() 아래에 추가합니다"],
     "c-rimmesh": ["SphericalSelectionRim.swift — add below makeRimVertices(outerRadius:innerRadius:segments:)", "SphericalSelectionRim.swift — makeRimVertices(outerRadius:innerRadius:segments:) 아래에 추가합니다"],
+    "c-rimtriangles": ["SphericalSelectionRim.swift — add the marked lines inside makeSphericalRimMesh", "SphericalSelectionRim.swift — makeSphericalRimMesh 안에 표시된 줄을 추가합니다"],
+    "c-rimdesc": ["SphericalSelectionRim.swift — add the marked lines at the end of makeSphericalRimMesh", "SphericalSelectionRim.swift — makeSphericalRimMesh 끝에 표시된 줄을 추가합니다"],
     "c-attachrim": ["SphereInteractionManager.swift — add the selectionRim Property and the marked lines in selectSphere(_:)", "SphereInteractionManager.swift — selectionRim Property를 추가하고 selectSphere(_:) 안의 표시된 줄을 작성합니다"],
     "c-mix": ["RGBColor.swift — inside RGBColor as mixed(with:)", "RGBColor.swift — RGBColor 내부에 mixed(with:)로 추가합니다"],
+    "c-normalize": ["RGBColor.swift — add below mixed(with:)", "RGBColor.swift — mixed(with:) 아래에 추가합니다"],
     "c-overlapsys": ["SphereOverlapSystem.swift — add as a new Swift file", "SphereOverlapSystem.swift — 새 Swift 파일로 추가합니다"],
-    "c-overlapval": ["SphereOverlapSystem.swift — fill in the marked lines inside checkOverlap(spheres:) and add SphereOverlap below", "SphereOverlapSystem.swift — checkOverlap(spheres:) 안의 표시된 줄을 채우고 아래에 SphereOverlap을 추가합니다"],
+    "c-overlaploop": ["SphereOverlapSystem.swift — add the marked lines inside checkOverlap(spheres:)", "SphereOverlapSystem.swift — checkOverlap(spheres:) 안에 표시된 줄을 추가합니다"],
+    "c-overlapval": ["SphereOverlapSystem.swift — add the marked lines after the distance guard", "SphereOverlapSystem.swift — 거리 guard 뒤에 표시된 줄을 추가합니다"],
+    "c-overlapstruct": ["SphereOverlapSystem.swift — add below SphereOverlapSystem", "SphereOverlapSystem.swift — SphereOverlapSystem 아래에 추가합니다"],
     "c-overlaptarget": ["SphereInteractionManager.swift — add makeOverlapTarget(for:) below createClone(from:)", "SphereInteractionManager.swift — createClone(from:) 아래에 makeOverlapTarget(for:)를 추가합니다"],
     "c-synctargets": ["SphereInteractionManager.swift — replace the body of updateOverlaps()", "SphereInteractionManager.swift — updateOverlaps()의 본문을 교체합니다"],
+    "c-synctargetsadd": ["SphereInteractionManager.swift — add the marked lines at the end of updateOverlaps()", "SphereInteractionManager.swift — updateOverlaps() 끝에 표시된 줄을 추가합니다"],
     "c-overlapcomp": ["OverlapVisualComponent.swift — add as a new Swift file", "OverlapVisualComponent.swift — 새 Swift 파일로 추가합니다"],
     "c-mixedsphere": ["SphereInteractionManager.swift — add createMixedSphere(from:) below makeOverlapTarget(for:)", "SphereInteractionManager.swift — makeOverlapTarget(for:) 아래에 createMixedSphere(from:)를 추가합니다"],
-    "c-pullmixed": ["SphereInteractionManager.swift — add the overlap case and the marked lines in the three handlers and updateOverlaps()", "SphereInteractionManager.swift — overlap case와 핸들러 3개·updateOverlaps() 안의 표시된 줄을 추가합니다"],
+    "c-pullmixed": ["SphereInteractionManager.swift — add the overlap case and the marked lines in handleManipulationBegan", "SphereInteractionManager.swift — overlap case와 handleManipulationBegan 안의 표시된 줄을 추가합니다"],
+    "c-pullfollow": ["SphereInteractionManager.swift — add the marked lines in handleManipulationUpdated, handleManipulationEnded, and updateOverlaps", "SphereInteractionManager.swift — handleManipulationUpdated·handleManipulationEnded·updateOverlaps에 표시된 줄을 추가합니다"],
     "c-lightcomponent": ["SphereComponents.swift — add below the other custom components", "SphereComponents.swift — 다른 커스텀 Component 아래에 추가합니다"],
     "c-applylight": ["RGBSphere.swift — add below addRadiatingGlow(to:color:)", "RGBSphere.swift — addRadiatingGlow(to:color:) 아래에 추가합니다"],
+    "c-applymaterial": ["RGBSphere.swift — add the marked lines inside applySphereLightIntensity(_:to:)", "RGBSphere.swift — applySphereLightIntensity(_:to:) 안에 표시된 줄을 추가합니다"],
     "c-applyglow": ["RGBSphere.swift — add the marked lines to applySphereLightIntensity(_:to:) and makeRGBSphere(color:)", "RGBSphere.swift — applySphereLightIntensity(_:to:)와 makeRGBSphere(color:)에 표시된 줄을 추가합니다"],
     "c-dialstate": ["RightHandLightDialController.swift — add as a new Swift file", "RightHandLightDialController.swift — 새 Swift 파일로 추가합니다"],
+    "c-dialinit": ["RightHandLightDialController.swift — add below the properties", "RightHandLightDialController.swift — Property 아래에 추가합니다"],
     "c-wristroll": ["RightHandLightDialController.swift — add process(anchor:) and brightnessCurve(_:) below init", "RightHandLightDialController.swift — init 아래에 process(anchor:)와 brightnessCurve(_:)를 추가합니다"],
+    "c-wristapply": ["RightHandLightDialController.swift — add the marked lines at the end of process(anchor:)", "RightHandLightDialController.swift — process(anchor:) 끝에 표시된 줄을 추가합니다"],
     "c-wristsample": ["RightHandLightDialController.swift — add below RightHandLightDialController", "RightHandLightDialController.swift — RightHandLightDialController 아래에 추가합니다"],
+    "c-palmnormal": ["RightHandLightDialController.swift — add the marked lines inside init?(anchor:)", "RightHandLightDialController.swift — init?(anchor:) 안에 표시된 줄을 추가합니다"],
     "c-fingers": ["RightHandLightDialController.swift — add the marked lines at the end of init?(anchor:)", "RightHandLightDialController.swift — init?(anchor:) 끝에 표시된 줄을 추가합니다"],
     "c-handtracking": ["HandTrackingManager.swift — add as a new Swift file", "HandTrackingManager.swift — 새 Swift 파일로 추가합니다"],
+    "c-handstart": ["HandTrackingManager.swift — add below connectLightDialController(_:)", "HandTrackingManager.swift — connectLightDialController(_:) 아래에 추가합니다"],
     "c-handanchors": ["HandTrackingManager.swift — add the marked lines at the end of start()", "HandTrackingManager.swift — start() 끝에 표시된 줄을 추가합니다"],
     "c-lightselect": ["SphereInteractionManager.swift — add below createMixedSphere(from:)", "SphereInteractionManager.swift — createMixedSphere(from:) 아래에 추가합니다"],
-    "c-connectdial": ["ImmersiveView.swift — add the hand-tracking property, the controller inside RealityView, and the task modifier", "ImmersiveView.swift — Hand Tracking Property, RealityView 안의 Controller, task Modifier를 추가합니다"],
+    "c-lightapply": ["SphereInteractionManager.swift — add below closestLightSphere(to:)", "SphereInteractionManager.swift — closestLightSphere(to:) 아래에 추가합니다"],
+    "c-connectdial": ["ImmersiveView.swift — add the hand-tracking Property and the controller inside RealityView", "ImmersiveView.swift — Hand Tracking Property와 RealityView 안의 Controller를 추가합니다"],
+    "c-connectlifecycle": ["ImmersiveView.swift — add the marked lines after the target closure, and the modifiers below RealityView", "ImmersiveView.swift — 타깃 클로저 뒤와 RealityView 아래에 표시된 줄을 추가합니다"],
     "c-mixedlight": ["SphereInteractionManager.swift — inside createMixedSphere(from:), after adding the glow", "SphereInteractionManager.swift — createMixedSphere(from:)에서 글로우를 추가한 다음에 작성합니다"]
   };
 
@@ -4833,46 +6774,69 @@ final class SphereInteractionManager: ObservableObject {
     "c-app": { h3: "앱의 Scene 정의하기", p: C("App") + " 구조체는 일반 윈도우와 Immersive Space을 모두 정의합니다. " + C("WindowGroup") + "은 초기 SwiftUI 인터페이스를 표시하고, " + C("ImmersiveSpace") + " Scene은 " + C("ImmersiveView") + "를 담습니다. 공간이 나타나면 상태가 " + C("open") + "이 되고, 사라지면 " + C("closed") + "로 돌아갑니다." },
     "c-toggle": { h3: "Immersive Space 열고 닫기", p: C("openImmersiveSpace") + "는 식별자로 공간을 열고 " + C("dismissImmersiveSpace") + "는 닫습니다. " + C("inTransition") + " 상태는 공간이 여닫히는 동안 버튼을 비활성화합니다." },
     "c-content": { h3: "초기 뷰 만들기", p: "일반 윈도우에는 Immersive 경험으로 들어가는 버튼 하나만 있으면 됩니다. 이 시점에서 앱은 빈 Immersive Space을 열고 닫을 수 있고, RGB 구는 다음 섹션에서 추가합니다." },
-    "c-makesphere": { h3: "구 만들기", p: C("ModelEntity") + "는 Mesh와 Material을 결합해 보이는 오브젝트를 만듭니다. " + C("makeRGBSphere") + " 함수는 반지름 " + C("0.15") + "미터의 구를 만들고 " + C("RGBColorComponent") + "로 색을 저장합니다." },
+    "c-makesphere": { h3: "구 만들기", p: C("ModelEntity") + "는 Mesh와 Material을 결합해 보이는 오브젝트를 만듭니다. " + C("makeRGBSphere") + " 함수는 반지름 " + C("0.15") + "미터의 구를 빛나는 Material로 만듭니다." },
+    "c-storecolor": { h3: "구에 색 저장하기", p: C("RGBColorComponent") + "를 붙여 구가 자기 RGB 값을 갖게 합니다. 뒤 단계에서 복제하고 혼합할 때 이 값을 읽습니다." },
     "c-rgbcolor": { h3: "RGB 색상 만들기", p: C("RGBColor") + " 구조체는 빨강·초록·파랑 값을 따로 저장합니다 — Red " + C("(1, 0, 0)") + ", Green " + C("(0, 1, 0)") + ", Blue " + C("(0, 0, 1)") + ". RGB 값을 시각적 색상과 분리해 두면 나중에 색을 혼합할 수 있습니다." },
+    "c-uicolor": { h3: "UIKit 색으로 변환하기", p: "Material은 " + C("UIColor") + "가 필요합니다. 계산 프로퍼티가 Material이 요청할 때마다 Float 3개를 변환합니다." },
     "c-material": { h3: "구 Material 만들기", p: "구는 베이스 색상에 투명도와 발광 색상을 결합해 빛나는 느낌을 내는 " + C("PhysicallyBasedMaterial") + "을 사용합니다." },
     "c-glowmat": { h3: "글로우 Material 만들기", p: C("UnlitMaterial") + "은 Scene 조명의 영향 없이 Texture를 그대로 보여주어 글로우 색이 유지됩니다. 투명 블렌딩으로 옅어진 가장자리가 사라집니다." },
-    "c-glowtex": { h3: "글로우 Texture 그리기", p: C("UIGraphicsImageRenderer") + "로 중앙이 가장 진하고 가장자리로 갈수록 투명해지는 방사형 그라데이션을 그립니다. 함수는 아직 미완성이며, 다음 단계에서 결과를 반환합니다." },
+    "c-glowtex": { h3: "글로우 Texture 그리기 준비", p: C("UIGraphicsImageRenderer") + "를 만들고 그라데이션 색 2개를 정합니다. 중심은 구의 색, 가장자리는 투명입니다. 다음 단계에서 그라데이션을 그립니다." },
+    "c-glowgrad": { h3: "그라데이션 그리기", p: "두 색으로 " + C("CGGradient") + "를 만들고 이미지 중심에서 가장자리까지 방사형으로 그립니다." },
     "c-glowtexret": { h3: "이미지를 Texture로 바꾸기", p: "그린 이미지를 " + C("TextureResource") + "로 변환해 반환합니다. 그라데이션은 코드로 생성하므로 변환이 실패하지 않습니다." },
-    "c-glow": { h3: "퍼지는 글로우 추가하기", p: "두 번째 시각 레이어가 구 주위의 부드러운 글로우를 만듭니다. 평면에 방사형 그라데이션 Texture를 적용하고 " + C("BillboardComponent") + "로 항상 시청자를 향하게 합니다. 글로우는 시각 요소일 뿐입니다." },
-    "c-place": { h3: "RGB 구 배치하기", p: C("ImmersiveView") + "의 " + C("RealityView") + "에서 세 개의 구를 만들어 사용자 앞에 배치하고 Head Anchor에 추가합니다. 이 시점에서 구는 Immersive Space에 보이지만 아직 조작할 수는 없습니다." },
+    "c-glow": { h3: "퍼지는 글로우 추가하기", p: "글로우 Material을 입힌 평면을 만들어 구의 자식으로 추가합니다. 다음 단계에서 이름을 붙이고 사용자를 향하게 합니다." },
+    "c-glowname": { h3: "글로우에 이름 붙이고 연결하기", p: "나중에 찾을 수 있도록 글로우에 이름을 붙이고, " + C("BillboardComponent") + "로 항상 사용자를 향하게 합니다. 그리고 " + C("makeRGBSphere") + "에서 " + C("addRadiatingGlow") + "를 호출해 모든 구가 글로우를 갖게 합니다." },
+    "c-place": { h3: "RGB 구 배치하기", p: C("ImmersiveView") + "의 " + C("RealityView") + "에서 세 개의 구를 만들어 Head Anchor에 추가합니다. 구는 Immersive Space에 보이지만 아직 배치되거나 움직일 수는 없습니다." },
+    "c-position": { h3: "구 배치하기", p: "Head Anchor 앞 약 1.5미터에 구를 삼각형으로 놓습니다. 빨강은 위, 초록은 왼쪽, 파랑은 오른쪽입니다." },
     "c-colorcomp": { h3: "RGB 색상 저장하기", p: C("RGBColorComponent") + "는 구에 연결된 RGB 색상을 저장해, 색상 데이터를 Entity 자체에 붙여 둡니다." },
     "c-origcomp": { h3: "원본 구 식별하기", p: C("OriginalSphereComponent") + "는 원본 구를 식별하고 고정 위치를 저장합니다 — 그래서 세 개의 원본 구는 제자리에 남고, 이동 가능한 복제본이 인터랙션용으로 생성됩니다." },
-    "c-interaction": { h3: "인터랙션을 위한 구 준비하기", p: C("configureSphereForInteraction") + " 함수에서는 구가 사용자 입력을 받을 수 있도록 " + C("InputTargetComponent") + ", 충돌 및 인터랙션 영역을 정의하는 " + C("CollisionComponent") + ", 사용자가 구를 직접 움직일 수 있도록 하는 " + C("ManipulationComponent") + "를 추가합니다. 충돌 영역의 반지름은 " + C("radius") + " 매개변수로 받아 뒤에서 다른 크기의 Entity에도 재사용합니다." },
-    "c-manip": { h3: "조작 이벤트 처리하기", p: C("SphereInteractionManager") + "는 조작 시작, 위치 업데이트, 놓기 세 단계의 이벤트에 응답합니다. 원본 구는 고정된 채, 이동 가능한 복제본이 사용자의 인터랙션을 따라갑니다." },
+    "c-interaction": { h3: "인터랙션을 위한 구 준비하기", p: C("configureSphereForInteraction") + " 함수에서는 구가 사용자 입력을 받을 수 있도록 " + C("InputTargetComponent") + ", 충돌 및 인터랙션 영역을 정의하는 " + C("CollisionComponent") + "를 추가합니다. 반지름은 " + C("radius") + " 매개변수로 받아 다른 크기의 Entity에도 재사용합니다." },
+    "c-manipulate": { h3: "사용자가 움직일 수 있게 하기", p: C("ManipulationComponent") + "가 집어서 끌기를 이동으로 바꿉니다. " + C("releaseBehavior") + "를 stay로 두면 사용자가 놓은 자리에 Entity가 그대로 남습니다." },
+    "c-manip": { h3: "인터랙션 Manager 만들기", p: C("SphereInteractionManager") + "는 사용자가 구를 잡을 때 일어나는 모든 일을 담당합니다. 클래스와, 무엇이 조작 중인지 나타내는 " + C("InteractionState") + "부터 만듭니다." },
+    "c-manipprops": { h3: "Manager 상태 추가하기", p: "현재 상태, 이동 가능한 구, 겹침 타깃, 선택된 구를 저장합니다. " + C("selectSphere") + "는 선택을 기록하고, " + C("updateOverlaps") + "는 Section 5까지 자리만 잡아 둡니다." },
     "c-events": { h3: "조작 이벤트 구독하기", p: "사용자가 집어서 끌 때 RealityKit이 보내는 " + C("ManipulationEvents") + " 3가지를 받아 각각 핸들러로 넘깁니다. 핸들러는 다음 단계에서 만듭니다." },
-    "c-handlers": { h3: "세 단계 처리하기", p: "시작, 업데이트, 종료입니다. 지금은 각 핸들러가 구를 선택하거나 겹침을 갱신하기만 하고, 뒤 단계에서 복제본·타깃·혼합 구 처리가 여기에 추가됩니다." },
+    "c-handlers": { h3: "시작 처리하기", p: "조작이 시작되면 구를 선택합니다. 뒤 단계에서 복제본과 혼합 구 처리가 여기에 추가됩니다." },
+    "c-handlersend": { h3: "업데이트와 종료 처리하기", p: "구가 움직이는 동안 매 프레임 겹침을 갱신합니다. 제스처가 끝나면 idle 상태로 돌아가 한 번 더 갱신합니다." },
     "c-wire": { h3: "Manager를 View에 연결하기", p: C("ImmersiveView") + "에 " + C("SphereInteractionManager") + "를 두고, 세 구를 고정 위치를 가진 원본으로 표시한 뒤 인터랙션을 켜고, Manager가 Scene의 조작 이벤트를 구독하게 합니다." },
-    "c-clone": { h3: "이동 가능한 복제본 만들기", p: "원본 구는 고정 위치를 떠나지 않습니다. 사용자가 원본 구를 조작하기 시작하면 같은 색·글로우·인터랙션 Component를 가진 이동 가능한 <em>Clone</em>을 만듭니다. 복제본은 이동 가능한 구 컬렉션에 합류하며 — 실제로 겹치고 색을 혼합하는 것은 이 복제본들입니다." },
-    "c-mix": { h3: "RGB 색 결합하기", p: C("mixed(with:)") + " 함수는 두 색의 RGB 성분을 더한 뒤 " + C("0...1") + " 범위로 정규화합니다." },
-    "c-overlapsys": { h3: "겹치는 구 감지하기", p: C("SphereOverlapSystem") + "은 이동 가능한 구의 모든 쌍의 월드 좌표를 비교합니다. 두 중심 사이 거리가 겹침 거리보다 작으면 겹친 것으로 판정하고, 중간점이 색 혼합 인터랙션의 위치가 됩니다." },
-    "c-overlapval": { h3: "겹침 기술하기", p: "각 겹침은 " + C("SphereOverlap") + " 값으로 기술됩니다 — 두 구, 중간점 위치, 혼합 색상, 그리고 같은 쌍에 중복 타깃이 생기지 않게 하는 고유 키." },
+    "c-clone": { h3: "이동 가능한 복제본 만들기", p: "원본 구는 고정 위치를 떠나지 않으므로, " + C("createClone") + "이 같은 색과 글로우를 가진 이동 가능한 복사본을 만들고 인터랙티브하게 만듭니다." },
+    "c-cloneuse": { h3: "원본을 잡으면 복제하기", p: "잡은 구에 " + C("OriginalSphereComponent") + "가 있으면 같은 위치에 복제본을 만들고, 이동 가능한 컬렉션에 넣고, 상태를 기억한 뒤 원본 대신 복제본을 선택합니다." },
+    "c-mix": { h3: "색 혼합하기", p: "빛은 가산 혼합입니다. " + C("mixed(with:)") + "가 두 색의 각 채널을 더합니다. 빨강과 초록은 노랑이 됩니다." },
+    "c-normalize": { h3: "값을 범위 안에 두기", p: "두 빛을 더하면 채널이 1을 넘을 수 있습니다. " + C("normalized") + "가 각 채널을 잘라 색을 유효한 범위에 둡니다." },
+    "c-overlapsys": { h3: "겹치는 구 감지하기", p: C("SphereOverlapSystem") + "은 이동 가능한 구들을 비교해 겹치는 쌍을 보고합니다. 클래스, 겹침 거리, 결과 배열부터 만듭니다." },
+    "c-overlaploop": { h3: "모든 쌍 비교하기", p: "모든 구 쌍을 한 번씩 돌며 World 좌표 사이의 거리를 잽니다. 겹침 거리보다 가까운 쌍만 다음 단계로 넘어갑니다." },
+    "c-overlapval": { h3: "겹침 값 만들기", p: "겹치는 쌍마다 두 색을 읽어 혼합하고, 중간점과 키를 담은 " + C("SphereOverlap") + "을 추가합니다." },
+    "c-overlapstruct": { h3: "겹침 설명하기", p: C("SphereOverlap") + " 값은 두 구, 중간점, 혼합색, 그리고 쌍을 식별하는 키를 담습니다." },
     "c-overlaptarget": { h3: "겹침 타깃 만들기", p: "겹친 구의 중간점에 보이지 않는 " + C("ModelEntity") + "를 만듭니다. 보이는 Mesh는 필요 없고, Section 3에서 만든 " + C("configureSphereForInteraction") + " 함수를 그대로 써서 입력·충돌·조작 설정을 붙입니다. 충돌 영역 반지름만 더 작게 전달합니다." },
-    "c-synctargets": { h3: "타깃 동기화하기", p: "구가 움직일 때마다 현재 겹침과 기존 타깃을 비교합니다. 더 이상 겹치지 않는 쌍의 타깃은 제거하고, 새 쌍에는 타깃을 추가하고, 모든 타깃을 중간점으로 옮깁니다." },
+    "c-synctargets": { h3: "낡은 타깃 제거하기", p: "구가 움직일 때마다 현재 겹침을 계산하고, 더 이상 겹치지 않는 쌍의 타깃을 제거합니다." },
+    "c-synctargetsadd": { h3: "타깃 추가하고 옮기기", p: "현재 겹침마다 기존 타깃을 재사용하거나 새로 만든 뒤, 부모 좌표계의 중간점으로 옮깁니다." },
     "c-overlapcomp": { h3: "겹침 정보 저장하기", p: C("OverlapVisualComponent") + "는 겹침 키와 혼합 RGB 색상을 타깃에 보관합니다. 키는 어떤 구 쌍이 타깃을 만들었는지 식별합니다." },
     "c-mixedsphere": { h3: "혼합 구 만들기", p: "사용자가 겹침 타깃을 조작하기 시작하면 타깃 위치에 혼합색 구를 만들고 드래그를 따라가게 합니다. 제스처가 끝나면 타깃은 역할을 다해 제거되고, 혼합 구는 이동 가능한 구 컬렉션에 합류합니다." },
-    "c-pullmixed": { h3: "혼합 구 꺼내기", p: C("overlap") + " 상태를 추가합니다. 타깃에서 조작이 시작되면 혼합 구를 만들어 드래그를 따라가게 하고, 제스처가 끝나면 타깃을 제거합니다." },
+    "c-pullmixed": { h3: "타깃에서 혼합 구 만들기", p: C("overlap") + " 상태를 추가합니다. 타깃에서 조작이 시작되면 그 겹침을 찾아 혼합 구를 만들고 선택합니다." },
+    "c-pullfollow": { h3: "드래그를 따라가고 정리하기", p: "타깃을 끄는 동안 혼합 구를 그 위치에 둡니다. 제스처가 끝나면 타깃을 제거합니다. 꺼내는 동안에는 타깃을 다시 만들지 않습니다." },
     "c-lightcomponent": { h3: "빛 세기 저장하기", p: C("SphereLightComponent") + "가 각 구의 밝기를 저장합니다. 범위는 " + C("0.0...2.4") + "이고 초기값은 " + C("1.2") + "입니다." },
-    "c-applylight": { h3: "구에 밝기 적용하기", p: "저장된 빛 세기를 정규화한 다음 Material의 Base Color, 투명도, " + C("emissiveIntensity") + "를 갱신합니다. 글로우 불투명도는 별도로 변경해 구의 크기를 바꾸지 않고 밝기만 조절합니다." },
+    "c-applylight": { h3: "구에 밝기 적용하기", p: "밝기를 범위 안으로 자르고 " + C("SphereLightComponent") + "에 저장한 뒤, 정규화한 값으로 기본 불투명도와 발광 세기를 계산합니다." },
+    "c-applymaterial": { h3: "Material 갱신하기", p: "구의 " + C("PhysicallyBasedMaterial") + "을 새 기본 색·투명도·발광 세기로 다시 만들어 되돌려 넣습니다." },
     "c-applyglow": { h3: "글로우도 함께 어둡게 하기", p: "이름으로 글로우를 찾아 같은 정규화 밝기로 불투명도를 조절합니다. 그래서 구의 크기는 그대로인 채 밝기만 바뀝니다. 그다음 새로 만드는 모든 구에 기본 밝기를 적용합니다." },
-    "c-dialstate": { h3: "다이얼 Controller 만들기", p: "Controller는 클로저 2개를 받습니다. 손목 위치로 조절할 구를 고르는 클로저와, 그 구에 밝기를 적용하는 클로저입니다. 보간된 값 2개가 프레임 사이에 빛이 튀지 않게 합니다." },
-    "c-wristroll": { h3: "손목 회전을 밝기로 변환하기", p: "추적 중인 오른손 Anchor만 처리합니다. 샘플링한 밝기에 곡선을 적용하고 보간한 뒤 빛 세기 범위로 매핑해 대상 구에 적용합니다." },
-    "c-wristsample": { h3: "손목 회전 샘플링하기", p: "손 Skeleton에서 손목 Joint를 읽어 위치와 손바닥이 향하는 방향을 구하고, 손바닥 법선을 " + C("0...1") + " 밝기 값으로 바꿉니다. 손가락 검사는 다음 단계입니다." },
+    "c-dialstate": { h3: "다이얼 Controller 만들기", p: "Controller는 클로저 2개가 필요합니다. 손목 위치로 조절할 구를 고르는 클로저와, 그 구에 밝기를 적용하는 클로저입니다. 보간된 값 2개가 프레임 사이에 빛이 튀지 않게 합니다." },
+    "c-dialinit": { h3: "클로저 받기", p: "이니셜라이저가 클로저 2개를 저장합니다. 뒤 단계에서 View가 이 클로저를 넘겨줍니다." },
+    "c-wristroll": { h3: "오른손 처리하기", p: "추적 중인 오른손 Anchor만 처리합니다. 손목을 샘플링하고 밝기에 곡선을 적용한 뒤, 다섯 손가락이 모두 펴지고 대상이 있을 때만 계속합니다." },
+    "c-wristapply": { h3: "보간해서 밝기 적용하기", p: "밝기를 새 샘플 쪽으로 부드럽게 옮기고, 빛 세기 범위로 매핑한 뒤 한 번 더 보간해 대상 구에 적용합니다." },
+    "c-wristsample": { h3: "손목 위치 샘플링하기", p: "손 Skeleton에서 손목 Joint를 읽어 그 Transform을 World 좌표로 바꿉니다. 손바닥 방향과 손가락 검사는 다음 단계입니다." },
+    "c-palmnormal": { h3: "손바닥 방향 읽기", p: "손목 Joint의 Y축이 손바닥 바깥을 가리킵니다. 위 방향 벡터와의 내적으로 손바닥 아래는 0, 손바닥 위는 1이 됩니다." },
     "c-fingers": { h3: "손을 폈는지 확인하기", p: "손가락 끝이 중간 관절보다 손목에서 더 멀면 편 것으로 봅니다. 다섯 손가락이 모두 펴져야 다이얼이 반응합니다." },
-    "c-handtracking": { h3: "Hand Tracking 시작하기", p: C("ARKitSession") + "이 " + C("HandTrackingProvider") + "를 실행합니다. 사용자가 권한을 허용하면 손 Anchor 업데이트를 다이얼 Controller에 전달합니다." },
+    "c-handtracking": { h3: "Hand Tracking Manager 만들기", p: C("ARKitSession") + "이 " + C("HandTrackingProvider") + "를 실행합니다. Manager는 이 둘과, 값을 전달할 다이얼 Controller를 가지고 있습니다." },
+    "c-handstart": { h3: "세션 시작하기", p: "Hand Tracking 지원 여부를 확인하고 권한을 요청한 뒤 " + C("ARKitSession") + "에서 Provider를 실행합니다. " + C("stop") + "이 이를 정리합니다." },
     "c-handanchors": { h3: "손 Anchor 전달하기", p: "Task 안에서 Provider의 Anchor 업데이트를 순회하며 추적 중인 Anchor를 다이얼 Controller에 넘깁니다." },
-    "c-lightselect": { h3: "빛 선택 노출하기", p: "Manager는 이미 선택된 구를 추적합니다. 다이얼이 그 구를 읽고, 없으면 가장 가까운 이동 가능한 구로 대체하고, 밝기를 적용할 수 있도록 작은 메서드를 추가합니다." },
-    "c-connectdial": { h3: "선택된 구에 Hand Tracking 연결하기", p: C("ImmersiveView") + "에서 Controller를 만듭니다. 선택된 구가 있으면 우선 사용하고, 없으면 손목과 가장 가까운 빛 구를 선택합니다. 보간된 값은 " + C("applySphereLightIntensity") + "를 통해 적용됩니다." },
+    "c-lightselect": { h3: "선택된 구 노출하기", p: "Manager는 이미 선택된 구를 추적합니다. 이를 노출하고, 손목에 가장 가까운 이동 가능한 구를 찾는 대체 방법을 추가합니다." },
+    "c-lightapply": { h3: "선택하고 적용하기", p: "작은 래퍼 2개로 다이얼이 Manager를 통해 구를 선택하고 밝기를 적용합니다." },
+    "c-connectdial": { h3: "조절할 구 고르기", p: "View에 " + C("HandTrackingManager") + "를 두고 Controller를 만듭니다. 첫 번째 클로저는 선택된 구를 우선하고, 없으면 손목에 가장 가까운 구를 씁니다." },
+    "c-connectlifecycle": { h3: "밝기 적용하고 추적 시작하기", p: "두 번째 클로저가 Manager를 통해 밝기를 적용합니다. Controller를 연결하고, View가 나타나면 Hand Tracking을 시작하고 사라지면 멈춥니다." },
     "c-mixedlight": { h3: "혼합 구의 초기 밝기 정하기", p: "두 구가 혼합 구를 만들 때 두 원본의 현재 빛 세기 평균을 초기값으로 사용합니다. 생성 시점의 스냅샷이므로, 이후 원본 밝기가 바뀌어도 이미 생성된 혼합 구는 자동으로 따라 바뀌지 않습니다." },
     "c-glow2": { h3: "퍼지는 글로우 만들기", p: "Billboard 평면 위 방사형 그라데이션 Texture — 중앙이 가장 강하고 가장자리로 갈수록 옅어지며 구의 RGB 색으로 물듭니다. 투명 구 대신 평면을 쓰면 '풍선' 같은 느낌 없이 부드러운 발광 효과를 냅니다." },
     "c-rim": { h3: "선택 링 만들기", p: "선택한 구를 한눈에 알 수 있도록 커스텀 흰색 링을 만듭니다. " + C("BillboardComponent") + "가 링을 항상 사용자 쪽으로 향하게 하고, 링은 한 번에 하나의 구에만 붙습니다." },
     "c-rimverts": { h3: "링 정점 배치하기", p: "Segment마다 원을 한 바퀴 돌며 정점 2개를 추가합니다. 하나는 바깥 가장자리, 하나는 안쪽 가장자리입니다. 링은 평면이라 모든 법선이 사용자를 향합니다." },
-    "c-rimmesh": { h3: "정점을 이어 Mesh 만들기", p: "이웃한 정점 쌍을 Segment마다 삼각형 2개로 잇고, 위치·법선·삼각형 인덱스를 " + C("MeshDescriptor") + "에 넘겨 " + C("MeshResource") + "를 만듭니다." },
+    "c-rimmesh": { h3: "링 Mesh 시작하기", p: "헬퍼로 정점을 만들고 빈 인덱스 목록을 준비합니다. 다음 두 단계에서 삼각형을 채우고 Mesh를 만듭니다." },
+    "c-rimtriangles": { h3: "정점 잇기", p: "이웃한 정점 쌍을 Segment마다 삼각형 2개로 잇고, 각 삼각형의 정점 인덱스를 나열합니다." },
+    "c-rimdesc": { h3: "Mesh 설명하기", p: "위치·법선·삼각형 인덱스를 " + C("MeshDescriptor") + "에 넘겨 " + C("MeshResource") + "를 만듭니다." },
     "c-attachrim": { h3: "선택된 구에 링 표시하기", p: "링은 하나만 둡니다. 선택이 바뀌면 이전 구에서 링을 떼어 새 구에 붙입니다." },
     "c-noninteractive": { h3: "시각 요소는 비인터랙티브로 유지하기", p: "Glow와 링의 " + C("CollisionComponent") + ", " + C("InputTargetComponent") + ", " + C("ManipulationComponent") + "를 제거해 사용자가 구 자체와 상호작용하게 합니다 — 시각 레이어와 인터랙션 레이어를 분리합니다." }
   };
