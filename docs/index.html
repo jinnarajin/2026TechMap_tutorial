@@ -3166,8 +3166,8 @@ final class SphereInteractionManager: ObservableObject {
     s5: {
       concept: ["System and world position", "A RealityKit System processes entities that have matching components. This system compares each sphere's position in shared world coordinates so overlap detection remains correct after movement.", "System과 World 좌표", "RealityKit System은 필요한 Component를 가진 Entity들을 처리합니다. 이 System은 이동 후에도 겹침을 정확히 판단하도록 공통 World 좌표에서 각 구의 위치를 비교합니다."],
       goal: ["What you will make", "Overlap detection that calculates an additive RGB color for every intersecting pair.", "이번 Section에서 만들 것", "서로 겹친 구 쌍을 감지하고 가산 혼합 RGB 색상을 계산합니다."],
-      check: ["Move two clones until their volumes visibly overlap.", "The system detects one pair and calculates yellow, magenta, or cyan from the source colors."],
-      checkKo: ["Clone 2개를 부피가 겹치도록 이동합니다.", "System이 하나의 쌍을 감지하고 원본 색상에 따라 노랑·마젠타·시안을 계산합니다."]
+      check: ["Move two clones until their volumes visibly overlap.", "checkOverlap now returns one SphereOverlap for the pair, with yellow, magenta, or cyan as its color. Nothing is visible yet; the next section turns each overlap into an interaction point."],
+      checkKo: ["복제본 2개를 부피가 겹치도록 이동합니다.", "checkOverlap이 그 쌍에 대한 SphereOverlap 하나를 반환하고 색은 노랑·마젠타·시안 중 하나입니다. 아직 화면에는 보이지 않으며, 다음 Section에서 각 겹침을 인터랙션 지점으로 만듭니다."]
     },
     s6: {
       concept: ["Invisible interaction target", "A target can participate in input without being rendered. Its collision shape receives the gesture, while OverlapVisualComponent carries the mixed color needed to create the next sphere.", "보이지 않는 인터랙션 Target", "Target은 화면에 그려지지 않아도 입력에 참여할 수 있습니다. Collision Shape이 Gesture를 받고, OverlapVisualComponent가 새 구 생성에 필요한 혼합 색상을 전달합니다."],
@@ -3205,7 +3205,7 @@ final class SphereInteractionManager: ObservableObject {
     "c-attachrim": ["SphereInteractionManager.swift — add the selectionRim Property and the marked lines in selectSphere(_:)", "SphereInteractionManager.swift — selectionRim Property를 추가하고 selectSphere(_:) 안의 표시된 줄을 작성합니다"],
     "c-mix": ["RGBColor.swift — inside RGBColor as mixed(with:)", "RGBColor.swift — RGBColor 내부에 mixed(with:)로 추가합니다"],
     "c-overlapsys": ["SphereOverlapSystem.swift — add as a new Swift file", "SphereOverlapSystem.swift — 새 Swift 파일로 추가합니다"],
-    "c-overlapval": ["SphereOverlapSystem.swift — below SphereOverlapSystem", "SphereOverlapSystem.swift — SphereOverlapSystem 아래에 작성합니다"],
+    "c-overlapval": ["SphereOverlapSystem.swift — fill in the marked lines inside checkOverlap(spheres:) and add SphereOverlap below", "SphereOverlapSystem.swift — checkOverlap(spheres:) 안의 표시된 줄을 채우고 아래에 SphereOverlap을 추가합니다"],
     "c-overlaptarget": ["SphereInteractionManager.swift — fill in updateOverlaps() and add makeOverlapTarget(for:) below", "SphereInteractionManager.swift — updateOverlaps()를 채우고 아래에 makeOverlapTarget(for:)를 추가합니다"],
     "c-overlapcomp": ["OverlapVisualComponent.swift — add as a new Swift file", "OverlapVisualComponent.swift — 새 Swift 파일로 추가합니다"],
     "c-mixedsphere": ["SphereInteractionManager.swift — add the overlap state, the marked lines in the three handlers and updateOverlaps(), and createMixedSphere(from:)", "SphereInteractionManager.swift — overlap 상태, 세 핸들러와 updateOverlaps() 안의 표시된 줄, createMixedSphere(from:)를 추가합니다"],
