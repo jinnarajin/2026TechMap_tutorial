@@ -1434,9 +1434,10 @@ applySphereLightIntensity(
   // Apple tutorials mark changes to an existing file one line at a time.
   // A newly created file stays unhighlighted; later additions or replacements in
   // that file receive the changed-line treatment.
-  function highlightChangedLines(src) {
-    return src.split("\n").map(function (line) {
-      var changed = line.trim().length > 0;
+  // Only lines prefixed with "+" in a template are highlighted.
+  function highlightChangedLines(src, marks) {
+    return src.split("\n").map(function (line, i) {
+      var changed = marks ? marks.indexOf(i) >= 0 : false;
       return '<span class="code-line' + (changed ? ' changed' : '') + '">' +
         (line || " ") + "</span>";
     }).join("");
@@ -1455,10 +1456,18 @@ applySphereLightIntensity(
       } else {
         var raw = tpl.innerHTML.replace(/^\n+|\s+$/g, "")
           .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+        var marks = null;
+        if (/^\+/m.test(raw)) {
+          marks = [];
+          raw = raw.split("\n").map(function (line, i) {
+            if (line.charAt(0) === "+") { marks.push(i); return line.slice(1); }
+            return line;
+          }).join("\n");
+        }
         var highlighted = highlight(raw);
         cache[cacheKey] = { name: tpl.dataset.name || "",
-          html: highlightChanges ? highlightChangedLines(highlighted) : highlighted,
-          hasChanges: highlightChanges };
+          html: highlightChanges ? highlightChangedLines(highlighted, marks) : highlighted,
+          hasChanges: highlightChanges && !!marks };
       }
     }
     return cache[cacheKey];
