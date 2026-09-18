@@ -170,10 +170,11 @@
 <header class="hero"><div class="inner">
   <div class="eyebrow">visionOS · RealityKit</div>
   <h1>Build an Interactive RGB Light Experience</h1>
-  <p class="lede">Learn how to use RealityKit in visionOS to create an immersive RGB light
-  experience. You will create glowing RGB spheres, make them interactive, combine their
-  colors, detect when they overlap, and control a selected sphere's brightness with your
-  right-hand wrist rotation.</p>
+  <p class="lede">Build a visionOS app with RealityKit that places three glowing red, green, and blue
+  spheres in an immersive space, where you pick them up and move them with your hands.
+  Bring two spheres together and you can pull a new mixed-color sphere, such as yellow,
+  magenta, or cyan, out of the overlap. Finally, rotate your right wrist to adjust the
+  brightness of a selected sphere.</p>
   <div class="spheres">
     <div class="sphere r"></div><div class="sphere g"></div><div class="sphere b"></div>
   </div>
@@ -3062,7 +3063,7 @@ final class SphereInteractionManager: ObservableObject {
 (function () {
   var KO_HERO = {
     h1: "Interactive RGB 빛 경험 만들기",
-    lede: "visionOS에서 RealityKit을 사용해 몰입형 RGB 빛 경험을 만드는 방법을 배웁니다. 빛나는 RGB 구를 만들고, 인터랙션과 색 혼합을 구현한 뒤, 오른손 손목 회전으로 선택한 구의 밝기를 조절합니다.",
+    lede: "visionOS의 Immersive Space 안에 빨강·초록·파랑 빛 구 3개를 띄우고, 손으로 집어 옮기며 색을 섞어 보는 앱을 RealityKit으로 만듭니다. 구를 서로 가까이 가져가면 겹친 자리에서 노랑·마젠타·시안 같은 혼합색 구를 꺼낼 수 있고, 마지막에는 오른손 손목을 돌려 선택한 구의 밝기를 조절합니다.",
     time: "예상 시간", minutes: "25분"
   };
   var KO_SECTIONS = {
