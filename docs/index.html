@@ -282,8 +282,16 @@
 
 <div class="steps-layout">
   <div class="steps">
-    <div class="step" data-code="c-makesphere">
+    <div class="step" data-code="c-colorcomp">
       <div class="steplabel">Step 1</div>
+      <h3>Store RGB Color</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereComponents.swift</code></div>
+      <p>The <code class="inline">RGBColorComponent</code> stores the RGB color associated
+      with a sphere, keeping the color data attached to the entity itself.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-makesphere">
+      <div class="steplabel">Step 2</div>
       <h3>Create a Sphere</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RGBSphere.swift</code></div>
       <p>A <code class="inline">ModelEntity</code> combines a mesh and materials to create
@@ -293,7 +301,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rgbcolor">
-      <div class="steplabel">Step 2</div>
+      <div class="steplabel">Step 3</div>
       <h3>Create the RGB Colors</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RGBColor.swift</code></div>
       <p>The <code class="inline">RGBColor</code> structure stores red, green, and blue
@@ -304,7 +312,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-material">
-      <div class="steplabel">Step 3</div>
+      <div class="steplabel">Step 4</div>
       <h3>Create the Sphere Material</h3>
       <p>The sphere uses a <code class="inline">PhysicallyBasedMaterial</code> that combines
       its base color with transparency and emissive color to create a luminous
@@ -312,7 +320,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-glow">
-      <div class="steplabel">Step 4</div>
+      <div class="steplabel">Step 5</div>
       <h3>Add a Radiating Glow</h3>
       <p>A second visual layer creates the soft glow around each sphere: a radial gradient
       texture applied to a plane, kept facing the viewer by a
@@ -320,7 +328,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-place">
-      <div class="steplabel">Step 5</div>
+      <div class="steplabel">Step 6</div>
       <h3>Place the RGB Spheres</h3>
       <p>Create the three spheres in <code class="inline">ImmersiveView</code>'s
       <code class="inline">RealityView</code>, position them in front of the user, and add
@@ -342,25 +350,17 @@
   <div>
     <div class="kicker">Section 3 of 6</div>
     <h2>Make the Spheres Interactive</h2>
-    <p class="overview">Use custom RealityKit components to store information about each
-    RGB sphere, then add the components and event handling needed to make the spheres
-    selectable and movable in the immersive space.</p>
+    <p class="overview">Mark the three spheres as fixed originals, then add the components
+    and event handling needed to make the spheres selectable and movable in the immersive
+    space.</p>
   </div>
   <div class="chapter-art"><div class="mini sphere b"></div></div>
 </div>
 
 <div class="steps-layout">
   <div class="steps">
-    <div class="step" data-code="c-colorcomp">
-      <div class="steplabel">Step 1</div>
-      <h3>Store RGB Color</h3>
-      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereComponents.swift</code></div>
-      <p>The <code class="inline">RGBColorComponent</code> stores the RGB color associated
-      with a sphere, keeping the color data attached to the entity itself.</p>
-      <div class="mobilecode"></div>
-    </div>
     <div class="step" data-code="c-origcomp">
-      <div class="steplabel">Step 2</div>
+      <div class="steplabel">Step 1</div>
       <h3>Identify Original Spheres</h3>
       <p>The <code class="inline">OriginalSphereComponent</code> identifies an original
       sphere and stores its fixed position — so the three original spheres remain in place
@@ -368,7 +368,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-interaction">
-      <div class="steplabel">Step 3</div>
+      <div class="steplabel">Step 2</div>
       <h3>Prepare a Sphere for Interaction</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereInteraction.swift</code></div>
       <p>The <code class="inline">configureSphereForInteraction</code> function adds an
@@ -379,7 +379,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-manip">
-      <div class="steplabel">Step 4</div>
+      <div class="steplabel">Step 3</div>
       <h3>Handle Manipulation Events</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereInteractionManager.swift</code></div>
       <p>The <code class="inline">SphereInteractionManager</code> responds to manipulation
@@ -389,7 +389,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-wire">
-      <div class="steplabel">Step 5</div>
+      <div class="steplabel">Step 4</div>
       <h3>Wire the Manager into the View</h3>
       <p>Give <code class="inline">ImmersiveView</code> a
       <code class="inline">SphereInteractionManager</code>, mark the three spheres as
@@ -398,7 +398,7 @@
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-clone">
-      <div class="steplabel">Step 6</div>
+      <div class="steplabel">Step 5</div>
       <h3>Create a Movable Clone</h3>
       <p>Original spheres never leave their fixed positions. When the user starts
       manipulating an original sphere, create a movable <em>clone</em> with the same color,
@@ -757,7 +757,6 @@ struct ContentView: View {
 </template>
 
 <template id="c-makesphere" data-name="RGBSphere.swift">
-
 import RealityKit
 import UIKit
 
@@ -784,10 +783,8 @@ func makeRGBSphere(
     sphere.components.set(
         RGBColorComponent(color: color)
     )
-
     return sphere
 }
-
 </template>
 
 <template id="c-rgbcolor" data-name="RGBColor.swift">
@@ -854,7 +851,6 @@ func makeRGBSphere(
     sphere.components.set(
         RGBColorComponent(color: color)
     )
-
     return sphere
 }
 
@@ -909,7 +905,8 @@ func makeRGBSphere(
     sphere.components.set(
         RGBColorComponent(color: color)
     )
-
++    // The soft glow around the sphere.
++    addRadiatingGlow(to: sphere, color: color)
     return sphere
 }
 
@@ -1032,7 +1029,6 @@ struct ImmersiveView: View {
         RealityView { content in
             // Register custom components before using them.
             RGBColorComponent.registerComponent()
-            OriginalSphereComponent.registerComponent()
 
             let headAnchor = AnchorEntity(.head)
 
@@ -1194,7 +1190,6 @@ final class SphereInteractionManager: ObservableObject {
     func updateOverlaps() {
         // Overlap targets are added in a later section.
     }
-
 }
 </template>
 
@@ -1209,7 +1204,7 @@ struct ImmersiveView: View {
         RealityView { content in
             // Register custom components before using them.
             RGBColorComponent.registerComponent()
-            OriginalSphereComponent.registerComponent()
++            OriginalSphereComponent.registerComponent()
 
             let headAnchor = AnchorEntity(.head)
 
@@ -1374,7 +1369,6 @@ final class SphereInteractionManager: ObservableObject {
 +            selectSphere(clone)
 +            return
 +        }
-
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -1408,7 +1402,6 @@ final class SphereInteractionManager: ObservableObject {
     func updateOverlaps() {
         // Overlap targets are added in a later section.
     }
-
 +    private func createClone(
 +        from original: ModelEntity
 +    ) -&gt; ModelEntity {
@@ -1417,18 +1410,14 @@ final class SphereInteractionManager: ObservableObject {
 +        // Same look as an original sphere, but movable.
 +        let clone = makeRGBSphere(color: color)
 +        clone.name = "Clone"
-
-+        addRadiatingGlow(to: clone, color: color)
 +        configureSphereForInteraction(clone)
 
 +        return clone
 +    }
-
 }
 </template>
 
 <template id="c-overlapsys" data-name="SphereOverlapSystem.swift">
-
 import RealityKit
 import simd
 
@@ -1458,15 +1447,13 @@ final class SphereOverlapSystem {
 
                 guard distance &lt; overlapDistance
                 else { continue }
-
-                // ... build the SphereOverlap value
+                // Build the SphereOverlap value in the next step.
             }
         }
 
         return overlaps
     }
 }
-
 </template>
 
 <template id="c-overlapval" data-name="SphereOverlapSystem.swift">
@@ -1499,8 +1486,7 @@ final class SphereOverlapSystem {
 
                 guard distance &lt; overlapDistance
                 else { continue }
-
-                // ... build the SphereOverlap value
+                // Build the SphereOverlap value in the next step.
             }
         }
 
@@ -1594,7 +1580,6 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(clone)
             return
         }
-
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -1639,19 +1624,23 @@ final class SphereInteractionManager: ObservableObject {
 +            return false
 +        }
 
-+        // Add a target for each new overlap.
++        // Add a target for each new overlap, and keep it at the midpoint.
 +        for overlap in overlaps {
-+            let exists = overlapTargets.contains {
++            guard let parent = overlap.firstSphere.parent else { continue }
+
++            var target = overlapTargets.first {
 +                $0.components[OverlapVisualComponent.self]?.overlapKey == overlap.key
 +            }
-+            guard !exists else { continue }
++            if target == nil {
++                let newTarget = makeOverlapTarget(for: overlap)
++                parent.addChild(newTarget)
++                overlapTargets.append(newTarget)
++                target = newTarget
++            }
 
-+            let target = makeOverlapTarget(for: overlap)
-+            overlap.firstSphere.parent?.addChild(target)
-+            overlapTargets.append(target)
++            target?.position = parent.convert(position: overlap.position, from: nil)
 +        }
     }
-
     private func createClone(
         from original: ModelEntity
     ) -&gt; ModelEntity {
@@ -1660,20 +1649,16 @@ final class SphereInteractionManager: ObservableObject {
         // Same look as an original sphere, but movable.
         let clone = makeRGBSphere(color: color)
         clone.name = "Clone"
-
-        addRadiatingGlow(to: clone, color: color)
         configureSphereForInteraction(clone)
 
         return clone
     }
-
 +    func makeOverlapTarget(
 +        for overlap: SphereOverlap
 +    ) -&gt; ModelEntity {
 
 +        // Invisible — no visible mesh needed.
 +        let target = ModelEntity()
-+        target.position = overlap.position
 
 +        target.components.set(
 +            OverlapVisualComponent(
@@ -1701,7 +1686,6 @@ final class SphereInteractionManager: ObservableObject {
 
 +        return target
 +    }
-
 }
 </template>
 
@@ -1788,7 +1772,6 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(clone)
             return
         }
-
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -1833,19 +1816,23 @@ final class SphereInteractionManager: ObservableObject {
             return false
         }
 
-        // Add a target for each new overlap.
+        // Add a target for each new overlap, and keep it at the midpoint.
         for overlap in overlaps {
-            let exists = overlapTargets.contains {
+            guard let parent = overlap.firstSphere.parent else { continue }
+
+            var target = overlapTargets.first {
                 $0.components[OverlapVisualComponent.self]?.overlapKey == overlap.key
             }
-            guard !exists else { continue }
+            if target == nil {
+                let newTarget = makeOverlapTarget(for: overlap)
+                parent.addChild(newTarget)
+                overlapTargets.append(newTarget)
+                target = newTarget
+            }
 
-            let target = makeOverlapTarget(for: overlap)
-            overlap.firstSphere.parent?.addChild(target)
-            overlapTargets.append(target)
+            target?.position = parent.convert(position: overlap.position, from: nil)
         }
     }
-
     private func createClone(
         from original: ModelEntity
     ) -&gt; ModelEntity {
@@ -1854,20 +1841,16 @@ final class SphereInteractionManager: ObservableObject {
         // Same look as an original sphere, but movable.
         let clone = makeRGBSphere(color: color)
         clone.name = "Clone"
-
-        addRadiatingGlow(to: clone, color: color)
         configureSphereForInteraction(clone)
 
         return clone
     }
-
     func makeOverlapTarget(
         for overlap: SphereOverlap
     ) -&gt; ModelEntity {
 
         // Invisible — no visible mesh needed.
         let target = ModelEntity()
-        target.position = overlap.position
 
         target.components.set(
             OverlapVisualComponent(
@@ -1895,26 +1878,6 @@ final class SphereInteractionManager: ObservableObject {
 
         return target
     }
-
-+    func createMixedSphere(
-+        from overlap: SphereOverlap
-+    ) {
-+        // Build a sphere with the mixed color.
-+        let mixed = makeRGBSphere(
-+            color: overlap.color
-+        )
-
-+        mixed.position = overlap.position
-+        addRadiatingGlow(to: mixed, color: overlap.color)
-
-+        configureSphereForInteraction(mixed)
-
-+        // Joins the movable collection, so it can
-+        // participate in future overlaps.
-+        movableSpheres.append(mixed)
-+        overlap.firstSphere.parent?.addChild(mixed)
-+    }
-
 }
 </template>
 
@@ -1969,7 +1932,8 @@ func makeRGBSphere(
     sphere.components.set(
         RGBColorComponent(color: color)
     )
-
+    // The soft glow around the sphere.
+    addRadiatingGlow(to: sphere, color: color)
     return sphere
 }
 
@@ -2239,7 +2203,6 @@ struct RightHandWristRollSample {
 </template>
 
 <template id="c-handtracking" data-name="HandTrackingManager.swift">
-
 import ARKit
 import SwiftUI
 
@@ -2271,7 +2234,6 @@ final class HandTrackingManager: ObservableObject {
             print("Failed to start hand tracking: \(error)")
             return
         }
-
         anchorUpdatesTask = Task { [weak self] in
             for await update in self?.handTrackingProvider.anchorUpdates ?? [] {
                 guard update.event != .removed else { continue }
@@ -2286,7 +2248,6 @@ final class HandTrackingManager: ObservableObject {
         session.stop()
     }
 }
-
 </template>
 
 <template id="c-lightselect" data-name="SphereInteractionManager.swift">
@@ -2357,7 +2318,6 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(clone)
             return
         }
-
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -2402,19 +2362,23 @@ final class SphereInteractionManager: ObservableObject {
             return false
         }
 
-        // Add a target for each new overlap.
+        // Add a target for each new overlap, and keep it at the midpoint.
         for overlap in overlaps {
-            let exists = overlapTargets.contains {
+            guard let parent = overlap.firstSphere.parent else { continue }
+
+            var target = overlapTargets.first {
                 $0.components[OverlapVisualComponent.self]?.overlapKey == overlap.key
             }
-            guard !exists else { continue }
+            if target == nil {
+                let newTarget = makeOverlapTarget(for: overlap)
+                parent.addChild(newTarget)
+                overlapTargets.append(newTarget)
+                target = newTarget
+            }
 
-            let target = makeOverlapTarget(for: overlap)
-            overlap.firstSphere.parent?.addChild(target)
-            overlapTargets.append(target)
+            target?.position = parent.convert(position: overlap.position, from: nil)
         }
     }
-
     private func createClone(
         from original: ModelEntity
     ) -&gt; ModelEntity {
@@ -2423,20 +2387,16 @@ final class SphereInteractionManager: ObservableObject {
         // Same look as an original sphere, but movable.
         let clone = makeRGBSphere(color: color)
         clone.name = "Clone"
-
-        addRadiatingGlow(to: clone, color: color)
         configureSphereForInteraction(clone)
 
         return clone
     }
-
     func makeOverlapTarget(
         for overlap: SphereOverlap
     ) -&gt; ModelEntity {
 
         // Invisible — no visible mesh needed.
         let target = ModelEntity()
-        target.position = overlap.position
 
         target.components.set(
             OverlapVisualComponent(
@@ -2464,26 +2424,6 @@ final class SphereInteractionManager: ObservableObject {
 
         return target
     }
-
-    func createMixedSphere(
-        from overlap: SphereOverlap
-    ) {
-        // Build a sphere with the mixed color.
-        let mixed = makeRGBSphere(
-            color: overlap.color
-        )
-
-        mixed.position = overlap.position
-        addRadiatingGlow(to: mixed, color: overlap.color)
-
-        configureSphereForInteraction(mixed)
-
-        // Joins the movable collection, so it can
-        // participate in future overlaps.
-        movableSpheres.append(mixed)
-        overlap.firstSphere.parent?.addChild(mixed)
-    }
-
 +    // MARK: - Light Selection
 
 +    /// The sphere the user selected most recently, if any.
@@ -2511,7 +2451,6 @@ final class SphereInteractionManager: ObservableObject {
 +    ) {
 +        applySphereLightIntensity(intensity, to: sphere)
 +    }
-
 }
 </template>
 
@@ -2662,7 +2601,6 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(clone)
             return
         }
-
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -2707,19 +2645,23 @@ final class SphereInteractionManager: ObservableObject {
             return false
         }
 
-        // Add a target for each new overlap.
+        // Add a target for each new overlap, and keep it at the midpoint.
         for overlap in overlaps {
-            let exists = overlapTargets.contains {
+            guard let parent = overlap.firstSphere.parent else { continue }
+
+            var target = overlapTargets.first {
                 $0.components[OverlapVisualComponent.self]?.overlapKey == overlap.key
             }
-            guard !exists else { continue }
+            if target == nil {
+                let newTarget = makeOverlapTarget(for: overlap)
+                parent.addChild(newTarget)
+                overlapTargets.append(newTarget)
+                target = newTarget
+            }
 
-            let target = makeOverlapTarget(for: overlap)
-            overlap.firstSphere.parent?.addChild(target)
-            overlapTargets.append(target)
+            target?.position = parent.convert(position: overlap.position, from: nil)
         }
     }
-
     private func createClone(
         from original: ModelEntity
     ) -&gt; ModelEntity {
@@ -2728,20 +2670,16 @@ final class SphereInteractionManager: ObservableObject {
         // Same look as an original sphere, but movable.
         let clone = makeRGBSphere(color: color)
         clone.name = "Clone"
-
-        addRadiatingGlow(to: clone, color: color)
         configureSphereForInteraction(clone)
 
         return clone
     }
-
     func makeOverlapTarget(
         for overlap: SphereOverlap
     ) -&gt; ModelEntity {
 
         // Invisible — no visible mesh needed.
         let target = ModelEntity()
-        target.position = overlap.position
 
         target.components.set(
             OverlapVisualComponent(
@@ -2769,18 +2707,6 @@ final class SphereInteractionManager: ObservableObject {
 
         return target
     }
-
-    func createMixedSphere(
-        from overlap: SphereOverlap
-    ) {
-        // Build a sphere with the mixed color.
-        let mixed = makeRGBSphere(
-            color: overlap.color
-        )
-
-        mixed.position = overlap.position
-        addRadiatingGlow(to: mixed, color: overlap.color)
-
 +        // Start at the average of the two source intensities.
 +        let mixedIntensity = (
 +            (overlap.firstSphere.components[SphereLightComponent.self]?.intensity
@@ -2793,15 +2719,6 @@ final class SphereInteractionManager: ObservableObject {
 +            mixedIntensity,
 +            to: mixed
 +        )
-
-        configureSphereForInteraction(mixed)
-
-        // Joins the movable collection, so it can
-        // participate in future overlaps.
-        movableSpheres.append(mixed)
-        overlap.firstSphere.parent?.addChild(mixed)
-    }
-
     // MARK: - Light Selection
 
     /// The sphere the user selected most recently, if any.
@@ -2829,7 +2746,6 @@ final class SphereInteractionManager: ObservableObject {
     ) {
         applySphereLightIntensity(intensity, to: sphere)
     }
-
 }
 </template>
 
@@ -2885,13 +2801,13 @@ final class SphereInteractionManager: ObservableObject {
     "c-makesphere": ["RGBSphere.swift — add as a new Swift file", "RGBSphere.swift — 새 Swift 파일로 추가합니다"],
     "c-rgbcolor": ["RGBColor.swift — add as a new Swift file", "RGBColor.swift — 새 Swift 파일로 추가합니다"],
     "c-material": ["RGBSphere.swift — add below makeRGBSphere(color:)", "RGBSphere.swift — makeRGBSphere(color:) 아래에 추가합니다"],
-    "c-glow": ["RGBSphere.swift — add the glow helper below makeRGBSphere(color:)", "RGBSphere.swift — makeRGBSphere(color:) 아래에 글로우 헬퍼를 추가합니다"],
+    "c-glow": ["RGBSphere.swift — add the glow helpers below makeSphereMaterial(color:) and call addRadiatingGlow from makeRGBSphere(color:)", "RGBSphere.swift — makeSphereMaterial(color:) 아래에 글로우 헬퍼를 추가하고 makeRGBSphere(color:)에서 addRadiatingGlow를 호출합니다"],
     "c-place": ["ImmersiveView.swift — inside the RealityView content closure", "ImmersiveView.swift — RealityView의 Content Closure 내부에 작성합니다"],
     "c-colorcomp": ["SphereComponents.swift — add as a new Swift file", "SphereComponents.swift — 새 Swift 파일로 추가합니다"],
     "c-origcomp": ["SphereComponents.swift — below RGBColorComponent", "SphereComponents.swift — RGBColorComponent 아래에 작성합니다"],
     "c-interaction": ["SphereInteraction.swift — add as a new Swift file", "SphereInteraction.swift — 새 Swift 파일로 추가합니다"],
     "c-manip": ["SphereInteractionManager.swift — add as a new Swift file", "SphereInteractionManager.swift — 새 Swift 파일로 추가합니다"],
-    "c-wire": ["ImmersiveView.swift — add the manager property, then the marked lines inside RealityView", "ImmersiveView.swift — Manager Property를 추가하고 RealityView 안의 표시된 줄을 작성합니다"],
+    "c-wire": ["ImmersiveView.swift — add the manager Property, register OriginalSphereComponent, then the marked lines inside RealityView", "ImmersiveView.swift — Manager Property를 추가하고 OriginalSphereComponent를 등록한 뒤 RealityView 안의 표시된 줄을 작성합니다"],
     "c-clone": ["SphereInteractionManager.swift — inside handleManipulationBegan(_:), plus createClone(from:) below", "SphereInteractionManager.swift — handleManipulationBegan(_:) 내부와 그 아래 createClone(from:)에 추가합니다"],
     "c-mix": ["RGBColor.swift — inside RGBColor as mixed(with:)", "RGBColor.swift — RGBColor 내부에 mixed(with:)로 추가합니다"],
     "c-overlapsys": ["SphereOverlapSystem.swift — add as a new Swift file", "SphereOverlapSystem.swift — 새 Swift 파일로 추가합니다"],
@@ -3070,7 +2986,7 @@ final class SphereInteractionManager: ObservableObject {
     s1: { h2: "Immersive Space 만들기", ov: "RGB 구가 나타날 Immersive Space을 만드는 것부터 시작합니다. 앱은 일반 SwiftUI 윈도우에서 시작하며, 사용자가 Immersive Space을 열면 RealityKit이 RGB 구를 배치하고 조작할 별도의 3D 환경을 만듭니다." },
     s2: { h2: "RGB 구 만들기", ov: "RealityKit Entity, Material, 퍼지는 글로우를 사용해 각 RGB 빛의 시각적 표현을 만듭니다. 각 구는 구형 Mesh, 색상 Material, RGB 색상 값을 가진 <code class=\"inline\">ModelEntity</code>입니다." },
     s3: { h2: "Component 추가하기", ov: "커스텀 RealityKit Component로 각 RGB 구에 대한 정보를 저장합니다. Component는 Entity가 자신의 역할이나 상태를 설명하는 데이터를 지니게 해 줍니다." },
-    s4: { h2: "구를 인터랙티브하게 만들기", ov: "커스텀 RealityKit Component로 각 구의 정보를 저장한 뒤, 구를 Immersive Space에서 선택하고 움직일 수 있도록 필요한 Component와 이벤트 처리를 추가합니다." },
+    s4: { h2: "구를 인터랙티브하게 만들기", ov: "세 구를 고정된 원본으로 표시한 뒤, 구를 Immersive Space에서 선택하고 움직일 수 있도록 필요한 Component와 이벤트 처리를 추가합니다." },
     s5: { h2: "색 혼합하기", ov: "RGB 값을 저장하고 두 광원이 겹칠 때 결합합니다. 빨강+초록은 노랑, 빨강+파랑은 마젠타가 되며, 삼원색이 모두 겹치면 흰색이 됩니다." },
     s6: { h2: "겹침 타깃 추가하기", ov: "두 RGB 구가 겹치는 위치에 보이지 않는 인터랙션 지점을 만들어, 원본 구를 직접 조작하지 않고도 혼합 색과 상호작용할 수 있게 합니다." },
     s7: { h2: "오른손으로 빛 조절하기", ov: "ARKit Hand Tracking으로 선택된 구의 빛 세기를 조절합니다. 오른손 다섯 손가락을 모두 펼친 상태에서 손목을 palm-down에서 palm-up으로 회전하면, 구 크기는 유지되고 Emissive Intensity와 글로우 Opacity가 변합니다." }
