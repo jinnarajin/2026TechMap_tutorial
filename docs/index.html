@@ -375,7 +375,8 @@
       <code class="inline">InputTargetComponent</code> so the sphere can receive input, a
       <code class="inline">CollisionComponent</code> that defines the collision and
       interaction area, and a <code class="inline">ManipulationComponent</code> that lets
-      the user move the sphere directly.</p>
+      the user move the sphere directly. The hit radius is a <code class="inline">radius</code>
+      parameter, so the same function can be reused later on entities of other sizes.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-manip">
@@ -516,11 +517,9 @@
       <div class="steplabel">Step 2</div>
       <h3>Create the Overlap Target</h3>
       <p>Create an invisible <code class="inline">ModelEntity</code> at the midpoint of the
-      overlapping spheres. It needs no visible mesh — a
-      <code class="inline">CollisionComponent</code>,
-      <code class="inline">InputTargetComponent</code>, and
-      <code class="inline">ManipulationComponent</code> make it respond to the user's
-      gesture.</p>
+      overlapping spheres. It needs no visible mesh, and the same
+      <code class="inline">configureSphereForInteraction</code> function from Section 3
+      gives it input, collision, and manipulation — only the hit radius is smaller.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-mixedsphere">
@@ -1096,8 +1095,11 @@ struct RGBColorComponent: Component {
 <template id="c-interaction" data-name="SphereInteraction.swift">
 import RealityKit
 
+/// Adds the three components every interactive entity needs.
+/// `radius` sets the hit area; spheres use their own radius by default.
 func configureSphereForInteraction(
-    _ sphere: ModelEntity
+    _ sphere: ModelEntity,
+    radius: Float = 0.15
 ) {
     // Allow the entity to receive input.
     sphere.components.set(
@@ -1108,7 +1110,7 @@ func configureSphereForInteraction(
     sphere.components.set(
         CollisionComponent(
             shapes: [
-                .generateSphere(radius: 0.15)
+                .generateSphere(radius: radius)
             ]
         )
     )
@@ -1903,22 +1905,9 @@ final class SphereInteractionManager: ObservableObject {
 +            )
 +        )
 
-+        target.components.set(
-+            InputTargetComponent()
-+        )
-
-+        target.components.set(
-+            CollisionComponent(
-+                shapes: [
-+                    .generateSphere(radius: 0.08)
-+                ]
-+            )
-+        )
-
-+        // Follow the user's manipulation gesture.
-+        target.components.set(
-+            ManipulationComponent()
-+        )
++        // Same input, collision, and manipulation setup as a sphere,
++        // with a smaller hit area.
++        configureSphereForInteraction(target, radius: 0.08)
 
 +        return target
 +    }
@@ -2126,22 +2115,9 @@ final class SphereInteractionManager: ObservableObject {
             )
         )
 
-        target.components.set(
-            InputTargetComponent()
-        )
-
-        target.components.set(
-            CollisionComponent(
-                shapes: [
-                    .generateSphere(radius: 0.08)
-                ]
-            )
-        )
-
-        // Follow the user's manipulation gesture.
-        target.components.set(
-            ManipulationComponent()
-        )
+        // Same input, collision, and manipulation setup as a sphere,
+        // with a smaller hit area.
+        configureSphereForInteraction(target, radius: 0.08)
 
         return target
     }
@@ -2728,22 +2704,9 @@ final class SphereInteractionManager: ObservableObject {
             )
         )
 
-        target.components.set(
-            InputTargetComponent()
-        )
-
-        target.components.set(
-            CollisionComponent(
-                shapes: [
-                    .generateSphere(radius: 0.08)
-                ]
-            )
-        )
-
-        // Follow the user's manipulation gesture.
-        target.components.set(
-            ManipulationComponent()
-        )
+        // Same input, collision, and manipulation setup as a sphere,
+        // with a smaller hit area.
+        configureSphereForInteraction(target, radius: 0.08)
 
         return target
     }
@@ -3061,22 +3024,9 @@ final class SphereInteractionManager: ObservableObject {
             )
         )
 
-        target.components.set(
-            InputTargetComponent()
-        )
-
-        target.components.set(
-            CollisionComponent(
-                shapes: [
-                    .generateSphere(radius: 0.08)
-                ]
-            )
-        )
-
-        // Follow the user's manipulation gesture.
-        target.components.set(
-            ManipulationComponent()
-        )
+        // Same input, collision, and manipulation setup as a sphere,
+        // with a smaller hit area.
+        configureSphereForInteraction(target, radius: 0.08)
 
         return target
     }
@@ -3400,14 +3350,14 @@ final class SphereInteractionManager: ObservableObject {
     "c-place": { h3: "RGB 구 배치하기", p: C("ImmersiveView") + "의 " + C("RealityView") + "에서 세 개의 구를 만들어 사용자 앞에 배치하고 Head Anchor에 추가합니다. 이 시점에서 구는 Immersive Space에 보이지만 아직 조작할 수는 없습니다." },
     "c-colorcomp": { h3: "RGB 색상 저장하기", p: C("RGBColorComponent") + "는 구에 연결된 RGB 색상을 저장해, 색상 데이터를 Entity 자체에 붙여 둡니다." },
     "c-origcomp": { h3: "원본 구 식별하기", p: C("OriginalSphereComponent") + "는 원본 구를 식별하고 고정 위치를 저장합니다 — 그래서 세 개의 원본 구는 제자리에 남고, 이동 가능한 복제본이 인터랙션용으로 생성됩니다." },
-    "c-interaction": { h3: "인터랙션을 위한 구 준비하기", p: C("configureSphereForInteraction") + " 함수에서는 구가 사용자 입력을 받을 수 있도록 " + C("InputTargetComponent") + ", 충돌 및 인터랙션 영역을 정의하는 " + C("CollisionComponent") + ", 사용자가 구를 직접 움직일 수 있도록 하는 " + C("ManipulationComponent") + "를 추가합니다." },
+    "c-interaction": { h3: "인터랙션을 위한 구 준비하기", p: C("configureSphereForInteraction") + " 함수에서는 구가 사용자 입력을 받을 수 있도록 " + C("InputTargetComponent") + ", 충돌 및 인터랙션 영역을 정의하는 " + C("CollisionComponent") + ", 사용자가 구를 직접 움직일 수 있도록 하는 " + C("ManipulationComponent") + "를 추가합니다. 충돌 영역의 반지름은 " + C("radius") + " 매개변수로 받아 뒤에서 다른 크기의 Entity에도 재사용합니다." },
     "c-manip": { h3: "조작 이벤트 처리하기", p: C("SphereInteractionManager") + "는 조작 시작, 위치 업데이트, 놓기 세 단계의 이벤트에 응답합니다. 원본 구는 고정된 채, 이동 가능한 복제본이 사용자의 인터랙션을 따라갑니다." },
     "c-wire": { h3: "Manager를 View에 연결하기", p: C("ImmersiveView") + "에 " + C("SphereInteractionManager") + "를 두고, 세 구를 고정 위치를 가진 원본으로 표시한 뒤 인터랙션을 켜고, Manager가 Scene의 조작 이벤트를 구독하게 합니다." },
     "c-clone": { h3: "이동 가능한 복제본 만들기", p: "원본 구는 고정 위치를 떠나지 않습니다. 사용자가 원본 구를 조작하기 시작하면 같은 색·글로우·인터랙션 Component를 가진 이동 가능한 <em>Clone</em>을 만듭니다. 복제본은 이동 가능한 구 컬렉션에 합류하며 — 실제로 겹치고 색을 혼합하는 것은 이 복제본들입니다." },
     "c-mix": { h3: "RGB 색 결합하기", p: C("mixed(with:)") + " 함수는 두 색의 RGB 성분을 더한 뒤 " + C("0...1") + " 범위로 정규화합니다." },
     "c-overlapsys": { h3: "겹치는 구 감지하기", p: C("SphereOverlapSystem") + "은 이동 가능한 구의 모든 쌍의 월드 좌표를 비교합니다. 두 중심 사이 거리가 겹침 거리보다 작으면 겹친 것으로 판정하고, 중간점이 색 혼합 인터랙션의 위치가 됩니다." },
     "c-overlapval": { h3: "겹침 기술하기", p: "각 겹침은 " + C("SphereOverlap") + " 값으로 기술됩니다 — 두 구, 중간점 위치, 혼합 색상, 그리고 같은 쌍에 중복 타깃이 생기지 않게 하는 고유 키." },
-    "c-overlaptarget": { h3: "겹침 타깃 만들기", p: "겹친 구의 중간점에 보이지 않는 " + C("ModelEntity") + "를 만듭니다. 보이는 Mesh는 필요 없고 — " + C("CollisionComponent") + ", " + C("InputTargetComponent") + ", " + C("ManipulationComponent") + "가 사용자 Gesture에 반응하게 합니다." },
+    "c-overlaptarget": { h3: "겹침 타깃 만들기", p: "겹친 구의 중간점에 보이지 않는 " + C("ModelEntity") + "를 만듭니다. 보이는 Mesh는 필요 없고, Section 3에서 만든 " + C("configureSphereForInteraction") + " 함수를 그대로 써서 입력·충돌·조작 설정을 붙입니다. 충돌 영역 반지름만 더 작게 전달합니다." },
     "c-overlapcomp": { h3: "겹침 정보 저장하기", p: C("OverlapVisualComponent") + "는 겹침 키와 혼합 RGB 색상을 타깃에 보관합니다. 키는 어떤 구 쌍이 타깃을 만들었는지 식별합니다." },
     "c-mixedsphere": { h3: "혼합 구 만들기", p: "사용자가 겹침 타깃을 조작하기 시작하면 타깃 위치에 혼합색 구를 만들고 드래그를 따라가게 합니다. 제스처가 끝나면 타깃은 역할을 다해 제거되고, 혼합 구는 이동 가능한 구 컬렉션에 합류합니다." },
     "c-lightcomponent": { h3: "빛 세기 저장하기", p: C("SphereLightComponent") + "가 각 구의 밝기를 저장합니다. 범위는 " + C("0.0...2.4") + "이고 초기값은 " + C("1.2") + "입니다." },
