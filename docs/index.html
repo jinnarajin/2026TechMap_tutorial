@@ -423,9 +423,9 @@
       <div class="steplabel">Step 7</div>
       <h3>Create the Selection Ring</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphericalSelectionRim.swift</code></div>
-      <p>A thin white ring shows which sphere is selected. It is built from a custom ring
-      mesh rather than a torus, so no extra geometry shows through the translucent sphere,
-      and a <code class="inline">BillboardComponent</code> keeps it facing the viewer.</p>
+      <p>Create a custom white ring so the selected sphere is easy to spot. A
+      <code class="inline">BillboardComponent</code> keeps it facing the viewer, and the
+      ring is attached to only one sphere at a time.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rimverts">
@@ -4382,7 +4382,7 @@ final class SphereInteractionManager: ObservableObject {
     "c-connectdial": { h3: "선택된 구에 Hand Tracking 연결하기", p: C("ImmersiveView") + "에서 Controller를 만듭니다. 선택된 구가 있으면 우선 사용하고, 없으면 손목과 가장 가까운 빛 구를 선택합니다. 보간된 값은 " + C("applySphereLightIntensity") + "를 통해 적용됩니다." },
     "c-mixedlight": { h3: "혼합 구의 초기 밝기 정하기", p: "두 구가 혼합 구를 만들 때 두 원본의 현재 빛 세기 평균을 초기값으로 사용합니다. 생성 시점의 스냅샷이므로, 이후 원본 밝기가 바뀌어도 이미 생성된 혼합 구는 자동으로 따라 바뀌지 않습니다." },
     "c-glow2": { h3: "퍼지는 글로우 만들기", p: "Billboard 평면 위 방사형 그라데이션 Texture — 중앙이 가장 강하고 가장자리로 갈수록 옅어지며 구의 RGB 색으로 물듭니다. 투명 구 대신 평면을 쓰면 '풍선' 같은 느낌 없이 부드러운 발광 효과를 냅니다." },
-    "c-rim": { h3: "선택 링 만들기", p: "토러스가 아닌 커스텀 고리 Mesh로 만든 얇은 흰색 링이라 투명한 구 너머로 불필요한 지오메트리가 보이지 않습니다. " + C("BillboardComponent") + "가 링을 항상 사용자 쪽으로 향하게 하고, 링은 한 번에 하나의 구에만 붙습니다." },
+    "c-rim": { h3: "선택 링 만들기", p: "선택한 구를 한눈에 알 수 있도록 커스텀 흰색 링을 만듭니다. " + C("BillboardComponent") + "가 링을 항상 사용자 쪽으로 향하게 하고, 링은 한 번에 하나의 구에만 붙습니다." },
     "c-rimverts": { h3: "링 정점 배치하기", p: "Segment마다 원을 한 바퀴 돌며 정점 2개를 추가합니다. 하나는 바깥 가장자리, 하나는 안쪽 가장자리입니다. 링은 평면이라 모든 법선이 사용자를 향합니다." },
     "c-rimmesh": { h3: "정점을 이어 Mesh 만들기", p: "이웃한 정점 쌍을 Segment마다 삼각형 2개로 잇고, 위치·법선·삼각형 인덱스를 " + C("MeshDescriptor") + "에 넘겨 " + C("MeshResource") + "를 만듭니다." },
     "c-attachrim": { h3: "선택된 구에 링 표시하기", p: "링은 하나만 둡니다. 선택이 바뀌면 이전 구에서 링을 떼어 새 구에 붙입니다." },
