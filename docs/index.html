@@ -503,8 +503,17 @@
 
 <div class="steps-layout">
   <div class="steps">
-    <div class="step" data-code="c-overlaptarget">
+    <div class="step" data-code="c-overlapcomp">
       <div class="steplabel">Step 1</div>
+      <h3>Store Overlap Information</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>OverlapVisualComponent.swift</code></div>
+      <p><code class="inline">OverlapVisualComponent</code> keeps the overlap key and the
+      mixed RGB color associated with the target. The key identifies which pair of spheres
+      produced the target.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-overlaptarget">
+      <div class="steplabel">Step 2</div>
       <h3>Create the Overlap Target</h3>
       <p>Create an invisible <code class="inline">ModelEntity</code> at the midpoint of the
       overlapping spheres. It needs no visible mesh — a
@@ -514,22 +523,12 @@
       gesture.</p>
       <div class="mobilecode"></div>
     </div>
-    <div class="step" data-code="c-overlapcomp">
-      <div class="steplabel">Step 2</div>
-      <h3>Store Overlap Information</h3>
-      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>OverlapVisualComponent.swift</code></div>
-      <p><code class="inline">OverlapVisualComponent</code> keeps the overlap key and the
-      mixed RGB color associated with the target. The key identifies which pair of spheres
-      produced the target.</p>
-      <div class="mobilecode"></div>
-    </div>
     <div class="step" data-code="c-mixedsphere">
       <div class="steplabel">Step 3</div>
       <h3>Create the Mixed Sphere</h3>
-      <p>When the user begins manipulating an overlap target, create a new sphere with the
-      calculated mixed color at the overlap point. It joins the movable sphere collection,
-      so the resulting color can participate in future overlaps. Targets that no longer
-      correspond to an overlap are removed as spheres move.</p>
+      <p>When the user starts manipulating an overlap target, build a sphere with the mixed
+      color at the target's position and let it follow the drag. Once the gesture ends, the
+      target has done its job and is removed; the mixed sphere joins the movable collection.</p>
       <div class="mobilecode"></div>
     </div>
   </div>
@@ -1955,6 +1954,7 @@ final class SphereInteractionManager: ObservableObject {
             clone: ModelEntity
         )
         case movable(sphere: ModelEntity)
++        case overlap(target: ModelEntity, mixed: ModelEntity)
     }
 
     var state: InteractionState = .idle
@@ -2010,6 +2010,18 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(clone)
             return
         }
++        // An overlap target creates a new mixed sphere.
++        if let component = sphere.components[OverlapVisualComponent.self] {
++            guard let overlap = overlapSystem
++                .checkOverlap(spheres: movableSpheres)
++                .first(where: { $0.key == component.overlapKey })
++            else { return }
+
++            let mixed = createMixedSphere(from: overlap)
++            state = .overlap(target: sphere, mixed: mixed)
++            selectSphere(mixed)
++            return
++        }
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -2018,6 +2030,10 @@ final class SphereInteractionManager: ObservableObject {
     func handleManipulationUpdated(
         _ sphere: ModelEntity
     ) {
++        // The mixed sphere follows the dragged target.
++        if case .overlap(let target, let mixed) = state {
++            mixed.position = target.position
++        }
         // Track the sphere's position and update
         // overlap targets each frame.
         updateOverlaps()
@@ -2026,6 +2042,11 @@ final class SphereInteractionManager: ObservableObject {
     func handleManipulationEnded(
         _ sphere: ModelEntity
     ) {
++        // The target has done its job once the mixed sphere exists.
++        if case .overlap(let target, _) = state {
++            target.removeFromParent()
++            overlapTargets.removeAll { $0 === target }
++        }
         // Finalize the position and refresh
         // overlap targets.
         state = .idle
@@ -2047,6 +2068,8 @@ final class SphereInteractionManager: ObservableObject {
     // MARK: - Overlaps
 
     func updateOverlaps() {
++        // Keep the target set frozen while a mixed sphere is being pulled out.
++        if case .overlap = state { return }
         let overlaps = overlapSystem.checkOverlap(spheres: movableSpheres)
         let currentKeys = Set(overlaps.map(\.key))
 
@@ -2122,6 +2145,25 @@ final class SphereInteractionManager: ObservableObject {
 
         return target
     }
++    func createMixedSphere(
++        from overlap: SphereOverlap
++    ) -&gt; ModelEntity {
++        // Build a sphere with the mixed color.
++        let mixed = makeRGBSphere(
++            color: overlap.color
++        )
++        configureSphereForInteraction(mixed)
+
++        // Joins the movable collection, so it can
++        // participate in future overlaps.
++        movableSpheres.append(mixed)
++        if let parent = overlap.firstSphere.parent {
++            parent.addChild(mixed)
++            mixed.position = parent.convert(position: overlap.position, from: nil)
++        }
+
++        return mixed
++    }
 }
 </template>
 
@@ -2508,6 +2550,7 @@ final class SphereInteractionManager: ObservableObject {
             clone: ModelEntity
         )
         case movable(sphere: ModelEntity)
+        case overlap(target: ModelEntity, mixed: ModelEntity)
     }
 
     var state: InteractionState = .idle
@@ -2563,6 +2606,18 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(clone)
             return
         }
+        // An overlap target creates a new mixed sphere.
+        if let component = sphere.components[OverlapVisualComponent.self] {
+            guard let overlap = overlapSystem
+                .checkOverlap(spheres: movableSpheres)
+                .first(where: { $0.key == component.overlapKey })
+            else { return }
+
+            let mixed = createMixedSphere(from: overlap)
+            state = .overlap(target: sphere, mixed: mixed)
+            selectSphere(mixed)
+            return
+        }
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -2571,6 +2626,10 @@ final class SphereInteractionManager: ObservableObject {
     func handleManipulationUpdated(
         _ sphere: ModelEntity
     ) {
+        // The mixed sphere follows the dragged target.
+        if case .overlap(let target, let mixed) = state {
+            mixed.position = target.position
+        }
         // Track the sphere's position and update
         // overlap targets each frame.
         updateOverlaps()
@@ -2579,6 +2638,11 @@ final class SphereInteractionManager: ObservableObject {
     func handleManipulationEnded(
         _ sphere: ModelEntity
     ) {
+        // The target has done its job once the mixed sphere exists.
+        if case .overlap(let target, _) = state {
+            target.removeFromParent()
+            overlapTargets.removeAll { $0 === target }
+        }
         // Finalize the position and refresh
         // overlap targets.
         state = .idle
@@ -2600,6 +2664,8 @@ final class SphereInteractionManager: ObservableObject {
     // MARK: - Overlaps
 
     func updateOverlaps() {
+        // Keep the target set frozen while a mixed sphere is being pulled out.
+        if case .overlap = state { return }
         let overlaps = overlapSystem.checkOverlap(spheres: movableSpheres)
         let currentKeys = Set(overlaps.map(\.key))
 
@@ -2674,6 +2740,25 @@ final class SphereInteractionManager: ObservableObject {
         )
 
         return target
+    }
+    func createMixedSphere(
+        from overlap: SphereOverlap
+    ) -&gt; ModelEntity {
+        // Build a sphere with the mixed color.
+        let mixed = makeRGBSphere(
+            color: overlap.color
+        )
+        configureSphereForInteraction(mixed)
+
+        // Joins the movable collection, so it can
+        // participate in future overlaps.
+        movableSpheres.append(mixed)
+        if let parent = overlap.firstSphere.parent {
+            parent.addChild(mixed)
+            mixed.position = parent.convert(position: overlap.position, from: nil)
+        }
+
+        return mixed
     }
 +    // MARK: - Light Selection
 
@@ -2798,6 +2883,7 @@ final class SphereInteractionManager: ObservableObject {
             clone: ModelEntity
         )
         case movable(sphere: ModelEntity)
+        case overlap(target: ModelEntity, mixed: ModelEntity)
     }
 
     var state: InteractionState = .idle
@@ -2853,6 +2939,18 @@ final class SphereInteractionManager: ObservableObject {
             selectSphere(clone)
             return
         }
+        // An overlap target creates a new mixed sphere.
+        if let component = sphere.components[OverlapVisualComponent.self] {
+            guard let overlap = overlapSystem
+                .checkOverlap(spheres: movableSpheres)
+                .first(where: { $0.key == component.overlapKey })
+            else { return }
+
+            let mixed = createMixedSphere(from: overlap)
+            state = .overlap(target: sphere, mixed: mixed)
+            selectSphere(mixed)
+            return
+        }
         // Original spheres stay fixed — create a
         // movable clone that follows the gesture.
         selectSphere(sphere)
@@ -2861,6 +2959,10 @@ final class SphereInteractionManager: ObservableObject {
     func handleManipulationUpdated(
         _ sphere: ModelEntity
     ) {
+        // The mixed sphere follows the dragged target.
+        if case .overlap(let target, let mixed) = state {
+            mixed.position = target.position
+        }
         // Track the sphere's position and update
         // overlap targets each frame.
         updateOverlaps()
@@ -2869,6 +2971,11 @@ final class SphereInteractionManager: ObservableObject {
     func handleManipulationEnded(
         _ sphere: ModelEntity
     ) {
+        // The target has done its job once the mixed sphere exists.
+        if case .overlap(let target, _) = state {
+            target.removeFromParent()
+            overlapTargets.removeAll { $0 === target }
+        }
         // Finalize the position and refresh
         // overlap targets.
         state = .idle
@@ -2890,6 +2997,8 @@ final class SphereInteractionManager: ObservableObject {
     // MARK: - Overlaps
 
     func updateOverlaps() {
+        // Keep the target set frozen while a mixed sphere is being pulled out.
+        if case .overlap = state { return }
         let overlaps = overlapSystem.checkOverlap(spheres: movableSpheres)
         let currentKeys = Set(overlaps.map(\.key))
 
@@ -2965,6 +3074,13 @@ final class SphereInteractionManager: ObservableObject {
 
         return target
     }
+    func createMixedSphere(
+        from overlap: SphereOverlap
+    ) -&gt; ModelEntity {
+        // Build a sphere with the mixed color.
+        let mixed = makeRGBSphere(
+            color: overlap.color
+        )
 +        // Start at the average of the two source intensities.
 +        let mixedIntensity = (
 +            (overlap.firstSphere.components[SphereLightComponent.self]?.intensity
@@ -2977,6 +3093,18 @@ final class SphereInteractionManager: ObservableObject {
 +            mixedIntensity,
 +            to: mixed
 +        )
+        configureSphereForInteraction(mixed)
+
+        // Joins the movable collection, so it can
+        // participate in future overlaps.
+        movableSpheres.append(mixed)
+        if let parent = overlap.firstSphere.parent {
+            parent.addChild(mixed)
+            mixed.position = parent.convert(position: overlap.position, from: nil)
+        }
+
+        return mixed
+    }
     // MARK: - Light Selection
 
     /// The sphere the user selected most recently, if any.
@@ -3072,9 +3200,9 @@ final class SphereInteractionManager: ObservableObject {
     "c-mix": ["RGBColor.swift — inside RGBColor as mixed(with:)", "RGBColor.swift — RGBColor 내부에 mixed(with:)로 추가합니다"],
     "c-overlapsys": ["SphereOverlapSystem.swift — add as a new Swift file", "SphereOverlapSystem.swift — 새 Swift 파일로 추가합니다"],
     "c-overlapval": ["SphereOverlapSystem.swift — below SphereOverlapSystem", "SphereOverlapSystem.swift — SphereOverlapSystem 아래에 작성합니다"],
-    "c-overlaptarget": ["SphereInteractionManager.swift — fill in updateOverlaps() and add makeOverlapTarget(for:)", "SphereInteractionManager.swift — updateOverlaps()를 채우고 makeOverlapTarget(for:)를 추가합니다"],
+    "c-overlaptarget": ["SphereInteractionManager.swift — fill in updateOverlaps() and add makeOverlapTarget(for:) below", "SphereInteractionManager.swift — updateOverlaps()를 채우고 아래에 makeOverlapTarget(for:)를 추가합니다"],
     "c-overlapcomp": ["OverlapVisualComponent.swift — add as a new Swift file", "OverlapVisualComponent.swift — 새 Swift 파일로 추가합니다"],
-    "c-mixedsphere": ["SphereInteractionManager.swift — add as createMixedSphere(from:)", "SphereInteractionManager.swift — createMixedSphere(from:) 함수로 추가합니다"],
+    "c-mixedsphere": ["SphereInteractionManager.swift — add the overlap state, the marked lines in the three handlers and updateOverlaps(), and createMixedSphere(from:)", "SphereInteractionManager.swift — overlap 상태, 세 핸들러와 updateOverlaps() 안의 표시된 줄, createMixedSphere(from:)를 추가합니다"],
     "c-lightcomponent": ["SphereComponents.swift — add below the other custom components", "SphereComponents.swift — 다른 커스텀 Component 아래에 추가합니다"],
     "c-applylight": ["RGBSphere.swift — add below addRadiatingGlow(to:color:)", "RGBSphere.swift — addRadiatingGlow(to:color:) 아래에 추가합니다"],
     "c-wristroll": ["RightHandLightDialController.swift — add as a new Swift file", "RightHandLightDialController.swift — 새 Swift 파일로 추가합니다"],
@@ -3275,7 +3403,7 @@ final class SphereInteractionManager: ObservableObject {
     "c-overlapval": { h3: "겹침 기술하기", p: "각 겹침은 " + C("SphereOverlap") + " 값으로 기술됩니다 — 두 구, 중간점 위치, 혼합 색상, 그리고 같은 쌍에 중복 타깃이 생기지 않게 하는 고유 키." },
     "c-overlaptarget": { h3: "겹침 타깃 만들기", p: "겹친 구의 중간점에 보이지 않는 " + C("ModelEntity") + "를 만듭니다. 보이는 Mesh는 필요 없고 — " + C("CollisionComponent") + ", " + C("InputTargetComponent") + ", " + C("ManipulationComponent") + "가 사용자 Gesture에 반응하게 합니다." },
     "c-overlapcomp": { h3: "겹침 정보 저장하기", p: C("OverlapVisualComponent") + "는 겹침 키와 혼합 RGB 색상을 타깃에 보관합니다. 키는 어떤 구 쌍이 타깃을 만들었는지 식별합니다." },
-    "c-mixedsphere": { h3: "혼합 구 만들기", p: "사용자가 겹침 타깃을 조작하기 시작하면 계산된 혼합 색으로 새 구를 겹침 지점에 만듭니다. 이 구는 이동 가능한 구 컬렉션에 합류해 이후의 겹침에도 참여할 수 있습니다. 더 이상 겹침이 아닌 타깃은 구가 움직일 때 제거됩니다." },
+    "c-mixedsphere": { h3: "혼합 구 만들기", p: "사용자가 겹침 타깃을 조작하기 시작하면 타깃 위치에 혼합색 구를 만들고 드래그를 따라가게 합니다. 제스처가 끝나면 타깃은 역할을 다해 제거되고, 혼합 구는 이동 가능한 구 컬렉션에 합류합니다." },
     "c-lightcomponent": { h3: "빛 세기 저장하기", p: C("SphereLightComponent") + "가 각 구의 밝기를 저장합니다. 범위는 " + C("0.0...2.4") + "이고 초기값은 " + C("1.2") + "입니다." },
     "c-applylight": { h3: "구에 밝기 적용하기", p: "저장된 빛 세기를 정규화한 다음 Material의 Base Color, 투명도, " + C("emissiveIntensity") + "를 갱신합니다. 글로우 불투명도는 별도로 변경해 구의 크기를 바꾸지 않고 밝기만 조절합니다." },
     "c-wristroll": { h3: "손목 회전을 밝기로 변환하기", p: "오른손 Anchor만 처리합니다. 다섯 손가락이 모두 펼쳐졌을 때 손바닥 법선의 아래→위 방향을 " + C("0...1") + " 밝기로 바꾸고, 입력값과 적용값을 보간해 갑작스러운 변화를 줄입니다." },
