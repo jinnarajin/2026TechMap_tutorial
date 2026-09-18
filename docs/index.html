@@ -1702,7 +1702,21 @@ final class SphereOverlapSystem {
 
                 guard distance &lt; overlapDistance
                 else { continue }
-                // Build the SphereOverlap value in the next step.
++                let firstColor = first.components[RGBColorComponent.self]?.color ?? .red
++                let secondColor = second.components[RGBColorComponent.self]?.color ?? .red
+
++                overlaps.append(
++                    SphereOverlap(
++                        firstSphere: first,
++                        secondSphere: second,
++                        position: (
++                            first.position(relativeTo: nil)
++                            + second.position(relativeTo: nil)
++                        ) / 2.0,
++                        color: firstColor.mixed(with: secondColor),
++                        key: "\(first.id)-\(second.id)"
++                    )
++                )
             }
         }
 
