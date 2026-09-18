@@ -406,6 +406,22 @@
       these clones are what overlap and mix colors.</p>
       <div class="mobilecode"></div>
     </div>
+    <div class="step" data-code="c-rim">
+      <div class="steplabel">Step 6</div>
+      <h3>Create the Selection Ring</h3>
+      <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphericalSelectionRim.swift</code></div>
+      <p>A thin white ring shows which sphere is selected. It is built from a custom ring
+      mesh rather than a torus, so no extra geometry shows through the translucent sphere,
+      and a <code class="inline">BillboardComponent</code> keeps it facing the viewer.</p>
+      <div class="mobilecode"></div>
+    </div>
+    <div class="step" data-code="c-attachrim">
+      <div class="steplabel">Step 7</div>
+      <h3>Show the Ring on the Selected Sphere</h3>
+      <p>Keep a single ring. When the selection changes, remove it from the previous sphere
+      and attach it to the new one.</p>
+      <div class="mobilecode"></div>
+    </div>
   </div>
   <div class="panel"><div class="panel-sticky">
     <div class="codewindow">
@@ -1417,6 +1433,206 @@ final class SphereInteractionManager: ObservableObject {
 }
 </template>
 
+<template id="c-rim" data-name="SphericalSelectionRim.swift">
+
+import RealityKit
+import UIKit
+
+/// Creates the white selection ring shown around the active sphere.
+func createSphericalSelectionRim() -&gt; ModelEntity {
+    let mesh = makeSphericalRimMesh(
+        outerRadius: 0.153,
+        thickness: 0.002,
+        segments: 96
+    )
+
+    let rim = ModelEntity(
+        mesh: mesh,
+        materials: [UnlitMaterial(color: .white)]
+    )
+
+    rim.name = "SelectionRim"
+
+    // Always face the viewer, like the glow.
+    rim.components.set(BillboardComponent())
+
+    return rim
+}
+
+/// A flat ring built from triangles, so nothing shows through the sphere.
+private func makeSphericalRimMesh(
+    outerRadius: Float,
+    thickness: Float,
+    segments: Int
+) -&gt; MeshResource {
+    let innerRadius = outerRadius - thickness
+
+    var positions: [SIMD3&lt;Float&gt;] = []
+    var normals: [SIMD3&lt;Float&gt;] = []
+
+    // Two vertices per segment: one on the outer edge, one on the inner edge.
+    for i in 0..&lt;segments {
+        let angle = Float(i) / Float(segments) * .pi * 2
+        let cosAngle = cos(angle)
+        let sinAngle = sin(angle)
+
+        positions.append(SIMD3(outerRadius * cosAngle, outerRadius * sinAngle, 0))
+        positions.append(SIMD3(innerRadius * cosAngle, innerRadius * sinAngle, 0))
+
+        normals.append(SIMD3(0, 0, 1))
+        normals.append(SIMD3(0, 0, 1))
+    }
+
+    // Two triangles per segment connect neighbouring vertex pairs.
+    var indices: [UInt32] = []
+
+    for i in 0..&lt;segments {
+        let next = (i + 1) % segments
+
+        let outerCurrent = UInt32(i * 2)
+        let innerCurrent = UInt32(i * 2 + 1)
+        let outerNext = UInt32(next * 2)
+        let innerNext = UInt32(next * 2 + 1)
+
+        indices += [
+            outerCurrent, outerNext, innerNext,
+            outerCurrent, innerNext, innerCurrent
+        ]
+    }
+
+    var descriptor = MeshDescriptor()
+    descriptor.positions = MeshBuffers.Positions(positions)
+    descriptor.normals = MeshBuffers.Normals(normals)
+    descriptor.primitives = .triangles(indices)
+
+    return try! MeshResource.generate(from: [descriptor])
+}
+
+</template>
+
+<template id="c-attachrim" data-name="SphereInteractionManager.swift">
+import RealityKit
+
+@MainActor
+final class SphereInteractionManager: ObservableObject {
+
+    enum InteractionState {
+        case idle
+        case original(
+            sphere: ModelEntity,
+            position: SIMD3&lt;Float&gt;,
+            clone: ModelEntity
+        )
+        case movable(sphere: ModelEntity)
+    }
+
+    var state: InteractionState = .idle
+
+    /// Clones and mixed spheres — the ones that can move.
+    var movableSpheres: [ModelEntity] = []
+    var overlapTargets: [ModelEntity] = []
+
+    private var selectedSphere: ModelEntity?
++    private var selectionRim: ModelEntity?
+    private var subscriptions: [EventSubscription] = []
+    let overlapSystem = SphereOverlapSystem()
+
+    // MARK: - Setup
+
+    /// Routes RealityKit manipulation events to the handlers below.
+    func subscribe(to content: RealityViewContent) {
+        subscriptions = [
+            content.subscribe(to: ManipulationEvents.WillBegin.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationBegan(sphere)
+            },
+            content.subscribe(to: ManipulationEvents.DidUpdateTransform.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationUpdated(sphere)
+            },
+            content.subscribe(to: ManipulationEvents.WillRelease.self) { [weak self] event in
+                guard let sphere = event.entity as? ModelEntity else { return }
+                self?.handleManipulationEnded(sphere)
+            }
+        ]
+    }
+
+    // MARK: - Manipulation
+
+    func handleManipulationBegan(
+        _ sphere: ModelEntity
+    ) {
+        // An original RGB sphere creates a movable clone.
+        if let original = sphere.components[OriginalSphereComponent.self] {
+            let clone = createClone(from: sphere)
+
+            clone.position = sphere.position
+            sphere.parent?.addChild(clone)
+            movableSpheres.append(clone)
+
+            state = .original(
+                sphere: sphere,
+                position: original.fixedPosition,
+                clone: clone
+            )
+
+            selectSphere(clone)
+            return
+        }
+        // Original spheres stay fixed — create a
+        // movable clone that follows the gesture.
+        selectSphere(sphere)
+    }
+
+    func handleManipulationUpdated(
+        _ sphere: ModelEntity
+    ) {
+        // Track the sphere's position and update
+        // overlap targets each frame.
+        updateOverlaps()
+    }
+
+    func handleManipulationEnded(
+        _ sphere: ModelEntity
+    ) {
+        // Finalize the position and refresh
+        // overlap targets.
+        state = .idle
+        updateOverlaps()
+    }
+
+    // MARK: - Selection
+
+    func selectSphere(_ sphere: ModelEntity) {
++        guard selectedSphere !== sphere else { return }
++        selectionRim?.removeFromParent()
+        selectedSphere = sphere
++        // One white ring, attached to the current sphere only.
++        let rim = createSphericalSelectionRim()
++        sphere.addChild(rim)
++        selectionRim = rim
+    }
+
+    // MARK: - Overlaps
+
+    func updateOverlaps() {
+        // Overlap targets are added in a later section.
+    }
+    private func createClone(
+        from original: ModelEntity
+    ) -&gt; ModelEntity {
+        let color = original.components[RGBColorComponent.self]?.color ?? .red
+
+        // Same look as an original sphere, but movable.
+        let clone = makeRGBSphere(color: color)
+        clone.name = "Clone"
+        configureSphereForInteraction(clone)
+
+        return clone
+    }
+}
+</template>
+
 <template id="c-overlapsys" data-name="SphereOverlapSystem.swift">
 import RealityKit
 import simd
@@ -1535,6 +1751,7 @@ final class SphereInteractionManager: ObservableObject {
     var overlapTargets: [ModelEntity] = []
 
     private var selectedSphere: ModelEntity?
+    private var selectionRim: ModelEntity?
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
 
@@ -1605,7 +1822,13 @@ final class SphereInteractionManager: ObservableObject {
     // MARK: - Selection
 
     func selectSphere(_ sphere: ModelEntity) {
+        guard selectedSphere !== sphere else { return }
+        selectionRim?.removeFromParent()
         selectedSphere = sphere
+        // One white ring, attached to the current sphere only.
+        let rim = createSphericalSelectionRim()
+        sphere.addChild(rim)
+        selectionRim = rim
     }
 
     // MARK: - Overlaps
@@ -1727,6 +1950,7 @@ final class SphereInteractionManager: ObservableObject {
     var overlapTargets: [ModelEntity] = []
 
     private var selectedSphere: ModelEntity?
+    private var selectionRim: ModelEntity?
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
 
@@ -1797,7 +2021,13 @@ final class SphereInteractionManager: ObservableObject {
     // MARK: - Selection
 
     func selectSphere(_ sphere: ModelEntity) {
+        guard selectedSphere !== sphere else { return }
+        selectionRim?.removeFromParent()
         selectedSphere = sphere
+        // One white ring, attached to the current sphere only.
+        let rim = createSphericalSelectionRim()
+        sphere.addChild(rim)
+        selectionRim = rim
     }
 
     // MARK: - Overlaps
@@ -2273,6 +2503,7 @@ final class SphereInteractionManager: ObservableObject {
     var overlapTargets: [ModelEntity] = []
 
     private var selectedSphere: ModelEntity?
+    private var selectionRim: ModelEntity?
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
 
@@ -2343,7 +2574,13 @@ final class SphereInteractionManager: ObservableObject {
     // MARK: - Selection
 
     func selectSphere(_ sphere: ModelEntity) {
+        guard selectedSphere !== sphere else { return }
+        selectionRim?.removeFromParent()
         selectedSphere = sphere
+        // One white ring, attached to the current sphere only.
+        let rim = createSphericalSelectionRim()
+        sphere.addChild(rim)
+        selectionRim = rim
     }
 
     // MARK: - Overlaps
@@ -2556,6 +2793,7 @@ final class SphereInteractionManager: ObservableObject {
     var overlapTargets: [ModelEntity] = []
 
     private var selectedSphere: ModelEntity?
+    private var selectionRim: ModelEntity?
     private var subscriptions: [EventSubscription] = []
     let overlapSystem = SphereOverlapSystem()
 
@@ -2626,7 +2864,13 @@ final class SphereInteractionManager: ObservableObject {
     // MARK: - Selection
 
     func selectSphere(_ sphere: ModelEntity) {
+        guard selectedSphere !== sphere else { return }
+        selectionRim?.removeFromParent()
         selectedSphere = sphere
+        // One white ring, attached to the current sphere only.
+        let rim = createSphericalSelectionRim()
+        sphere.addChild(rim)
+        selectionRim = rim
     }
 
     // MARK: - Overlaps
@@ -2768,8 +3012,8 @@ final class SphereInteractionManager: ObservableObject {
     s4: {
       concept: ["Entity–Component thinking", "The entity is the sphere itself; RGBColorComponent stores its color, InputTargetComponent allows input, CollisionComponent defines the hittable shape, and ManipulationComponent enables movement.", "Entity–Component 사고방식", "Entity는 구 자체이고, RGBColorComponent는 색상, InputTargetComponent는 입력 가능 여부, CollisionComponent는 터치 영역, ManipulationComponent는 이동 동작을 담당합니다."],
       goal: ["What you will make", "Selectable RGB spheres that create movable copies while the originals remain fixed.", "이번 Section에서 만들 것", "원본은 고정된 채 이동 가능한 복제본을 만들어 조작할 수 있는 RGB 구를 만듭니다."],
-      check: ["Starting an interaction on an original sphere creates a movable copy.", "The original RGB spheres remain at their starting positions."],
-      checkKo: ["원본 구를 조작하기 시작하면 이동 가능한 복제본이 생깁니다.", "원본 RGB 구 3개는 시작 위치에 그대로 남아 있습니다."]
+      check: ["Starting an interaction on an original sphere creates a movable copy with a white selection ring around it.", "The original RGB spheres remain at their starting positions."],
+      checkKo: ["원본 구를 조작하기 시작하면 이동 가능한 복제본이 생기고 그 주위에 흰색 선택 링이 표시됩니다.", "원본 RGB 구 3개는 시작 위치에 그대로 남아 있습니다."]
     },
     s5: {
       concept: ["System and world position", "A RealityKit System processes entities that have matching components. This system compares each sphere's position in shared world coordinates so overlap detection remains correct after movement.", "System과 World 좌표", "RealityKit System은 필요한 Component를 가진 Entity들을 처리합니다. 이 System은 이동 후에도 겹침을 정확히 판단하도록 공통 World 좌표에서 각 구의 위치를 비교합니다."],
@@ -2809,6 +3053,8 @@ final class SphereInteractionManager: ObservableObject {
     "c-manip": ["SphereInteractionManager.swift — add as a new Swift file", "SphereInteractionManager.swift — 새 Swift 파일로 추가합니다"],
     "c-wire": ["ImmersiveView.swift — add the manager Property, register OriginalSphereComponent, then the marked lines inside RealityView", "ImmersiveView.swift — Manager Property를 추가하고 OriginalSphereComponent를 등록한 뒤 RealityView 안의 표시된 줄을 작성합니다"],
     "c-clone": ["SphereInteractionManager.swift — inside handleManipulationBegan(_:), plus createClone(from:) below", "SphereInteractionManager.swift — handleManipulationBegan(_:) 내부와 그 아래 createClone(from:)에 추가합니다"],
+    "c-rim": ["SphericalSelectionRim.swift — add as a new Swift file", "SphericalSelectionRim.swift — 새 Swift 파일로 추가합니다"],
+    "c-attachrim": ["SphereInteractionManager.swift — add the selectionRim Property and the marked lines in selectSphere(_:)", "SphereInteractionManager.swift — selectionRim Property를 추가하고 selectSphere(_:) 안의 표시된 줄을 작성합니다"],
     "c-mix": ["RGBColor.swift — inside RGBColor as mixed(with:)", "RGBColor.swift — RGBColor 내부에 mixed(with:)로 추가합니다"],
     "c-overlapsys": ["SphereOverlapSystem.swift — add as a new Swift file", "SphereOverlapSystem.swift — 새 Swift 파일로 추가합니다"],
     "c-overlapval": ["SphereOverlapSystem.swift — below SphereOverlapSystem", "SphereOverlapSystem.swift — SphereOverlapSystem 아래에 작성합니다"],
@@ -2858,7 +3104,7 @@ final class SphereInteractionManager: ObservableObject {
 (function () {
   // ── tiny Swift syntax highlighter ──
   var KEYWORDS = /\b(import|struct|class|enum|case|let|var|func|extension|return|guard|else|for|in|while|switch|default|break|continue|if|await|async|try|throws|private|static|final|some|self|nil|true|false|fallthrough|@main|@MainActor|@Observable|@State|@Environment|@unknown)\b/g;
-  var TYPES = /\b(AppModel|ImmersiveSpaceState|App|Scene|WindowGroup|ImmersiveSpace|ImmersiveView|ContentView|View|VStack|Button|Task|Text|ToggleImmersiveSpaceButton|ModelEntity|Entity|MeshResource|RGBColor|RGBColorComponent|OriginalSphereComponent|DraggableCloneComponent|OverlapVisualComponent|SphereLightComponent|RightHandLightDialController|RightHandWristRollSample|HandAnchor|HandSkeleton|UUID|HandTrackingManager|HandTrackingProvider|ARKitSession|RealityViewContent|ManipulationEvents|EventSubscription|InteractionState|ObservableObject|Component|PhysicallyBasedMaterial|UnlitMaterial|InputTargetComponent|CollisionComponent|ManipulationComponent|BillboardComponent|SphereOverlap|SphereOverlapSystem|SphereInteractionManager|SIMD3|Float|String|Codable|AnchorEntity|RealityView|CGSize|UIGraphicsImageRenderer|TextureResource|UIColor|CGFloat)\b/g;
+  var TYPES = /\b(AppModel|ImmersiveSpaceState|App|Scene|WindowGroup|ImmersiveSpace|ImmersiveView|ContentView|View|VStack|Button|Task|Text|ToggleImmersiveSpaceButton|ModelEntity|Entity|MeshResource|RGBColor|RGBColorComponent|OriginalSphereComponent|DraggableCloneComponent|OverlapVisualComponent|SphereLightComponent|RightHandLightDialController|RightHandWristRollSample|HandAnchor|HandSkeleton|UUID|MeshDescriptor|MeshBuffers|HandTrackingManager|HandTrackingProvider|ARKitSession|RealityViewContent|ManipulationEvents|EventSubscription|InteractionState|ObservableObject|Component|PhysicallyBasedMaterial|UnlitMaterial|InputTargetComponent|CollisionComponent|ManipulationComponent|BillboardComponent|SphereOverlap|SphereOverlapSystem|SphereInteractionManager|SIMD3|Float|String|Codable|AnchorEntity|RealityView|CGSize|UIGraphicsImageRenderer|TextureResource|UIColor|CGFloat)\b/g;
 
   function esc(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -3025,6 +3271,7 @@ final class SphereInteractionManager: ObservableObject {
     "c-mixedlight": { h3: "혼합 구의 초기 밝기 정하기", p: "두 구가 혼합 구를 만들 때 두 원본의 현재 빛 세기 평균을 초기값으로 사용합니다. 생성 시점의 스냅샷이므로, 이후 원본 밝기가 바뀌어도 이미 생성된 혼합 구는 자동으로 따라 바뀌지 않습니다." },
     "c-glow2": { h3: "퍼지는 글로우 만들기", p: "Billboard 평면 위 방사형 그라데이션 Texture — 중앙이 가장 강하고 가장자리로 갈수록 옅어지며 구의 RGB 색으로 물듭니다. 투명 구 대신 평면을 쓰면 '풍선' 같은 느낌 없이 부드러운 발광 효과를 냅니다." },
     "c-rim": { h3: "선택 링 만들기", p: "토러스가 아닌 커스텀 고리 Mesh로 만든 얇은 흰색 링이라 투명한 구 너머로 불필요한 지오메트리가 보이지 않습니다. " + C("BillboardComponent") + "가 링을 항상 사용자 쪽으로 향하게 하고, 링은 한 번에 하나의 구에만 붙습니다." },
+    "c-attachrim": { h3: "선택된 구에 링 표시하기", p: "링은 하나만 둡니다. 선택이 바뀌면 이전 구에서 링을 떼어 새 구에 붙입니다." },
     "c-noninteractive": { h3: "시각 요소는 비인터랙티브로 유지하기", p: "Glow와 링의 " + C("CollisionComponent") + ", " + C("InputTargetComponent") + ", " + C("ManipulationComponent") + "를 제거해 사용자가 구 자체와 상호작용하게 합니다 — 시각 레이어와 인터랙션 레이어를 분리합니다." }
   };
   var KO_STEP_LABEL = "단계 ";
