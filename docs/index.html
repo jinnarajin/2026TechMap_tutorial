@@ -2220,6 +2220,11 @@ func makeRGBSphere(
     )
     // The soft glow around the sphere.
     addRadiatingGlow(to: sphere, color: color)
++    // Start at the default brightness.
++    applySphereLightIntensity(
++        SphereLightComponent.defaultIntensity,
++        to: sphere
++    )
     return sphere
 }
 
@@ -2521,9 +2526,10 @@ final class HandTrackingManager: ObservableObject {
             return
         }
         anchorUpdatesTask = Task { [weak self] in
-            for await update in self?.handTrackingProvider.anchorUpdates ?? [] {
+            guard let self else { return }
+            for await update in self.handTrackingProvider.anchorUpdates {
                 guard update.event != .removed else { continue }
-                self?.lightDialController?.process(anchor: update.anchor)
+                self.lightDialController?.process(anchor: update.anchor)
             }
         }
     }
@@ -3204,7 +3210,7 @@ final class SphereInteractionManager: ObservableObject {
     "c-overlapcomp": ["OverlapVisualComponent.swift — add as a new Swift file", "OverlapVisualComponent.swift — 새 Swift 파일로 추가합니다"],
     "c-mixedsphere": ["SphereInteractionManager.swift — add the overlap state, the marked lines in the three handlers and updateOverlaps(), and createMixedSphere(from:)", "SphereInteractionManager.swift — overlap 상태, 세 핸들러와 updateOverlaps() 안의 표시된 줄, createMixedSphere(from:)를 추가합니다"],
     "c-lightcomponent": ["SphereComponents.swift — add below the other custom components", "SphereComponents.swift — 다른 커스텀 Component 아래에 추가합니다"],
-    "c-applylight": ["RGBSphere.swift — add below addRadiatingGlow(to:color:)", "RGBSphere.swift — addRadiatingGlow(to:color:) 아래에 추가합니다"],
+    "c-applylight": ["RGBSphere.swift — add below makeRadialGlowTexture(color:) and call it from makeRGBSphere(color:)", "RGBSphere.swift — makeRadialGlowTexture(color:) 아래에 추가하고 makeRGBSphere(color:)에서 호출합니다"],
     "c-wristroll": ["RightHandLightDialController.swift — add as a new Swift file", "RightHandLightDialController.swift — 새 Swift 파일로 추가합니다"],
     "c-handtracking": ["HandTrackingManager.swift — add as a new Swift file", "HandTrackingManager.swift — 새 Swift 파일로 추가합니다"],
     "c-lightselect": ["SphereInteractionManager.swift — add below createMixedSphere(from:)", "SphereInteractionManager.swift — createMixedSphere(from:) 아래에 추가합니다"],
