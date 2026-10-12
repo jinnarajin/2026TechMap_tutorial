@@ -41,6 +41,14 @@ docs/images/          튜토리얼 이미지·영상
 docs/retrospectives/  스터디 회고
 ```
 
+## Contributors
+
+| 이름 | GitHub | 역할 |
+|---|---|---|
+| Elena | [@jinnarajin](https://github.com/jinnarajin) | 튜토리얼 제작·배포, 콘텐츠 제작 |
+| Victoria | [@minjsson](https://github.com/minjsson) | 콘텐츠 제작 리드 |
+| Claire | [@Claire-00](https://github.com/Claire-00) | 튜토리얼 이미지·영상 제작, 콘텐츠 제작 |
+
 ## 기여
 
 브랜치·커밋·PR 규칙은 [CONTRIBUTING.md](CONTRIBUTING.md)를 참고하세요.
