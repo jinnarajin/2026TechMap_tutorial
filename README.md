@@ -6,7 +6,7 @@ ARKit Hand Tracking을 단계별로 배우는 튜토리얼을 함께 제공합�
 
 **튜토리얼:** https://jinnarajin.github.io/2026TechMap_tutorial/ (영어 / 한국어)
 
-![빛나는 빨간 구](docs/images/s2-rgb-sphere.png)
+![RGB 구를 움직이고 섞는 인트로 영상](docs/images/00-intro.gif)
 
 ## 튜토리얼 구성
 
