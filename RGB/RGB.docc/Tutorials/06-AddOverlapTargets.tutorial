@@ -1,0 +1,85 @@
+# 06-AddOverlapTargets
+
+## Overview
+
+Create an invisible interaction target where two RGB spheres overlap.
+
+The overlap target allows the user to interact with the mixed color
+without directly manipulating the two original spheres.
+
+### Detect Sphere Overlap
+
+Use the distance between movable spheres to determine whether they
+overlap.
+
+When two spheres are close enough, calculate the midpoint between them.
+This midpoint becomes the position of the overlap target.
+
+@Code(name: "SphereOverlapSystem.swift", file: "SphereOverlapSystem.swift")
+
+The `SphereOverlapSystem` checks every pair of movable spheres and
+compares the distance between their world positions with the sphere
+diameter.
+
+When two spheres overlap, the system calculates their mixed RGB color,
+midpoint, and a unique key for the pair.
+
+### Create the Overlap Target
+
+Create an invisible `ModelEntity` at the midpoint of the overlapping
+spheres.
+
+The entity does not need a visible mesh. Instead, it uses a
+`CollisionComponent` and `InputTargetComponent` so it can receive
+manipulation input.
+
+@Code(
+name: "Create the overlap target",
+file: "SphereInteractionManager.swift"
+)
+
+The overlap target also receives a `ManipulationComponent` so it can
+follow the user's manipulation gesture.
+
+### Store Overlap Information
+
+Use `OverlapVisualComponent` to store information about the overlap.
+
+The component keeps the overlap key and the mixed RGB color associated
+with that target.
+
+@Code(
+name: "OverlapVisualComponent.swift",
+file: "OverlapVisualComponent.swift"
+)
+
+The overlap key identifies which pair of spheres produced the target.
+The stored color is used when the user interacts with the target to
+create the mixed sphere.
+
+### Create the Mixed Sphere
+
+When the user begins manipulating an overlap target, create a new
+sphere using the calculated mixed color.
+
+@Code(
+name: "Create the mixed sphere",
+file: "SphereInteractionManager.swift"
+)
+
+The mixed sphere is positioned at the overlap point and added to the
+collection of movable spheres.
+
+Because it is treated as a movable sphere, the resulting color can
+participate in future interactions with other spheres.
+
+### Keep the Target Updated
+
+The overlap targets are updated whenever a sphere is moved or
+released.
+
+Targets that no longer correspond to an overlap are removed, while
+new overlapping pairs create new targets.
+
+This keeps the invisible interaction points synchronized with the
+current positions of the movable spheres.

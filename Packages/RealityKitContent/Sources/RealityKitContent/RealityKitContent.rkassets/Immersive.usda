@@ -1,0 +1,224 @@
+#usda 1.0
+(
+    defaultPrim = "Root"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Root"
+{
+    reorder nameChildren = ["SkyDome", "Video_Dock", "GlowMaterial", "GlowMaterial"]
+    def "SkyDome" (
+        active = true
+        references = @SkyDome.usdz@
+    )
+    {
+        float3 xformOp:scale = (0.01, 0.01, 0.01)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+    }
+
+    def Xform "Video_Dock" (
+        references = None
+    )
+    {
+        double3 xformOp:translate = (0, 0.8, -3)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Xform "Player"
+        {
+            double3 xformOp:translate = (0, 0.6, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+            def RealityKitComponent "CustomDockingRegion"
+            {
+                token info:id = "RealityKit.CustomDockingRegion"
+
+                def RealityKitStruct "m_bounds"
+                {
+                    float3 max = (1.2, 0.5, 0)
+                    float3 min = (-1.2, -0.5, -0)
+                }
+            }
+        }
+
+        def "Ground" (
+            references = @Ground/Ground.usda@
+        )
+        {
+        }
+    }
+
+    def Material "GlowMaterial"
+    {
+        reorder nameChildren = ["UnlitSurface", "Normal", "ViewDirection", "TransformNormal", "TransformVector", "NormalizeViewDirections", "NormalizeNormals", "DotProduct", "Swizzle", "SmoothStep", "Color"]
+        token outputs:mtlx:surface.connect = </Root/GlowMaterial/UnlitSurface.outputs:out>
+        token outputs:realitykit:vertex
+        float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (335.25, 100.5)
+
+        def Shader "UnlitSurface"
+        {
+            uniform token info:id = "ND_realitykit_unlit_surfaceshader"
+            bool inputs:applyPostProcessToneMap
+            color3f inputs:color.connect = </Root/GlowMaterial/Mix.outputs:out>
+            bool inputs:hasPremultipliedAlpha
+            float inputs:opacity
+            float inputs:opacityThreshold
+            token outputs:out
+            float2 ui:nodegraph:node:pos = (58.70703, 84.5)
+            int ui:nodegraph:node:stackingOrder = 3
+        }
+
+        def Shader "Normal"
+        {
+            uniform token info:id = "ND_normal_vector3"
+            string inputs:space = "model"
+            float3 outputs:out
+            float2 ui:nodegraph:node:pos = (-1802.7432, 65.95068)
+            int ui:nodegraph:node:stackingOrder = 584
+        }
+
+        def Shader "ViewDirection"
+        {
+            uniform token info:id = "ND_realitykit_viewdirection_vector3"
+            string inputs:space = "model"
+            float3 outputs:out
+            float2 ui:nodegraph:node:pos = (-1760.0411, 142.51016)
+            int ui:nodegraph:node:stackingOrder = 584
+        }
+
+        def Shader "TransformNormal"
+        {
+            uniform token info:id = "ND_transformnormal_vector3"
+            string inputs:fromspace = "model"
+            float3 inputs:in.connect = </Root/GlowMaterial/Normal.outputs:out>
+            string inputs:tospace = "world"
+            float3 outputs:out
+            float2 ui:nodegraph:node:pos = (-1530.2661, 67.9539)
+            int ui:nodegraph:node:stackingOrder = 584
+        }
+
+        def Shader "TransformVector"
+        {
+            uniform token info:id = "ND_transformvector_vector3"
+            string inputs:fromspace = "model"
+            float3 inputs:in.connect = </Root/GlowMaterial/ViewDirection.outputs:out>
+            string inputs:tospace = "world"
+            float3 outputs:out
+            float2 ui:nodegraph:node:pos = (-1534.5151, 142.01106)
+            int ui:nodegraph:node:stackingOrder = 584
+        }
+
+        def Shader "NormalizeViewDirections"
+        {
+            uniform token info:id = "ND_normalize_vector3"
+            float3 inputs:in.connect = </Root/GlowMaterial/TransformVector.outputs:out>
+            float3 outputs:out
+            float2 ui:nodegraph:node:pos = (-1295.8029, 137.81651)
+            int ui:nodegraph:node:stackingOrder = 584
+        }
+
+        def Shader "NormalizeNormals"
+        {
+            uniform token info:id = "ND_normalize_vector3"
+            float3 inputs:in.connect = </Root/GlowMaterial/TransformNormal.outputs:out>
+            float3 outputs:out
+            float2 ui:nodegraph:node:pos = (-1312.7958, 67.676865)
+            int ui:nodegraph:node:stackingOrder = 584
+        }
+
+        def Shader "DotProduct"
+        {
+            uniform token info:id = "ND_dotproduct_vector3"
+            float3 inputs:in1.connect = </Root/GlowMaterial/NormalizeNormals.outputs:out>
+            float3 inputs:in2.connect = </Root/GlowMaterial/NormalizeViewDirections.outputs:out>
+            float outputs:out
+            float2 ui:nodegraph:node:pos = (-1048.2666, 86.69015)
+            int ui:nodegraph:node:stackingOrder = 584
+        }
+
+        def Shader "Swizzle"
+        {
+            uniform token info:id = "ND_swizzle_float_color3"
+            string inputs:channels
+            float inputs:in.connect = </Root/GlowMaterial/SmoothStep.outputs:out>
+            color3f outputs:out
+            float2 ui:nodegraph:node:pos = (-584.4312, 299.72998)
+            int ui:nodegraph:node:stackingOrder = 586
+        }
+
+        def Shader "SmoothStep"
+        {
+            uniform token info:id = "ND_smoothstep_float"
+            float inputs:high
+            float inputs:in.connect = </Root/GlowMaterial/DotProduct.outputs:out>
+            float inputs:low
+            float outputs:out
+            float2 ui:nodegraph:node:pos = (-874.5941, 95.88934)
+            int ui:nodegraph:node:stackingOrder = 584
+        }
+
+        def Shader "Color"
+        {
+            uniform token info:id = "ND_constant_color3"
+            color3f inputs:value = (1, 0.14913142, 0) (
+                colorSpace = "srgb_texture"
+            )
+            color3f outputs:out
+            float2 ui:nodegraph:node:pos = (-550.27203, -119.93365)
+            int ui:nodegraph:node:stackingOrder = 621
+        }
+
+        def Shader "Power"
+        {
+            uniform token info:id = "ND_power_color3FA"
+            prepend color3f inputs:in1.connect = </Root/GlowMaterial/Color.outputs:out>
+            float inputs:in2.connect = </Root/GlowMaterial/Range.outputs:out>
+            color3f outputs:out
+            float2 ui:nodegraph:node:pos = (-421.0976, 9.319071)
+            int ui:nodegraph:node:stackingOrder = 619
+        }
+
+        def Shader "Range"
+        {
+            uniform token info:id = "ND_range_float"
+            bool inputs:doclamp
+            float inputs:gamma
+            float inputs:in.connect = </Root/GlowMaterial/SmoothStep.outputs:out>
+            float inputs:inhigh
+            float inputs:inlow
+            float inputs:outhigh = 1.5
+            float inputs:outlow
+            float outputs:out
+            float2 ui:nodegraph:node:pos = (-717.62933, -62.41889)
+            int ui:nodegraph:node:stackingOrder = 611
+            string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:gamma"]
+        }
+
+        def Shader "Mix"
+        {
+            uniform token info:id = "ND_mix_color3"
+            color3f inputs:bg.connect = </Root/GlowMaterial/Power.outputs:out>
+            color3f inputs:fg.connect = </Root/GlowMaterial/Color.outputs:out>
+            float inputs:mix.connect = </Root/GlowMaterial/Range_1.outputs:out>
+            color3f outputs:out
+            float2 ui:nodegraph:node:pos = (-171.38383, 47.386932)
+            int ui:nodegraph:node:stackingOrder = 628
+        }
+
+        def Shader "Range_1"
+        {
+            uniform token info:id = "ND_range_float"
+            bool inputs:doclamp
+            float inputs:gamma
+            float inputs:in.connect = </Root/GlowMaterial/SmoothStep.outputs:out>
+            float inputs:inhigh
+            float inputs:inlow
+            float inputs:outhigh = 1.5
+            float inputs:outlow = 0.5
+            float outputs:out
+            float2 ui:nodegraph:node:pos = (-492.60574, 150.12257)
+            int ui:nodegraph:node:stackingOrder = 625
+        }
+    }
+}
+
