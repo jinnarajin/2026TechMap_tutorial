@@ -92,7 +92,14 @@
     border: 1px solid rgba(41,151,255,.24); }
   .code-location strong { color: #64b5ff; }
   .step p { margin: 0 0 .5rem; color: #d1d1d6; font-size: .95rem; }
+  .step-list { margin: 0 0 .5rem; padding-left: 1.2rem; color: #d1d1d6; font-size: .92rem; }
+  .step-list li + li { margin-top: .3rem; }
   .step p.note { font-size: .88rem; color: var(--muted); }
+  .section-note { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 12px; font-size: .9rem;
+    color: #d1d1d6; background: var(--card); border: 1px solid var(--border); border-left: 3px solid #ff9f0a; }
+  .section-note strong { display: block; margin-bottom: .3rem; color: #fff; }
+  .section-note ul { margin: 0; padding-left: 1.1rem; }
+  .section-note li + li { margin-top: .3rem; }
   .checkpoint { margin: 1rem 0 2rem; padding: 1rem 1.2rem; border-radius: 12px;
     background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--blue); }
   .checkpoint strong { display: block; margin-bottom: .3rem; font-size: .9rem; }
@@ -669,12 +676,20 @@
     <div class="kicker">Section 6 of 6</div>
     <h2>Adjust Sphere Brightness with Hand Tracking</h2>
     <p class="overview">Use ARKit hand tracking to adjust the selected sphere's brightness. With all five fingers extended, rotate your right palm from facing down to facing up to brighten the sphere, then rotate it back down to dim it. The sphere's size stays unchanged.</p>
+    <div class="section-note i18n" data-en="&lt;strong&gt;Before you start&lt;/strong&gt;&lt;ul&gt;&lt;li&gt;Hand tracking requires an &lt;code class=&quot;inline&quot;&gt;NSHandsTrackingUsageDescription&lt;/code&gt; entry in &lt;code class=&quot;inline&quot;&gt;Info.plist&lt;/code&gt;. Without it, the app cannot request hand-tracking authorization. Step 0 shows how to add it.&lt;/li&gt;&lt;li&gt;Hand tracking does not work in the visionOS Simulator. You can build and run this section there, but the brightness only changes on Apple Vision Pro.&lt;/li&gt;&lt;/ul&gt;" data-ko="&lt;strong&gt;시작하기 전에&lt;/strong&gt;&lt;ul&gt;&lt;li&gt;Hand Tracking을 쓰려면 &lt;code class=&quot;inline&quot;&gt;Info.plist&lt;/code&gt;에 &lt;code class=&quot;inline&quot;&gt;NSHandsTrackingUsageDescription&lt;/code&gt; 항목이 있어야 합니다. 이 항목이 없으면 앱이 Hand Tracking 권한을 요청할 수 없습니다. 추가 방법은 0단계에 있습니다.&lt;/li&gt;&lt;li&gt;visionOS Simulator에서는 Hand Tracking이 동작하지 않습니다. 이 섹션도 Simulator에서 빌드·실행은 되지만, 밝기 조절은 Apple Vision Pro에서만 확인할 수 있습니다.&lt;/li&gt;&lt;/ul&gt;"><strong>Before you start</strong><ul><li>Hand tracking requires an <code class="inline">NSHandsTrackingUsageDescription</code> entry in <code class="inline">Info.plist</code>. Without it, the app cannot request hand-tracking authorization. Step 0 shows how to add it.</li><li>Hand tracking does not work in the visionOS Simulator. You can build and run this section there, but the brightness only changes on Apple Vision Pro.</li></ul></div>
   </div>
   <div class="chapter-art"><div class="mini sphere r"></div></div>
 </div>
 
 <div class="steps-layout">
   <div class="steps">
+    <div class="step" data-code="c-handusage">
+      <div class="steplabel">Step 0</div>
+      <h3>Add the Hand-Tracking Usage Description</h3>
+      <p>Add <code class="inline">NSHandsTrackingUsageDescription</code> to the app's information property list. visionOS shows this message when the app requests hand-tracking authorization.</p>
+      <ol class="step-list i18n" data-en="&lt;li&gt;In the Project navigator, select the &lt;strong&gt;RGB&lt;/strong&gt; project at the top of the file list.&lt;/li&gt;&lt;li&gt;Under &lt;strong&gt;Targets&lt;/strong&gt;, select &lt;strong&gt;RGB&lt;/strong&gt;, then open the &lt;strong&gt;Info&lt;/strong&gt; tab. The property list appears under Custom iOS Target Properties.&lt;/li&gt;&lt;li&gt;Select any row, then click the &lt;strong&gt;+&lt;/strong&gt; button to add a new row.&lt;/li&gt;&lt;li&gt;Set &lt;strong&gt;Key&lt;/strong&gt; to &lt;code class=&quot;inline&quot;&gt;Privacy - Hands Tracking Usage Description&lt;/code&gt;.&lt;/li&gt;&lt;li&gt;Set &lt;strong&gt;Type&lt;/strong&gt; to &lt;code class=&quot;inline&quot;&gt;String&lt;/code&gt;.&lt;/li&gt;&lt;li&gt;Set &lt;strong&gt;Value&lt;/strong&gt; to &lt;code class=&quot;inline&quot;&gt;Uses your hand movements to adjust the brightness of the spheres.&lt;/code&gt;&lt;/li&gt;" data-ko="&lt;li&gt;Project navigator의 파일 목록 맨 위에 있는 &lt;strong&gt;RGB&lt;/strong&gt; 프로젝트를 선택합니다.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Targets&lt;/strong&gt;에서 &lt;strong&gt;RGB&lt;/strong&gt;를 선택한 뒤 &lt;strong&gt;Info&lt;/strong&gt; 탭을 엽니다. Custom iOS Target Properties에 plist 항목이 나타납니다.&lt;/li&gt;&lt;li&gt;아무 행이나 선택하고 &lt;strong&gt;+&lt;/strong&gt; 버튼을 눌러 새 행을 만듭니다.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Key&lt;/strong&gt;에 &lt;code class=&quot;inline&quot;&gt;Privacy - Hands Tracking Usage Description&lt;/code&gt;을 입력합니다.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Type&lt;/strong&gt;은 &lt;code class=&quot;inline&quot;&gt;String&lt;/code&gt;으로 둡니다.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Value&lt;/strong&gt;에 &lt;code class=&quot;inline&quot;&gt;손동작으로 구의 빛의 세기를 조절하기 위해 손의 움직임을 사용합니다.&lt;/code&gt;를 입력합니다.&lt;/li&gt;"><li>In the Project navigator, select the <strong>RGB</strong> project at the top of the file list.</li><li>Under <strong>Targets</strong>, select <strong>RGB</strong>, then open the <strong>Info</strong> tab. The property list appears under Custom iOS Target Properties.</li><li>Select any row, then click the <strong>+</strong> button to add a new row.</li><li>Set <strong>Key</strong> to <code class="inline">Privacy - Hands Tracking Usage Description</code>.</li><li>Set <strong>Type</strong> to <code class="inline">String</code>.</li><li>Set <strong>Value</strong> to <code class="inline">Uses your hand movements to adjust the brightness of the spheres.</code></li></ol>
+      <div class="mobilecode"></div>
+    </div>
     <div class="step" data-code="c-lightcomponent">
       <div class="steplabel">Step 1</div>
       <h3>Store Light Intensity</h3>
@@ -5345,6 +5360,8 @@ struct RightHandWristRollSample {
 +}
 </template>
 
+<template id="c-handusage" data-name="Info.plist" data-img="images/s6-info-plist.webp"></template>
+
 <template id="c-handstart" data-name="HandTrackingManager.swift">
 import ARKit
 import SwiftUI
@@ -6788,6 +6805,7 @@ final class SphereInteractionManager: ObservableObject {
     "c-palmnormal": { h3: "손바닥 방향 읽기", p: "손목 Joint의 Y축이 손바닥 바깥을 가리킵니다. 위 방향 벡터와의 내적으로 손바닥 아래는 0, 손바닥 위는 1이 됩니다." },
     "c-fingers": { h3: "손을 폈는지 확인하기", p: "손가락 끝이 중간 관절보다 손목에서 더 멀면 편 것으로 봅니다. 다섯 손가락이 모두 펴져야 다이얼이 반응합니다." },
     "c-handtracking": { h3: "Hand Tracking Manager 만들기", p: C("ARKitSession") + "이 " + C("HandTrackingProvider") + "를 실행합니다. Manager는 이 둘과, 값을 전달할 다이얼 Controller를 가지고 있습니다." },
+    "c-handusage": { h3: "Hand Tracking 사용 목적 추가하기", p: "앱의 Info.plist에 " + C("NSHandsTrackingUsageDescription") + "를 추가합니다. 앱이 Hand Tracking 권한을 요청할 때 visionOS가 이 문구를 보여 줍니다." },
     "c-handstart": { h3: "세션 시작하기", p: "Hand Tracking 지원 여부를 확인하고 권한을 요청한 뒤 " + C("ARKitSession") + "에서 Provider를 실행합니다. " + C("stop") + "이 이를 정리합니다." },
     "c-handanchors": { h3: "손 Anchor 전달하기", p: "Task 안에서 Provider의 Anchor 업데이트를 순회하며 추적 중인 Anchor를 다이얼 Controller에 넘깁니다." },
     "c-lightselect": { h3: "선택된 구 노출하기", p: "Manager는 이미 선택된 구를 추적합니다. 이를 노출하고, 손목에 가장 가까운 이동 가능한 구를 찾는 대체 방법을 추가합니다." },
