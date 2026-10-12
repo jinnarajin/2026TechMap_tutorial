@@ -92,6 +92,11 @@
     border: 1px solid rgba(41,151,255,.24); }
   .code-location strong { color: #64b5ff; }
   .step p { margin: 0 0 .5rem; color: #d1d1d6; font-size: .95rem; }
+  .step p.note { font-size: .88rem; color: var(--muted); }
+  .checkpoint { margin: 1rem 0 2rem; padding: 1rem 1.2rem; border-radius: 12px;
+    background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--blue); }
+  .checkpoint strong { display: block; margin-bottom: .3rem; font-size: .9rem; }
+  .checkpoint p { margin: 0; color: #d1d1d6; font-size: .95rem; }
   .step ul { color: #d1d1d6; font-size: .95rem; margin: .4rem 0; padding-left: 1.2rem; }
 
   .panel { position: relative; }
@@ -199,25 +204,19 @@
   <a href="#s4">Interaction</a>
   <a href="#s5">Mix Colors</a>
   <a href="#s6">Overlap Targets</a>
-  <a href="#s7">Light Control</a>
+  <a href="#s7">Brightness</a>
   <a href="#" id="langtoggle" style="margin-left:auto;color:#fff;font-weight:600">한국어</a>
 </div></nav>
 
 <header class="hero"><div class="inner">
   <div class="eyebrow">visionOS · RealityKit</div>
   <h1>Build an Interactive RGB Light Experience</h1>
-  <p class="lede">Build a visionOS app with RealityKit that places three glowing red, green, and blue
-  spheres in an immersive space, where you pick them up and move them with your hands.
-  Bring two spheres together and you can pull a new mixed-color sphere, such as yellow,
-  magenta, or cyan, out of the overlap. Finally, rotate your right wrist to adjust the
-  brightness of a selected sphere.</p>
+  <p class="lede">Build a visionOS app with RealityKit that places three glowing red, green, and blue spheres in an immersive space. Grab a sphere to move it, bring two spheres together to mix their colors, and pull a new mixed-color sphere from the overlap. Finally, rotate your right palm to adjust the brightness of the selected sphere.</p>
   <video class="chapter-media" src="images/00-intro.mp4" autoplay muted loop playsinline aria-label="Moving and mixing RGB light spheres in an immersive space"></video>
   <div class="time"><div class="ring"></div><span><small>Estimated&nbsp;Time</small>25&nbsp;minutes</span></div>
   <div class="device-note i18n"
-    data-en="&lt;strong&gt;Testing note&lt;/strong&gt; — You can build the project and inspect the immersive layout in the visionOS Simulator. For the intended direct hand interaction and spatial depth, run the finished experience on Apple Vision Pro."
-    data-ko="&lt;strong&gt;테스트 환경 안내&lt;/strong&gt; — visionOS Simulator에서도 프로젝트를 빌드하고 Immersive 배치를 확인할 수 있습니다. 의도한 직접 손 인터랙션과 공간감을 최종 확인하려면 Apple Vision Pro에서 실행하세요."><strong>Testing note</strong> — You can build the project and inspect
-  the immersive layout in the visionOS Simulator. For the intended direct hand interaction
-  and spatial depth, run the finished experience on Apple Vision Pro.</div>
+    data-en="&lt;strong&gt;Test on Apple Vision Pro&lt;/strong&gt; — You can use the visionOS Simulator to check the immersive layout. To test hand tracking and the full interaction, build and run the app on Apple Vision Pro."
+    data-ko="&lt;strong&gt;테스트 환경 안내&lt;/strong&gt; — visionOS Simulator에서도 프로젝트를 빌드하고 Immersive 배치를 확인할 수 있습니다. 의도한 직접 손 인터랙션과 공간감을 최종 확인하려면 Apple Vision Pro에서 실행하세요."><strong>Test on Apple Vision Pro</strong> — You can use the visionOS Simulator to check the immersive layout. To test hand tracking and the full interaction, build and run the app on Apple Vision Pro.</div>
 </div></header>
 
 <!-- ═══════════ Section 1 ═══════════ -->
@@ -225,10 +224,7 @@
   <div>
     <div class="kicker">Section 1 of 6</div>
     <h2>Create the Immersive Space</h2>
-    <p class="overview">Start by creating the immersive space where the RGB spheres will
-    appear. The app starts in a regular SwiftUI window; when the user opens the immersive
-    space, RealityKit creates a separate 3D environment where the RGB spheres will be
-    placed and interacted with.</p>
+    <p class="overview">Start by creating the immersive space where the RGB spheres will appear. The app starts in a regular SwiftUI window. When the user opens the immersive space, RealityKit presents the 3D environment where the spheres will be placed and interacted with.</p>
   </div>
   <div class="chapter-art media"><img class="chapter-media" src="images/s1-immersive-space.png" alt="A dark immersive space with a perspective grid"></div>
 </div>
@@ -246,11 +242,8 @@
     <div class="step" data-code="c-options">
       <div class="steplabel">Step 2</div>
       <h3>Choose the Project Options</h3>
-      <p>Enter a product name, then set <code class="inline">Initial Scene</code> to
-      <strong>Window</strong>, <code class="inline">Immersive Space Renderer</code> to
-      <strong>RealityKit</strong>, and <code class="inline">Immersive Space</code> to
-      <strong>Full</strong>. The app starts in a window and opens a full immersive
-      space.</p>
+      <p>Enter a product name. Set <code class="inline">Initial Scene</code> to <strong>Window</strong>, <code class="inline">Immersive Space Renderer</code> to <strong>RealityKit</strong>, and <code class="inline">Immersive Space</code> to <strong>Full</strong>.</p>
+      <p class="note i18n" data-en="&lt;strong&gt;Note:&lt;/strong&gt; A Full Space gives the app access to ARKit features such as hand tracking when the required authorization is granted." data-ko="&lt;strong&gt;참고:&lt;/strong&gt; Full Space에서는 필요한 권한이 허용되면 Hand Tracking 같은 ARKit 기능을 사용할 수 있습니다."><strong>Note:</strong> A Full Space gives the app access to ARKit features such as hand tracking when the required authorization is granted.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-appmodel">
@@ -326,84 +319,83 @@
       <div class="steplabel">Step 2</div>
       <h3>Create a Sphere</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RGBSphere.swift</code></div>
-      <p>A <code class="inline">ModelEntity</code> combines a mesh and a material into a visible object. <code class="inline">makeRGBSphere</code> builds a sphere with a radius of 0.15 meters and a luminous material.</p>
+      <p>A <code class="inline">ModelEntity</code> combines a mesh and a material into a visible object. <code class="inline">makeRGBSphere</code> creates a sphere with a radius of <code class="inline">0.15</code> meters and a luminous material.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-storecolor">
       <div class="steplabel">Step 3</div>
       <h3>Store the Color on the Sphere</h3>
-      <p>Attach an <code class="inline">RGBColorComponent</code> so the sphere carries its own RGB value. Later steps read it back when cloning and mixing.</p>
+      <p>Attach an <code class="inline">RGBColorComponent</code> so the sphere stores its own RGB color.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rgbcolor">
       <div class="steplabel">Step 4</div>
       <h3>Create the RGB Colors</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RGBColor.swift</code></div>
-      <p>The <code class="inline">RGBColor</code> struct stores red, green, and blue separately — Red (1, 0, 0), Green (0, 1, 0), Blue (0, 0, 1). Keeping the values apart from the visual color makes mixing possible later.</p>
+      <p>The <code class="inline">RGBColor</code> structure stores the red, green, and blue components separately: Red <code class="inline">(1, 0, 0)</code>, Green <code class="inline">(0, 1, 0)</code>, and Blue <code class="inline">(0, 0, 1)</code>. Keeping these values separate makes it possible to combine colors later.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-uicolor">
       <div class="steplabel">Step 5</div>
       <h3>Convert to a UIKit Color</h3>
-      <p>Materials need a <code class="inline">UIColor</code>. A computed property converts the three floats whenever a material asks for it.</p>
+      <p>Add a computed property that converts the stored RGB values to a <code class="inline">UIColor</code> for use by the material.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-material">
       <div class="steplabel">Step 6</div>
       <h3>Create the Sphere Material</h3>
-      <p>The sphere uses a <code class="inline">PhysicallyBasedMaterial</code> that combines
-      its base color with transparency and emissive color to create a luminous
-      appearance.</p>
+      <p>The sphere uses a <code class="inline">PhysicallyBasedMaterial</code> with a colored, slightly transparent surface and emissive color to create a luminous appearance.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-glowmat">
       <div class="steplabel">Step 7</div>
       <h3>Create the Glow Material</h3>
-      <p>An <code class="inline">UnlitMaterial</code> shows a texture as-is, unaffected by scene lighting, so the glow keeps its color. Transparent blending lets the faded edge disappear.</p>
+      <p><code class="inline">UnlitMaterial</code> renders the glow without scene lighting affecting its appearance. Transparent blending lets the glow fade smoothly at the edges.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-glowtex">
       <div class="steplabel">Step 8</div>
       <h3>Set Up the Texture Drawing</h3>
-      <p>Create a <code class="inline">UIGraphicsImageRenderer</code> and pick the two gradient colors: the sphere color at the center and clear at the edge. The next step draws the gradient.</p>
+      <p>Use <code class="inline">UIGraphicsImageRenderer</code> to create the glow image in memory. Set the gradient to start with the sphere's color at the center and fade to transparent at the edge.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-glowgrad">
       <div class="steplabel">Step 9</div>
       <h3>Draw the Gradient</h3>
-      <p>Build a <code class="inline">CGGradient</code> from the two colors and draw it radially from the center to the edge of the image.</p>
+      <p>Create a <code class="inline">CGGradient</code> from the two colors, then draw it from the center of the image toward the edge to create a soft glow.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-glowtexret">
       <div class="steplabel">Step 10</div>
       <h3>Turn the Image into a Texture</h3>
-      <p>Convert the rendered image into a <code class="inline">TextureResource</code> and return it. The gradient is generated in code, so the conversion cannot fail.</p>
+      <p>Convert the rendered image to a <code class="inline">TextureResource</code> so RealityKit can use it as the glow texture.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-glow">
       <div class="steplabel">Step 11</div>
       <h3>Add a Radiating Glow</h3>
-      <p>Create a flat plane with the glow material and add it as a child of the sphere. The next step names it and turns it toward the viewer.</p>
+      <p>Create a flat plane that uses the glow material, then add it as a child of the sphere. Because the glow is attached to the sphere, it moves with the sphere.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-glowname">
       <div class="steplabel">Step 12</div>
       <h3>Name the Glow and Attach It</h3>
-      <p>Give the glow a name so later code can find it, keep it facing the viewer with a <code class="inline">BillboardComponent</code>, and call <code class="inline">addRadiatingGlow</code> from <code class="inline">makeRGBSphere</code> so every sphere gets one.</p>
+      <p>Give the glow a name so you can find it later. Add a <code class="inline">BillboardComponent</code> so the flat glow always faces the viewer. The glow is visual only and does not receive input. Finally, call <code class="inline">addRadiatingGlow</code> from <code class="inline">makeRGBSphere</code> so every sphere gets a glow.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-place">
       <div class="steplabel">Step 13</div>
       <h3>Place the RGB Spheres</h3>
-      <p>Create the three spheres in <code class="inline">ImmersiveView</code>'s <code class="inline">RealityView</code> and add them to a head anchor. The spheres are visible in the immersive space but not yet positioned or movable.</p>
+      <p>Create the three spheres in <code class="inline">ImmersiveView</code>'s <code class="inline">RealityView</code> and add them to an <code class="inline">AnchorEntity(.head)</code>. This gives the spheres a coordinate space relative to the user's head.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-position">
       <div class="steplabel">Step 14</div>
       <h3>Position the Spheres</h3>
-      <p>Place the spheres in a triangle about 1.5 meters in front of the head anchor: red above, green to the left, blue to the right.</p>
+      <p>Position the spheres about 1.5 meters in front of the user. Place the red sphere above the center, with the green and blue spheres below it on the left and right.</p>
       <div class="mobilecode"></div>
     </div>
+    <div class="checkpoint"><strong class="i18n" data-en="Checkpoint" data-ko="체크포인트">Checkpoint</strong><p class="i18n" data-en="Build and run. Verify that three glowing spheres appear in a triangular arrangement and remain fixed in place." data-ko="빌드하고 실행하세요. 빛나는 구 3개가 삼각형으로 배치되고 제자리에 고정되어 있는지 확인합니다.">Build and run. Verify that three glowing spheres appear in a triangular arrangement and remain fixed in place.</p></div>
   </div>
   <div class="panel"><div class="panel-sticky">
     <div class="codewindow">
@@ -418,9 +410,7 @@
   <div>
     <div class="kicker">Section 3 of 6</div>
     <h2>Make the Spheres Interactive</h2>
-    <p class="overview">Mark the three spheres as fixed originals, then add the components
-    and event handling needed to make the spheres selectable and movable in the immersive
-    space.</p>
+    <p class="overview">Keep the three RGB spheres fixed as originals and create movable clones when the user grabs them. Add the components and event handling needed to support these interactions.</p>
   </div>
   <div class="chapter-art media"><video class="chapter-media" src="images/s3-interactive.mp4" autoplay muted loop playsinline aria-label="Picking up and moving an RGB sphere"></video></div>
 </div>
@@ -439,38 +429,38 @@
       <div class="steplabel">Step 2</div>
       <h3>Prepare a Sphere for Interaction</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereInteraction.swift</code></div>
-      <p>The <code class="inline">configureSphereForInteraction</code> function adds an <code class="inline">InputTargetComponent</code> so the sphere can receive input and a <code class="inline">CollisionComponent</code> that defines the hit area. The radius is a parameter, so the function can be reused on entities of other sizes.</p>
+      <p>The <code class="inline">configureSphereForInteraction</code> function adds an <code class="inline">InputTargetComponent</code> so the sphere can receive input and a <code class="inline">CollisionComponent</code> to define the area that can be targeted.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-manipulate">
       <div class="steplabel">Step 3</div>
-      <h3>Let the User Move It</h3>
-      <p>A <code class="inline">ManipulationComponent</code> turns a pinch-and-drag into movement. With <code class="inline">releaseBehavior</code> set to stay, the entity remains where the user lets go.</p>
+      <h3>Enable Sphere Manipulation</h3>
+      <p>Add a <code class="inline">ManipulationComponent</code> so RealityKit can respond when the user pinches and drags the sphere. Setting <code class="inline">releaseBehavior</code> to <code class="inline">.stay</code> keeps the sphere at its new position when the gesture ends.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-manip">
       <div class="steplabel">Step 4</div>
       <h3>Create the Interaction Manager</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereInteractionManager.swift</code></div>
-      <p>The <code class="inline">SphereInteractionManager</code> owns everything that happens when the user grabs a sphere. Start with the class and an <code class="inline">InteractionState</code> that says what is being manipulated.</p>
+      <p><code class="inline">SphereInteractionManager</code> keeps track of the current interaction and the spheres created during manipulation. Start by defining the manager and an <code class="inline">InteractionState</code> enum to track what the user is currently manipulating.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-manipprops">
       <div class="steplabel">Step 5</div>
       <h3>Add the Manager's State</h3>
-      <p>Store the current state, the movable spheres, the overlap targets, and the selected sphere. <code class="inline">selectSphere</code> records the selection; <code class="inline">updateOverlaps</code> is a placeholder until Section 5.</p>
+      <p>Store the current interaction state, movable spheres, overlap targets, and selected sphere. Add <code class="inline">selectSphere</code> to keep track of the current selection.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-events">
       <div class="steplabel">Step 6</div>
       <h3>Subscribe to Manipulation Events</h3>
-      <p>Listen for the three <code class="inline">ManipulationEvents</code> RealityKit sends while the user pinches and drags, and forward each one to a handler. The handlers come in the next step.</p>
+      <p>Subscribe to the manipulation events used by the app: <code class="inline">WillBegin</code>, <code class="inline">DidUpdateTransform</code>, and <code class="inline">WillRelease</code>. Forward each event to its corresponding handler.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-handlers">
       <div class="steplabel">Step 7</div>
-      <h3>Handle the Beginning</h3>
-      <p>When a manipulation begins, select the sphere. Later steps add clones and mixed spheres here.</p>
+      <h3>Handle the Start of a Manipulation</h3>
+      <p>When <code class="inline">WillBegin</code> is received, select the manipulated sphere.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-handlersend">
@@ -481,67 +471,60 @@
     </div>
     <div class="step" data-code="c-wire">
       <div class="steplabel">Step 9</div>
-      <h3>Wire the Manager into the View</h3>
-      <p>Give <code class="inline">ImmersiveView</code> a
-      <code class="inline">SphereInteractionManager</code>, mark the three spheres as
-      originals with their fixed positions, make them interactive, and subscribe the manager
-      to the scene's manipulation events.</p>
+      <h3>Connect the Interaction Manager to the Scene</h3>
+      <p>Connect <code class="inline">SphereInteractionManager</code> to <code class="inline">ImmersiveView</code> so it can receive manipulation events. Register the three original spheres, configure them for interaction, and subscribe the manager to the scene's manipulation events.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-clone">
       <div class="steplabel">Step 10</div>
-      <h3>Build a Movable Clone</h3>
-      <p>Original spheres never leave their fixed positions, so <code class="inline">createClone</code> builds a movable copy with the same color and glow and makes it interactive.</p>
+      <h3>Create a Movable Clone</h3>
+      <p>Because the original spheres stay fixed, <code class="inline">createClone</code> creates a separate sphere with the same color and glow. The clone receives its own interaction components so it can be moved independently.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-cloneuse">
       <div class="steplabel">Step 11</div>
       <h3>Clone When an Original Is Grabbed</h3>
-      <p>If the grabbed sphere carries an <code class="inline">OriginalSphereComponent</code>, create the clone at the same position, add it to the movable collection, remember the state, and select the clone instead.</p>
+      <p>When the grabbed entity has an <code class="inline">OriginalSphereComponent</code>, create a clone at the original's position. Add the clone to the movable sphere collection, store it in the interaction state, and select the clone so the user can continue the gesture with it.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rim">
       <div class="steplabel">Step 12</div>
       <h3>Create the Selection Ring</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphericalSelectionRim.swift</code></div>
-      <p>Create a custom white ring so the selected sphere is easy to spot. A
-      <code class="inline">BillboardComponent</code> keeps it facing the viewer, and the
-      ring is attached to only one sphere at a time.</p>
+      <p>Create a custom white selection ring to show which sphere is selected. A <code class="inline">BillboardComponent</code> keeps the ring facing the viewer, and the ring is attached to only one sphere at a time.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rimverts">
       <div class="steplabel">Step 13</div>
       <h3>Place the Ring Vertices</h3>
-      <p>Walk around the circle once per segment and add two vertices each time, one on
-      the outer edge and one on the inner edge. The ring is flat, so every normal points
-      at the viewer.</p>
+      <p>Model the ring as a thin flat strip. For each segment of the circle, add one vertex on the outer edge and one on the inner edge.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rimmesh">
       <div class="steplabel">Step 14</div>
-      <h3>Start the Ring Mesh</h3>
-      <p>Build the vertices with the helper and prepare an empty index list. The next two steps fill the triangles and produce the mesh.</p>
+      <h3>Build the Ring Mesh</h3>
+      <p>Generate the inner and outer vertices, then create an index array that describes how the vertices connect to form triangles.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rimtriangles">
       <div class="steplabel">Step 15</div>
       <h3>Connect the Vertices</h3>
-      <p>Join neighbouring vertex pairs with two triangles per segment, listing the vertex indices of each triangle.</p>
+      <p>Connect each pair of neighboring segments with two triangles. Together, these triangles form the surface of the ring.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-rimdesc">
       <div class="steplabel">Step 16</div>
-      <h3>Describe the Mesh</h3>
-      <p>Hand the positions, normals, and triangle indices to a <code class="inline">MeshDescriptor</code>, which produces the <code class="inline">MeshResource</code>.</p>
+      <h3>Create the Mesh Resource</h3>
+      <p>Pass the vertex positions, normals, and triangle indices to a <code class="inline">MeshDescriptor</code>. RealityKit uses the descriptor to create the <code class="inline">MeshResource</code>.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-attachrim">
       <div class="steplabel">Step 17</div>
       <h3>Show the Ring on the Selected Sphere</h3>
-      <p>Keep a single ring. When the selection changes, remove it from the previous sphere
-      and attach it to the new one.</p>
+      <p>Display one selection ring at a time. When the selection changes, remove the ring from the previous sphere and attach it to the new selection.</p>
       <div class="mobilecode"></div>
     </div>
+    <div class="checkpoint"><strong class="i18n" data-en="Checkpoint" data-ko="체크포인트">Checkpoint</strong><p class="i18n" data-en="Build and run. Verify that grabbing an original sphere creates a movable clone with a white selection ring, while the original sphere remains fixed." data-ko="빌드하고 실행하세요. 원본 구를 잡으면 흰색 선택 링이 달린 움직이는 복제본이 생기고, 원본 구는 제자리에 남아 있는지 확인합니다.">Build and run. Verify that grabbing an original sphere creates a movable clone with a white selection ring, while the original sphere remains fixed.</p></div>
   </div>
   <div class="panel"><div class="panel-sticky">
     <div class="codewindow">
@@ -556,9 +539,7 @@
   <div>
     <div class="kicker">Section 4 of 6</div>
     <h2>Mix Colors</h2>
-    <p class="overview">Store RGB values and combine them when two light sources overlap.
-    Combining red and green produces yellow; red and blue produce magenta; when all three
-    primary lights overlap, the result becomes white.</p>
+    <p class="overview">Because the spheres represent light, their colors mix additively. When two spheres overlap, their red, green, and blue values are combined to produce a new color.</p>
   </div>
   <div class="chapter-art media"><video class="chapter-media" src="images/s4-mix-colors.mp4" autoplay muted loop playsinline aria-label="Two light spheres mixing their colors"></video></div>
 </div>
@@ -568,7 +549,7 @@
     <div class="step" data-code="c-mix">
       <div class="steplabel">Step 1</div>
       <h3>Combine RGB Colors</h3>
-      <p>Light mixes additively: <code class="inline">mixed(with:)</code> adds each channel of the two colors. Red and green make yellow.</p>
+      <p><code class="inline">mixed(with:)</code> adds the corresponding red, green, and blue channels from the two colors to calculate their combined light color.</p>
       <ul>
         <li>Red + Green → Yellow</li>
         <li>Red + Blue → Magenta</li>
@@ -579,34 +560,35 @@
     <div class="step" data-code="c-normalize">
       <div class="steplabel">Step 2</div>
       <h3>Keep Values in Range</h3>
-      <p>Adding two lights can push a channel above 1. <code class="inline">normalized</code> clamps each channel so the color stays valid.</p>
+      <p>RGB channel values range from <code class="inline">0.0</code> to <code class="inline">1.0</code>. Adding two colors can push a channel above <code class="inline">1.0</code>, so <code class="inline">normalized()</code> caps each channel at <code class="inline">1.0</code>.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-overlapsys">
       <div class="steplabel">Step 3</div>
       <h3>Detect Overlapping Spheres</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>SphereOverlapSystem.swift</code></div>
-      <p>The <code class="inline">SphereOverlapSystem</code> compares movable spheres and reports each overlapping pair. Start with the class, the overlap distance, and the result array.</p>
+      <p><code class="inline">SphereOverlapSystem</code> checks the movable spheres for overlapping pairs. It compares positions in world space so every sphere is measured in the same coordinate space. Start with the overlap distance and an array to store the results.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-overlaploop">
       <div class="steplabel">Step 4</div>
       <h3>Compare Every Pair</h3>
-      <p>Loop over every pair of spheres once and measure the distance between their world positions. Pairs closer than the overlap distance continue to the next step.</p>
+      <p>Check each unique pair of spheres once and measure the distance between their world-space positions. If the distance is greater than or equal to the overlap threshold, skip that pair.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-overlapval">
       <div class="steplabel">Step 5</div>
-      <h3>Build the Overlap Value</h3>
-      <p>For each overlapping pair, read both colors, mix them, and append a <code class="inline">SphereOverlap</code> with the midpoint and a key.</p>
+      <h3>Create the Overlap Result</h3>
+      <p>For each overlapping pair, read both colors, calculate their mixed color, and create a <code class="inline">SphereOverlap</code> containing the midpoint and pair key. The pair key identifies the two spheres that produced the overlap, so the same overlap can be found again later.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-overlapstruct">
       <div class="steplabel">Step 6</div>
       <h3>Describe the Overlap</h3>
-      <p>A <code class="inline">SphereOverlap</code> value carries the two spheres, the midpoint, the mixed color, and a key that identifies the pair.</p>
+      <p><code class="inline">SphereOverlap</code> groups the information needed for one overlap: the two spheres, the midpoint, the mixed color, and the pair key.</p>
       <div class="mobilecode"></div>
     </div>
+    <div class="checkpoint"><strong class="i18n" data-en="Checkpoint" data-ko="체크포인트">Checkpoint</strong><p class="i18n" data-en="Build and run. Move two clones until their volumes overlap. The app should detect the pair and calculate its mixed color, but no visible interaction target appears yet." data-ko="빌드하고 실행하세요. 복제본 두 개를 겹치도록 움직입니다. 앱은 겹친 쌍을 감지하고 혼합색을 계산하지만, 아직 화면에 보이는 인터랙션 타깃은 없습니다.">Build and run. Move two clones until their volumes overlap. The app should detect the pair and calculate its mixed color, but no visible interaction target appears yet.</p></div>
   </div>
   <div class="panel"><div class="panel-sticky">
     <div class="codewindow">
@@ -621,9 +603,7 @@
   <div>
     <div class="kicker">Section 5 of 6</div>
     <h2>Add Overlap Targets</h2>
-    <p class="overview">Create an invisible interaction point at the location where two RGB
-    spheres overlap, so the user can interact with the mixed color without directly
-    manipulating the original spheres.</p>
+    <p class="overview">Two overlapping clones produce overlap data, but the overlap itself is not an entity the user can grab. This section creates an invisible interaction target at the midpoint so the user can grab the overlap and pull out a new mixed-color sphere.</p>
   </div>
   <div class="chapter-art media"><video class="chapter-media" src="images/s5-overlap-target.mp4" autoplay muted loop playsinline aria-label="Pulling a mixed sphere out of two overlapping spheres"></video></div>
 </div>
@@ -634,52 +614,46 @@
       <div class="steplabel">Step 1</div>
       <h3>Store Overlap Information</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>OverlapVisualComponent.swift</code></div>
-      <p><code class="inline">OverlapVisualComponent</code> keeps the overlap key and the
-      mixed RGB color associated with the target. The key identifies which pair of spheres
-      produced the target.</p>
+      <p><code class="inline">OverlapVisualComponent</code> stores the overlap key and mixed RGB color associated with a target. The key lets the manager match the target to the same pair of spheres later.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-overlaptarget">
       <div class="steplabel">Step 2</div>
       <h3>Create the Overlap Target</h3>
-      <p>Create an invisible <code class="inline">ModelEntity</code> at the midpoint of the
-      overlapping spheres. It needs no visible mesh, and the same
-      <code class="inline">configureSphereForInteraction</code> function from Section 3
-      gives it input, collision, and manipulation — only the hit radius is smaller.</p>
+      <p>Create a mesh-free <code class="inline">ModelEntity</code> at the midpoint of the overlapping spheres. The target has no visible mesh, but <code class="inline">configureSphereForInteraction</code> gives it the input and collision components needed to make it grabbable, using a smaller collision radius to keep the interaction focused on the overlap.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-synctargets">
       <div class="steplabel">Step 3</div>
-      <h3>Remove Stale Targets</h3>
-      <p>Each time a sphere moves, compute the current overlaps and drop any target whose pair no longer overlaps.</p>
+      <h3>Remove Targets That No Longer Overlap</h3>
+      <p>Each time <code class="inline">updateOverlaps()</code> runs, recalculate the current overlaps from the spheres' positions. Remove targets for pairs that are no longer overlapping so the interaction state stays up to date.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-synctargetsadd">
       <div class="steplabel">Step 4</div>
-      <h3>Add and Move Targets</h3>
-      <p>For each current overlap, reuse the existing target or create one, then move it to the midpoint in the parent's coordinate space.</p>
+      <h3>Update the Overlap Targets</h3>
+      <p>For each current overlap, use its pair key to find an existing target. Reuse the target when the pair already exists; otherwise, create one. Update its position to the overlap midpoint.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-mixedsphere">
       <div class="steplabel">Step 5</div>
-      <h3>Create the Mixed Sphere</h3>
-      <p>When the user starts manipulating an overlap target, build a sphere with the mixed
-      color at the target's position and let it follow the drag. Once the gesture ends, the
-      target has done its job and is removed; the mixed sphere joins the movable collection.</p>
+      <h3>Define the Mixed Sphere</h3>
+      <p>Create <code class="inline">createMixedSphere(from:)</code> to create a new sphere using the overlap's mixed color and position.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-pullmixed">
       <div class="steplabel">Step 6</div>
-      <h3>Create a Mixed Sphere from a Target</h3>
-      <p>Add an <code class="inline">overlap</code> state. When a manipulation starts on a target, find its overlap, create the mixed sphere, and select it.</p>
+      <h3>Create the Mixed Sphere on Grab</h3>
+      <p>When the user grabs an overlap target, find its corresponding overlap, create the mixed sphere, and select it so it can follow the gesture.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-pullfollow">
       <div class="steplabel">Step 7</div>
-      <h3>Follow the Drag, Then Clean Up</h3>
-      <p>While the target is dragged, keep the mixed sphere at its position. When the gesture ends, remove the target. Targets are not rebuilt during the pull.</p>
+      <h3>Move the Mixed Sphere and Remove the Target</h3>
+      <p>While the target is being manipulated, keep the mixed sphere at the target's position. When the gesture ends, remove the target and leave the mixed sphere in the scene.</p>
       <div class="mobilecode"></div>
     </div>
+    <div class="checkpoint"><strong class="i18n" data-en="Checkpoint" data-ko="체크포인트">Checkpoint</strong><p class="i18n" data-en="Build and run. Grab the midpoint of two overlapping clones to pull out a new mixed-color sphere. Move the source spheres apart and verify that the corresponding overlap target disappears." data-ko="빌드하고 실행하세요. 겹친 두 복제본의 중간점을 잡아 새 혼합색 구를 꺼냅니다. 원래 구들을 떨어뜨렸을 때 해당 겹침 타깃이 사라지는지 확인합니다.">Build and run. Grab the midpoint of two overlapping clones to pull out a new mixed-color sphere. Move the source spheres apart and verify that the corresponding overlap target disappears.</p></div>
   </div>
   <div class="panel"><div class="panel-sticky">
     <div class="codewindow">
@@ -693,11 +667,8 @@
 <div class="chapter-head" id="s7">
   <div>
     <div class="kicker">Section 6 of 6</div>
-    <h2>Control Light with Your Right Hand</h2>
-    <p class="overview">Use ARKit hand tracking to adjust the selected sphere's light
-    intensity. With all five fingers extended, rotate your right wrist from palm-down to
-    palm-up. The sphere changes its emissive intensity and glow opacity while keeping the
-    same size.</p>
+    <h2>Adjust Sphere Brightness with Hand Tracking</h2>
+    <p class="overview">Use ARKit hand tracking to adjust the selected sphere's brightness. With all five fingers extended, rotate your right palm from facing down to facing up to brighten the sphere, then rotate it back down to dim it. The sphere's size stays unchanged.</p>
   </div>
   <div class="chapter-art"><div class="mini sphere r"></div></div>
 </div>
@@ -707,123 +678,120 @@
     <div class="step" data-code="c-lightcomponent">
       <div class="steplabel">Step 1</div>
       <h3>Store Light Intensity</h3>
-      <p><code class="inline">SphereLightComponent</code> stores brightness on each sphere.
-      The range is <code class="inline">0.0...2.4</code>, with
-      <code class="inline">1.2</code> as the initial value.</p>
+      <p><code class="inline">SphereLightComponent</code> stores the intensity used to control each sphere's brightness. This app uses a range of <code class="inline">0.0...2.4</code>, with <code class="inline">1.2</code> as the default.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-applylight">
       <div class="steplabel">Step 2</div>
       <h3>Apply Brightness to the Sphere</h3>
-      <p>Clamp the intensity, store it in the <code class="inline">SphereLightComponent</code>, and derive the base opacity and emissive intensity from the normalized value.</p>
+      <p>Clamp the intensity to the allowed range and store it in <code class="inline">SphereLightComponent</code>. Map the intensity to a <code class="inline">0...1</code> value, then use that value to update the sphere's opacity and emissive intensity.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-applymaterial">
       <div class="steplabel">Step 3</div>
       <h3>Update the Material</h3>
-      <p>Rebuild the sphere's <code class="inline">PhysicallyBasedMaterial</code> with the new base color, transparency, and emissive intensity, then assign it back.</p>
+      <p>Rebuild the sphere's <code class="inline">PhysicallyBasedMaterial</code> with the updated base color, transparency, and emissive intensity, then assign it back to the sphere.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-applyglow">
       <div class="steplabel">Step 4</div>
       <h3>Fade the Glow with the Sphere</h3>
-      <p>Find the glow by name and scale its opacity with the same normalized intensity, so brightness changes without changing the sphere's size. Then give every new sphere the default intensity.</p>
+      <p>Find the glow by name and update its opacity using the same <code class="inline">0...1</code> value. This keeps the glow in sync with the sphere's brightness without changing its size. Initialize each new sphere with the default intensity.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-dialstate">
       <div class="steplabel">Step 5</div>
       <h3>Create the Dial Controller</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>RightHandLightDialController.swift</code></div>
-      <p>The controller needs two closures: one that picks the sphere to control from the wrist position, and one that applies an intensity to it. Two smoothed values keep the light from jumping between frames.</p>
+      <p>Use two closures to choose the sphere to control and apply the calculated intensity. Store smoothed values so small changes in hand tracking do not cause sudden changes in brightness.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-dialinit">
       <div class="steplabel">Step 6</div>
-      <h3>Receive the Closures</h3>
-      <p>The initializer stores the two closures. The view provides them in a later step.</p>
+      <h3>Initialize the Light Controller</h3>
+      <p>Store the two closures in the initializer so the controller can choose a target sphere and apply an intensity without managing the sphere state itself.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-wristroll">
       <div class="steplabel">Step 7</div>
-      <h3>Process the Right Hand</h3>
-      <p>Process only tracked right-hand anchors. Sample the wrist, curve the brightness, and continue only when all five fingers are extended and a target exists.</p>
+      <h3>Read the Right Hand</h3>
+      <p>Process only tracked right-hand anchors. Read the wrist orientation and convert it into a brightness value. Continue only when all five fingers are extended and a target sphere is available.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-wristapply">
       <div class="steplabel">Step 8</div>
       <h3>Smooth and Apply the Intensity</h3>
-      <p>Ease the brightness toward the new sample, map it onto the intensity range, ease again, and apply the result to the target sphere.</p>
+      <p>Smooth the brightness toward the latest hand-tracking value to reduce small changes between frames. Map the smoothed <code class="inline">0...1</code> value to the sphere's intensity range, then apply it to the target sphere.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-wristsample">
       <div class="steplabel">Step 9</div>
-      <h3>Sample the Wrist Position</h3>
-      <p>Read the wrist joint from the hand skeleton and convert its transform to a world position. The palm direction and the finger check come next.</p>
+      <h3>Read the Wrist Joint</h3>
+      <p>A <code class="inline">HandAnchor</code> contains a hand skeleton with tracked joints such as the wrist and finger joints. Read the wrist joint and convert its transform to world space so the controller can use its position and orientation.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-palmnormal">
       <div class="steplabel">Step 10</div>
       <h3>Read the Palm Direction</h3>
-      <p>The wrist joint's Y axis points out of the palm. Its dot product with the up vector maps palm-down to 0 and palm-up to 1.</p>
+      <p>Use the wrist joint's local Y axis as the palm-facing direction. Compare it with the world up direction using a dot product. As the palm rotates from facing down to facing up, the resulting value moves from low to high.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-fingers">
       <div class="steplabel">Step 11</div>
       <h3>Check That the Hand Is Open</h3>
-      <p>A finger counts as extended when its tip is farther from the wrist than its middle joint. All five must be extended for the dial to respond.</p>
+      <p>A finger is considered extended when its fingertip is farther from the wrist than its middle joint. The dial responds only when all five fingers are extended.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-handtracking">
       <div class="steplabel">Step 12</div>
       <h3>Create the Hand Tracking Manager</h3>
       <div class="newfile">＋ <span class="newfile-label">New file:</span> <code>HandTrackingManager.swift</code></div>
-      <p>An <code class="inline">ARKitSession</code> runs a <code class="inline">HandTrackingProvider</code>. The manager keeps both, plus the dial controller it will feed.</p>
+      <p><code class="inline">ARKitSession</code> manages the ARKit session, while <code class="inline">HandTrackingProvider</code> supplies hand-tracking updates. <code class="inline">HandTrackingManager</code> manages both and passes the updates to the light controller.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-handstart">
       <div class="steplabel">Step 13</div>
       <h3>Start the Session</h3>
-      <p>Check that hand tracking is supported, ask the user for permission, then run the provider in the <code class="inline">ARKitSession</code>. <code class="inline">stop</code> tears it down.</p>
+      <p>Check whether hand tracking is supported, request the required authorization, and run the <code class="inline">HandTrackingProvider</code> in the <code class="inline">ARKitSession</code>. When hand tracking is no longer needed, call <code class="inline">stop()</code> to end the session.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-handanchors">
       <div class="steplabel">Step 14</div>
       <h3>Forward Hand Anchors</h3>
-      <p>Iterate the provider's anchor updates in a task and pass each tracked anchor to the dial controller.</p>
+      <p>Listen for anchor updates from the provider in an asynchronous task. Pass each tracked hand anchor to the light controller so it can update the sphere's brightness.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-lightselect">
       <div class="steplabel">Step 15</div>
-      <h3>Expose the Selected Sphere</h3>
-      <p>The manager already tracks the selected sphere. Expose it, and add a fallback that finds the movable sphere nearest to the wrist.</p>
+      <h3>Provide the Selected Sphere</h3>
+      <p>Return the sphere currently selected by the interaction manager. When no sphere is selected, use the movable sphere closest to the user's wrist.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-lightapply">
       <div class="steplabel">Step 16</div>
-      <h3>Select and Apply</h3>
-      <p>Two small wrappers let the dial select a sphere and apply an intensity through the manager.</p>
+      <h3>Connect the Light Controller to the Manager</h3>
+      <p>Add two methods that connect the hand controller to the interaction manager: one returns the sphere to control, and the other applies the calculated intensity.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-connectdial">
       <div class="steplabel">Step 17</div>
       <h3>Choose the Sphere to Control</h3>
-      <p>Give the view a <code class="inline">HandTrackingManager</code> and create the controller. The first closure prefers the selected sphere and falls back to the one closest to the wrist.</p>
+      <p>Create the <code class="inline">HandTrackingManager</code> and the <code class="inline">RightHandLightDialController</code> in <code class="inline">ImmersiveView</code>. When the controller asks which sphere to control, return the selected sphere when one exists. Otherwise, return the movable sphere closest to the wrist.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-connectlifecycle">
       <div class="steplabel">Step 18</div>
       <h3>Apply Intensity and Start Tracking</h3>
-      <p>The second closure applies each intensity through the manager. Connect the controller, start hand tracking when the view appears, and stop it when the view disappears.</p>
+      <p>Send the calculated intensity through the interaction manager. Connect the controller, start hand tracking when the immersive view appears, and stop it when the view disappears.</p>
       <div class="mobilecode"></div>
     </div>
     <div class="step" data-code="c-mixedlight">
       <div class="steplabel">Step 19</div>
       <h3>Give Mixed Spheres an Initial Brightness</h3>
-      <p>When two spheres create a mixed sphere, initialize its intensity with the average
-      of the two source values. This is a snapshot: later changes to either source do not
-      automatically change an already-created mixed sphere.</p>
+      <p>When a mixed sphere is created, it copies the average intensity of the two source spheres. Changes to the source spheres do not affect the mixed sphere after it is created.</p>
       <div class="mobilecode"></div>
     </div>
+    <div class="checkpoint"><strong class="i18n" data-en="Checkpoint" data-ko="체크포인트">Checkpoint</strong><p class="i18n" data-en="Build and run the app on Apple Vision Pro. Select a sphere and extend all five fingers on your right hand. Rotate your palm from facing down to facing up to brighten the sphere, then rotate it back down to dim it. The sphere and its glow should change brightness smoothly without changing size. Create a mixed sphere and verify that it starts with the average intensity of its two source spheres." data-ko="Apple Vision Pro에서 앱을 빌드하고 실행하세요. 구를 선택하고 오른손 다섯 손가락을 모두 폅니다. 손바닥을 아래에서 위로 돌리면 구가 밝아지고, 다시 아래로 돌리면 어두워집니다. 구와 글로우의 밝기가 크기 변화 없이 부드럽게 바뀌어야 합니다. 혼합색 구를 만들어 두 원래 구의 평균 세기로 시작하는지도 확인합니다.">Build and run the app on Apple Vision Pro. Select a sphere and extend all five fingers on your right hand. Rotate your palm from facing down to facing up to brighten the sphere, then rotate it back down to dim it. The sphere and its glow should change brightness smoothly without changing size. Create a mixed sphere and verify that it starts with the average intensity of its two source spheres.</p></div>
   </div>
   <div class="panel"><div class="panel-sticky">
     <div class="codewindow">
