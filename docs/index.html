@@ -70,6 +70,9 @@
   .goal { border-left: 3px solid var(--blue) !important; }
   .chapter-art { display: flex; justify-content: center; }
   .chapter-art .mini { width: 60px; height: 60px; border-radius: 50%; margin: 0 -8px; }
+  .chapter-art.media { display: block; }
+  .chapter-media { width: 100%; border-radius: 14px; border: 1px solid var(--border); display: block; }
+  .hero .chapter-media { margin: 2.2rem 0; }
 
   /* ── steps + sticky code panel ─────────────── */
   .steps-layout { max-width: 1250px; margin: 0 auto; padding: 1rem 1.4rem 3rem;
@@ -177,6 +180,7 @@
   @media (max-width: 900px) {
     .chapter-head { grid-template-columns: 1fr; gap: 1rem; }
     .chapter-art { display: none; }
+    .chapter-art.media { display: block; }
     .steps-layout { grid-template-columns: 1fr; }
     .panel { display: none; }
     .steps { padding: 0; }
@@ -207,9 +211,7 @@
   Bring two spheres together and you can pull a new mixed-color sphere, such as yellow,
   magenta, or cyan, out of the overlap. Finally, rotate your right wrist to adjust the
   brightness of a selected sphere.</p>
-  <div class="spheres">
-    <div class="sphere r"></div><div class="sphere g"></div><div class="sphere b"></div>
-  </div>
+  <video class="chapter-media" src="images/00-intro.mp4" autoplay muted loop playsinline aria-label="Moving and mixing RGB light spheres in an immersive space"></video>
   <div class="time"><div class="ring"></div><span><small>Estimated&nbsp;Time</small>25&nbsp;minutes</span></div>
   <div class="device-note i18n"
     data-en="&lt;strong&gt;Testing note&lt;/strong&gt; — You can build the project and inspect the immersive layout in the visionOS Simulator. For the intended direct hand interaction and spatial depth, run the finished experience on Apple Vision Pro."
@@ -228,9 +230,7 @@
     space, RealityKit creates a separate 3D environment where the RGB spheres will be
     placed and interacted with.</p>
   </div>
-  <div class="chapter-art">
-    <div class="mini sphere r"></div><div class="mini sphere g"></div><div class="mini sphere b"></div>
-  </div>
+  <div class="chapter-art media"><img class="chapter-media" src="images/s1-immersive-space.png" alt="A dark immersive space with a perspective grid"></div>
 </div>
 
 <div class="steps-layout">
@@ -309,7 +309,7 @@
     <code class="inline">ModelEntity</code> with a spherical mesh, a colored material, and
     an RGB color value.</p>
   </div>
-  <div class="chapter-art"><div class="mini sphere r"></div></div>
+  <div class="chapter-art media"><img class="chapter-media" src="images/s2-rgb-sphere.png" alt="A glowing red sphere on a black background"></div>
 </div>
 
 <div class="steps-layout">
@@ -422,7 +422,7 @@
     and event handling needed to make the spheres selectable and movable in the immersive
     space.</p>
   </div>
-  <div class="chapter-art"><div class="mini sphere b"></div></div>
+  <div class="chapter-art media"><video class="chapter-media" src="images/s3-interactive.mp4" autoplay muted loop playsinline aria-label="Picking up and moving an RGB sphere"></video></div>
 </div>
 
 <div class="steps-layout">
@@ -560,9 +560,7 @@
     Combining red and green produces yellow; red and blue produce magenta; when all three
     primary lights overlap, the result becomes white.</p>
   </div>
-  <div class="chapter-art">
-    <div class="mini sphere r"></div><div class="mini sphere g" style="margin-left:-28px"></div>
-  </div>
+  <div class="chapter-art media"><video class="chapter-media" src="images/s4-mix-colors.mp4" autoplay muted loop playsinline aria-label="Two light spheres mixing their colors"></video></div>
 </div>
 
 <div class="steps-layout">
@@ -627,9 +625,7 @@
     spheres overlap, so the user can interact with the mixed color without directly
     manipulating the original spheres.</p>
   </div>
-  <div class="chapter-art">
-    <div class="mini sphere g"></div><div class="mini sphere b" style="margin-left:-28px"></div>
-  </div>
+  <div class="chapter-art media"><video class="chapter-media" src="images/s5-overlap-target.mp4" autoplay muted loop playsinline aria-label="Pulling a mixed sphere out of two overlapping spheres"></video></div>
 </div>
 
 <div class="steps-layout">
