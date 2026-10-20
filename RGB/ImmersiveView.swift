@@ -12,12 +12,6 @@ struct ImmersiveView: View {
     @StateObject private var interactionManager = SphereInteractionManager()
     @StateObject private var handTrackingManager = HandTrackingManager()
 
-#if targetEnvironment(simulator)
-    @State private var debugLightColor: DebugLightColor = .red
-    @State private var debugLightIntensity =
-        Double(SphereLightComponent.defaultIntensity)
-#endif
-
     var body: some View {
         RealityView { content, attachments in
             // Register custom components before using them.
@@ -47,7 +41,11 @@ struct ImmersiveView: View {
 
             interactionManager.setOriginalSpheres([red, green, blue])
 
-            let lightDialController = LightDialController { worldPosition in
+            let lightDialController = RightHandLightDialController { worldPosition in
+                if let selectedSphere = interactionManager.selectedLightSphere() {
+                    return selectedSphere
+                }
+
                 guard let sphere = interactionManager.closestLightSphere(
                     to: worldPosition
                 ) else {
@@ -77,13 +75,6 @@ struct ImmersiveView: View {
                 headAnchor.addChild(clearButton)
             }
 
-#if targetEnvironment(simulator)
-            if let debugControls = attachments.entity(for: "lightDebugControls") {
-                debugControls.position = SIMD3<Float>(0.0, -0.58, -1.2)
-                headAnchor.addChild(debugControls)
-            }
-#endif
-
             content.add(headAnchor)
 
             // The manager handles RealityKit manipulation events.
@@ -100,52 +91,6 @@ struct ImmersiveView: View {
                 }
                 .buttonStyle(.borderedProminent)
             }
-
-#if targetEnvironment(simulator)
-            Attachment(id: "lightDebugControls") {
-                VStack(spacing: 12) {
-                    Picker("Sphere", selection: $debugLightColor) {
-                        ForEach(DebugLightColor.allCases) { color in
-                            Text(color.rawValue).tag(color)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-
-                    Slider(
-                        value: Binding(
-                            get: {
-                                Double(
-                                    interactionManager.selectedLightIntensity()
-                                        ?? Float(debugLightIntensity)
-                                )
-                            },
-                            set: { newValue in
-                                debugLightIntensity = newValue
-                                interactionManager
-                                    .setLightIntensityForSelectedSphere(
-                                    Float(newValue),
-                                    fallbackOriginalColor: debugLightColor.rgbColor
-                                )
-                            }
-                        ),
-                        in: 0...1
-                    )
-                }
-                .frame(width: 360)
-                .padding(16)
-                .glassBackgroundEffect()
-                .onChange(of: debugLightColor) { _, newValue in
-                    guard interactionManager.selectedLightSphere() == nil else {
-                        return
-                    }
-
-                    interactionManager.setLightIntensity(
-                        Float(debugLightIntensity),
-                        forOriginalColor: newValue.rgbColor
-                    )
-                }
-            }
-#endif
         }
         .task {
             await handTrackingManager.start()
@@ -155,29 +100,6 @@ struct ImmersiveView: View {
         }
     }
 }
-
-#if targetEnvironment(simulator)
-private enum DebugLightColor: String, CaseIterable, Identifiable {
-    case red = "Red"
-    case green = "Green"
-    case blue = "Blue"
-
-    var id: Self {
-        self
-    }
-
-    var rgbColor: RGBColor {
-        switch self {
-        case .red:
-            return .red
-        case .green:
-            return .green
-        case .blue:
-            return .blue
-        }
-    }
-}
-#endif
 
 #Preview {
     ImmersiveView()

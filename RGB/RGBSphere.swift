@@ -43,11 +43,16 @@ func applySphereLightIntensity(
 
     let color = sphere.components[RGBColorComponent.self]?.color.uiColor
         ?? .white
-    let emissiveIntensity = 1.0 + (clampedIntensity * 5.0)
+    let normalizedIntensity = clampedIntensity / SphereLightComponent.maximumIntensity
+    let visibleCoreValue = min(max(0.10 + normalizedIntensity * 0.90, 0), 1)
+    let visibleCore = CGFloat(visibleCoreValue)
+    let emissiveIntensity = 0.08 + pow(normalizedIntensity, 1.08) * 13.5
 
     if var material = sphere.model?.materials.first
         as? PhysicallyBasedMaterial {
-        material.emissiveColor = .init(color: color)
+        material.baseColor = .init(tint: color.withAlphaComponent(visibleCore))
+        material.blending = .transparent(opacity: .init(floatLiteral: Float(visibleCore)))
+        material.emissiveColor = .init(color: color.withAlphaComponent(visibleCore))
         material.emissiveIntensity = emissiveIntensity
         sphere.model?.materials = [material]
     }
@@ -57,7 +62,13 @@ func applySphereLightIntensity(
         return
     }
 
-    glow.scale = SIMD3<Float>(repeating: 0.9 + (clampedIntensity * 0.12))
+    glow.scale = SIMD3<Float>(repeating: 1.0)
+    if var glowMaterial = glow.model?.materials.first as? UnlitMaterial {
+        glowMaterial.blending = .transparent(
+            opacity: .init(floatLiteral: 0.08 + normalizedIntensity * 0.92)
+        )
+        glow.model?.materials = [glowMaterial]
+    }
 }
 
 // MARK: - RGB Sphere
