@@ -48,14 +48,11 @@ struct ImmersiveView: View {
             interactionManager.setOriginalSpheres([red, green, blue])
 
             let lightDialController = LightDialController { worldPosition in
-                guard let sphere = interactionManager.closestLightSphere(
+                interactionManager.closestLightSphere(
                     to: worldPosition
-                ) else {
-                    return nil
-                }
-
+                )
+            } targetSelector: { sphere in
                 interactionManager.selectLightSphere(sphere)
-                return sphere
             } intensityApplier: { sphere, intensity in
                 interactionManager.setLightIntensity(
                     intensity,
@@ -130,6 +127,11 @@ struct ImmersiveView: View {
                         ),
                         in: 0...1
                     )
+
+                    Text(handTrackingManager.debugStatus)
+                        .font(.caption)
+                        .lineLimit(6)
+                        .monospacedDigit()
                 }
                 .frame(width: 360)
                 .padding(16)
