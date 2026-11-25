@@ -126,6 +126,10 @@
   .codewindow pre.codebody > .code-line,
   .step .mobilecode pre > .code-line { display: block; min-width: max-content; margin: 0 -1.2rem;
     padding: 0 1.2rem; }
+  .codewindow pre.codebody, .step .mobilecode pre { counter-reset: line; }
+  .code-line::before { counter-increment: line; content: counter(line);
+    display: inline-block; width: 2.2em; margin-right: 1.1em; text-align: right;
+    color: #6e6e73; user-select: none; }
   .codewindow pre.codebody > .code-line.changed,
   .step .mobilecode pre > .code-line.changed {
     background-color: rgba(41,151,255,.13) !important;
@@ -6668,7 +6672,7 @@ final class SphereInteractionManager: ObservableObject {
         }
         var highlighted = highlight(raw);
         cache[cacheKey] = { name: tpl.dataset.name || "",
-          html: highlightChanges ? highlightChangedLines(highlighted, marks) : highlighted,
+          html: highlightChangedLines(highlighted, highlightChanges ? marks : null),
           hasChanges: highlightChanges && !!marks };
       }
     }
